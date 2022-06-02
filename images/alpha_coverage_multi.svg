@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="555" height="255" viewBox="0 0 555 255">
+  <defs>
+    <rect id="alpha_coverage_multi-a" width="251" height="251" x=".5" y=".5"/>
+  </defs>
+  <g fill="none" fill-rule="evenodd">
+    <g stroke="#000" stroke-opacity=".317" transform="translate(2 2)">
+      <path stroke-linecap="square" d="M50.5.5L50.5 250.5M100.5.5L100.5 250.5M150.5.5L150.5 250.5M200.5.5L200.5 250.5M225.5.5L225.5 250.5M25.5.5L25.5 250.5M75.5.5L75.5 250.5M125.5.5L125.5 250.5M175.5.5L175.5 250.5"/>
+      <path stroke-linecap="round" d="M.5 50.5L250.5 50.5M.5 25.5L250.5 25.5M.5 100.5L250.5 100.5M.5 150.5L250.5 150.5M.5 200.5L250.5 200.5M.5 75.5L250.5 75.5M.5 125.5L250.5 125.5M.5 175.5L250.5 175.5M.5 225.5L250.5 225.5"/>
+    </g>
+    <rect width="251" height="251" fill="#FF4343" transform="translate(302 2)"/>
+    <g transform="translate(2 2)">
+      <mask id="alpha_coverage_multi-b" fill="#fff">
+        <use xlink:href="#alpha_coverage_multi-a"/>
+      </mask>
+      <path stroke="#2968FF" stroke-linecap="round" stroke-width="6" d="M251 251L251 183.5M251 251L0 251M0 72.5L0 251" mask="url(#alpha_coverage_multi-b)"/>
+      <path stroke="#FF9143" stroke-linecap="square" stroke-width="6" d="M251 0L0 0M0 68.5L0 1" mask="url(#alpha_coverage_multi-b)"/>
+      <path stroke="#FF9143" stroke-linecap="round" stroke-width="6" d="M251,1 L251,179.5" mask="url(#alpha_coverage_multi-b)"/>
+      <path stroke="#FF9143" stroke-linecap="square" stroke-width="3" d="M0,68 L251,179" mask="url(#alpha_coverage_multi-b)"/>
+      <path stroke="#2968FF" stroke-linecap="square" stroke-width="3" d="M0,71 L251,182" mask="url(#alpha_coverage_multi-b)"/>
+    </g>
+    <g transform="translate(302 2)">
+      <g stroke="#000" stroke-opacity=".317">
+        <path stroke-linecap="square" d="M50.5.5L50.5 250.5M100.5.5L100.5 250.5M150.5.5L150.5 250.5M200.5.5L200.5 250.5M225.5.5L225.5 250.5M25.5.5L25.5 250.5M75.5.5L75.5 250.5M125.5.5L125.5 250.5M175.5.5L175.5 250.5"/>
+        <path stroke-linecap="round" d="M.5 50.5L250.5 50.5M.5 25.5L250.5 25.5M.5 100.5L250.5 100.5M.5 150.5L250.5 150.5M.5 200.5L250.5 200.5M.5 75.5L250.5 75.5M.5 125.5L250.5 125.5M.5 175.5L250.5 175.5M.5 225.5L250.5 225.5"/>
+      </g>
+      <rect width="251" height="251" stroke="#333" stroke-width="2"/>
+    </g>
+    <rect width="251" height="251" x="2" y="2" stroke="#333" stroke-width="2"/>
+  </g>
+</svg>

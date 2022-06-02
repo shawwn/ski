@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="555" height="255" viewBox="0 0 555 255">
+  <g fill="none" fill-rule="evenodd">
+    <g transform="translate(2 3)">
+      <rect width="251" height="50" fill="#FF4343"/>
+      <rect width="175" height="50" x="75" y="50" fill="#FF4343"/>
+      <rect width="125" height="25" x="125" y="100" fill="#FF4343"/>
+      <rect width="75" height="25" x="175" y="125" fill="#FF4343"/>
+      <rect width="25" height="25" x="225" y="150" fill="#FF5151"/>
+      <rect width="25" height="25" x="175" y="150" fill="#FFEAEA"/>
+      <rect width="25" height="25" x="200" y="150" fill="#FF9C9C"/>
+      <rect width="25" height="25" x="125" y="125" fill="#FFD4D4"/>
+      <rect width="25" height="25" x="150" y="125" fill="#FF8282"/>
+      <rect width="25" height="25" x="75" y="100" fill="#FBB"/>
+      <rect width="25" height="25" x="50" y="100" fill="#FFFBFB"/>
+      <rect width="25" height="25" x="100" y="100" fill="#FF6969"/>
+      <rect width="25" height="25" y="75" fill="#FFEAEA"/>
+      <rect width="25" height="25" x="25" y="75" fill="#FFA2A2"/>
+      <rect width="75" height="25" y="50" fill="#FF4343"/>
+      <rect width="25" height="25" x="50" y="75" fill="#F55"/>
+    </g>
+    <g transform="translate(2 2)">
+      <g stroke="#000" stroke-opacity=".317">
+        <path stroke-linecap="square" d="M50.5.5L50.5 250.5M100.5.5L100.5 250.5M150.5.5L150.5 250.5M200.5.5L200.5 250.5M225.5.5L225.5 250.5M25.5.5L25.5 250.5M75.5.5L75.5 250.5M125.5.5L125.5 250.5M175.5.5L175.5 250.5"/>
+        <path stroke-linecap="round" d="M.5 50.5L250.5 50.5M.5 25.5L250.5 25.5M.5 100.5L250.5 100.5M.5 150.5L250.5 150.5M.5 200.5L250.5 200.5M.5 75.5L250.5 75.5M.5 125.5L250.5 125.5M.5 175.5L250.5 175.5M.5 225.5L250.5 225.5"/>
+      </g>
+      <rect width="251" height="251" stroke="#333" stroke-width="2"/>
+    </g>
+    <g transform="rotate(-180 276.5 126)">
+      <rect width="251" height="251" fill="#FF4343"/>
+      <rect width="25" height="25" x="226" y="150" fill="#FF5252"/>
+      <rect width="25" height="25" x="201" y="150" fill="#FF7272"/>
+      <rect width="25" height="25" x="176" y="150" fill="#FF5454"/>
+      <rect width="25" height="25" x="151" y="125" fill="#FF7070"/>
+      <rect width="25" height="25" x="126" y="125" fill="#FF6262"/>
+      <rect width="25" height="25" x="101" y="100" fill="#FF6565"/>
+      <rect width="25" height="25" x="76" y="100" fill="#FF6D6D"/>
+      <rect width="25" height="25" x="51" y="75" fill="#FF5656"/>
+      <rect width="25" height="25" x="26" y="75" fill="#FF7373"/>
+      <rect width="25" height="25" x="1" y="75" fill="#FF5050"/>
+    </g>
+    <g stroke="#000" stroke-opacity=".317" transform="translate(302 2)">
+      <path stroke-linecap="square" d="M50.5.5L50.5 250.5M100.5.5L100.5 250.5M150.5.5L150.5 250.5M200.5.5L200.5 250.5M225.5.5L225.5 250.5M25.5.5L25.5 250.5M75.5.5L75.5 250.5M125.5.5L125.5 250.5M175.5.5L175.5 250.5"/>
+      <path stroke-linecap="round" d="M.5 50.5L250.5 50.5M.5 25.5L250.5 25.5M.5 100.5L250.5 100.5M.5 150.5L250.5 150.5M.5 200.5L250.5 200.5M.5 75.5L250.5 75.5M.5 125.5L250.5 125.5M.5 175.5L250.5 175.5M.5 225.5L250.5 225.5"/>
+    </g>
+    <rect width="251" height="251" stroke="#333" stroke-width="2" transform="translate(302 2)"/>
+  </g>
+</svg>

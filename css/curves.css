@@ -1,0 +1,508 @@
+
+.undo_button_offset {
+    bottom: calc(20% + 13px);
+}
+
+.undo_button_offset2 {
+    bottom: calc(30% + 15px);
+}
+
+
+
+.cs_yellow_bg {
+    background-color: #EBBC3F;
+}
+
+.cs_gray_bg {
+    background-color: #D2D2D2;
+}
+
+.cs_blue_bg {
+    background-color: #8ebde4;
+}
+
+.equation table {
+    margin: 0 auto;
+    font-size: 1em;
+    line-height: 1.8em;
+}
+
+.text_yellow {
+    color: #E2AD22;
+}
+
+.text_blue {
+    color: #4797D9;
+}
+
+.text_ocean {
+    color: #0979AC;
+}
+
+.text_red {
+    color: #E92525;
+}
+.text_green {
+    color: #54B224;
+}
+
+
+.text_purple {
+    color: #985FDE;
+}
+
+.text_black {
+    color: #000;
+}
+
+.text_gray {
+    color: #999;
+}
+
+.dashed {
+    background-image: linear-gradient(to right, rgba(51, 51, 51, 1) 60%, rgba(51, 51, 51, 0) 0%);
+    background-position: 0px 1.15em;
+    background-size: 8px 1.5px;
+    background-repeat: repeat-x;
+}
+
+.slider_red .slider_left_gutter, .slider_red .slider_right_gutter, .slider_red .slider_knob {
+    background: #E92525;
+}
+
+.slider_t .slider_left_gutter, .slider_t .slider_right_gutter, .slider_t .slider_knob {
+    background: #6eaee2;
+}
+
+.slider_s .slider_left_gutter, .slider_s .slider_right_gutter, .slider_s .slider_knob {
+    background: #EBBC3F;
+}
+
+.slider_purple .slider_left_gutter, .slider_purple .slider_right_gutter, .slider_purple .slider_knob {
+    background: rgb(152, 95, 222);
+}
+
+.slider_black .slider_left_gutter, .slider_black .slider_right_gutter, .slider_black .slider_knob {
+    background: #222;
+}
+
+.slider_ocean .slider_left_gutter, .slider_ocean .slider_right_gutter, .slider_ocean .slider_knob {
+    background: #0979AC;
+}
+
+.linear_segment_coords {
+    display: inline;
+    background-color: #ccc;
+    border-radius: 0.3em;
+    position: relative;
+    display: block;
+    margin-top: 1em;
+    padding: 0.1em 0.2em 1em 0.2em;
+    line-height: 1em;
+}
+
+.linear_segment_coords_badge {
+    position: absolute;
+    /* background-color: blue; */
+    width: 100%;
+    margin: 0;
+    left: 0.1em;
+    bottom: 0;
+    line-height: 1.5em;
+    font-size: 0.6em;
+    margin-top: 3em;
+    color: #777;
+}
+
+#cs_point_coords_equation {
+    padding-top: 0;
+}
+
+/* .equation tr div {
+    margin-top: 0.25em;
+}
+
+.equation>div {
+    margin-top: 0.25em;
+} */
+
+.equation_inline {
+    font-weight: 500;
+    font-size: 1em;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.t, .nt, .s, .ns {
+    display: inline-block;
+    margin-bottom: -0.4em;
+    position: relative;
+    padding: 0.0em 0.2em;
+    border-radius: 0.3em;
+    line-height: 1.6em;
+    width: 4em;
+    /* height: 1.4em; */
+    overflow: hidden;
+    /* margin-right: 0.1em; */
+}
+
+.t, .nt {
+    background-color: #83b7e2;
+}
+
+.s, .ns {
+    background-color: #EBBC3F;
+}
+
+.triangle::after {
+    width: 0;
+    height: 0;
+    display: inline-block;
+    content: "";
+    /* position: absolute; */
+}
+
+.triangle {
+    width: 1.2em;
+    height: 100%;
+    background-color: rgba(248, 248, 248, 0.4);
+    display: inline-block;
+    position: relative;
+}
+
+.t.small, .nt.small, .s.small, .ns.small {
+    padding: 0.0em 0.2em;
+    border-radius: 0.3em;
+    /* line-height: 1.6em; */
+    width: 0.8em;
+}
+
+.small .triangle {
+    background-color: transparent;
+}
+
+.text {
+    display: inline-block;
+    text-align: center;
+    width: 3.2em;
+    /* width: 100%; */
+    /* height: 100%; */
+    /* line-height: 1.6em; */
+    margin-left: -0.1em;
+}
+
+.nt>.triangle::after, .ns>.triangle::after {
+    border-bottom: 0.6em solid rgba(0, 0, 0, 0.6);
+    border-right: 0.6em solid transparent;
+    margin-left: -0.1em;
+}
+
+.t>.triangle::after, .s>.triangle::after {
+    border-bottom: 0.6em solid rgba(0, 0, 0, 0.6);
+    border-left: 0.6em solid transparent;
+    margin-left: -0.2em;
+}
+
+.t.small>.triangle::after, .s.small>.triangle::after {
+    margin-left: -0.4em;
+}
+
+.nt.small>.triangle::after, .ns.small>.triangle::after {
+    margin-left: -0.3em;
+}
+
+.control_point {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: white;
+    border: 2px solid black;
+    display: inline-block;
+    margin: 0em 0.1em 0.04em 0.1em;
+}
+
+.knot {
+    width: 0;
+    height: 0;
+    border-left: 0.2em solid transparent;
+    border-right: 0.2em solid transparent;
+    border-bottom: 0.5em solid #0979AC;
+    margin-bottom: 0.1em;
+    display: inline-block;
+}
+
+.marker_point {
+    background-color: black;
+    width: 0.8em;
+    height: 0.8em;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+#cc_list li:nth-child(1) {
+    color: #E92525;
+}
+
+#cc_list li:nth-child(2) {
+    color: #4797D9;
+}
+
+#cc_list li:nth-child(3) {
+    color: #E2AD22;
+}
+
+#cc_list li>span {
+    color: #333;
+}
+
+.equation td {
+    padding: 0 0.1em;
+}
+
+td.no_left_pad {
+    padding-left: 0;
+}
+
+td.no_right_pad {
+    padding-right: 0;
+}
+
+.equation_lhs {
+    text-align: right;
+}
+
+.equation_center {
+    text-align: center;
+}
+
+.equation_right {
+    text-align: right;
+}
+
+.drawer_container {
+    max-width: 500px;
+}
+
+.full_width {
+    max-width: 100%;
+}
+
+.rounded_bg {
+    padding: 0.2em 0.3em;
+    border-radius: 0.3em;
+}
+
+.cs_outer_rounded_bg {
+    padding: 0.3em 0.3em;
+    border-radius: 0.6em;
+}
+
+#cs_continuities_seg0 {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+#cs_spiral {
+    max-width: 400px;
+}
+
+#cs_linear_patch_hats2 {
+    max-width: 560px;
+}
+
+/* .drawer_container:after {
+    padding-top: 100%;
+    }
+     */
+
+/* #cs_square_sl1 {
+         height: 100%;
+     } */
+
+#square_container {
+    max-width: 400px;
+    position: relative;
+}
+
+#cs_square {
+    display: inline-block;
+    left: 50px;
+    top: 0;
+    position: absolute;
+    width: calc(100% - 50px);
+    margin: 0;
+}
+
+#cs_square_square {
+    width: 50px;
+    height: 50px;
+    left: 0;
+    bottom: 0;
+    position: absolute;
+    /* display: inline-block; */
+}
+
+#cs_square_sl0 {
+    margin: 0 10px;
+    height: 50px;
+    width: calc(100% - 70px);
+    position: absolute;
+    left: 50px;
+    bottom: -25px;
+    /* display: inline-block; */
+}
+
+#cs_square_sl1 {
+    margin: 10px 0;
+    width: 50px;
+    height: calc(100% - 70px);
+    position: absolute;
+    top: 0;
+    left: 25px;
+    /* display: inline-block; */
+}
+
+.st_table {
+    width: 100%;
+    height: 100%;
+    max-width: 400px;
+    max-height: 400px;
+    table-layout: fixed;
+    display: block;
+}
+
+#cs_square_sl1 .slider_container {
+    margin: auto 0;
+    padding: 0 25px 0 25px;
+    height: 90%;
+    max-height: 380px;
+}
+
+#cs_square_sl1 .slider_left_gutter, #cs_square_sl1 .slider_right_gutter {
+    position: absolute;
+    width: 4px;
+    left: 18px;
+    border-radius: 2px;
+}
+
+#cs_square_sl1 .slider_knob {
+    cursor: ns-resize;
+}
+
+#cs_square_sl1 .slider_left_gutter, #cs_square_sl1 .slider_right_gutter {
+    left: -2px;
+}
+
+.ts_space_list_wrap {
+    text-align: center;
+    padding: 1.5em 0;
+}
+
+.ts_space_list {
+    display: inline-block;
+    position: relative;
+    text-align: left;
+}
+
+.ts_space {
+    vertical-align: middle;
+    display: inline-block;
+    background: rgba(0, 0, 0, 0.1);
+    width: 2em;
+    text-align: center;
+    top: 1em;
+    margin: 0 0.6em;
+    border-radius: 0.3em;
+    padding: 0.25em 0.15em;
+    height: 100%;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.ts_space_list_item {
+    display: inline-block;
+    font-size: 1.3em;
+    padding: 0.5em 0.2em;
+}
+
+
+@media only screen and (max-width: 700px) {
+
+
+    .equation {
+        font-size: 1.4em;
+    } 
+    #cs_point_coords_equation {
+        font-size: 1.2em;
+    }
+
+}
+
+@media only screen and (max-width: 600px) {
+
+    .equation {
+        font-size: 1.3em;
+    } 
+    #cs_point_coords_equation {
+        font-size: 1.1em;
+    }
+    .equation_inline {
+        font-size: 0.9em;
+        line-height: 1.5em;
+    }
+
+}
+
+
+
+@media only screen and (max-width: 520px) {
+
+    .equation_inline {
+        font-size: 0.9em;
+        line-height: 1.4em;
+    }
+
+    .equation {
+        font-size: 1.1em;
+    }
+    #cs_point_coords_equation {
+        font-size: 1em;
+    }
+
+    .t, .nt, .s, .ns {
+        padding: 0.0em 0.1em;
+    }
+}
+
+
+@media only screen and (max-width: 420px) {
+
+    .equation_inline {
+        font-size: 0.8em;
+    }
+
+    .equation {
+        font-size: 1em;
+    }
+    #cs_point_coords_equation {
+        font-size: 0.9em;
+    }
+
+}
+
+
+@media only screen and (max-width: 380px) {
+
+    .equation_inline {
+        font-size: 0.7em;
+    }
+    
+    .equation {
+        font-size: 0.9em;
+    }
+
+    #cs_point_coords_equation {
+        font-size: 0.8em;
+    }
+
+}

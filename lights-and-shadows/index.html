@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2052BB">
+<meta name="author" content="Bartosz Ciechanowski">
+<meta name="format-detection" content="telephone=no">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-25335284-3"></script>
+
+
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-25335284-3');
+</script>
+  <meta property="og:title" content="Lights and Shadows – Bartosz Ciechanowski" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ciechanow.ski/lights-and-shadows/" />
+<meta property="og:description" content="Interactive article explaining how lights and shadows behave." />
+<meta property="og:image" content="https://ciechanow.ski/images/og/light.jpg" />
+<meta name="twitter:title" content="Lights and Shadows – Bartosz Ciechanowski" />
+<meta name="twitter:site" content="@BCiechanowski" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://ciechanow.ski/images/og/light.jpg" />
+<meta property="og:locale" content="en_US">
+    <meta name="keywords" content="radiance,irradiance,matte,steradian,diffuse,lambertian,brdf">
+  <link href="../css/base.css" rel="stylesheet" type="text/css"/>
+<link href="https://fonts.googleapis.com/css?family=Lato:700&display=swap" rel="stylesheet" type="text/css" async>
+<link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,400i,500&display=swap" rel="stylesheet" async>
+  <title>Lights and Shadows – Bartosz Ciechanowski</title>
+  <link rel="icon" href="../favicon.ico">
+  <link href="../css/light.css" rel="stylesheet" type="text/css" />
+  <script defer src="../js/base.js"></script>
+  <script defer src="../js/light.js"></script>
+</head>
+
+<body>
+  <div id="main_container">
+    <div id="body">
+      <div id="banner">
+    <div id="banner_wrapper">
+        <div id="banner_content">
+            <div id="site_title">
+                <a href="../index.html">Bartosz Ciechanowski</a>
+            </div>
+            <div id="navigation">
+                <a href="../index.html">Blog</a>
+                <a href="../archives.html">Archives</a>
+            </div>
+            <div id="social">
+                <a class="patreon" href="https://www.patreon.com/ciechanowski" title="Patreon"><div class="patreonLogo">Patreon</div></a>
+                <a class="twitter" href="https://twitter.com/bciechanowski" title="Twitter"><div class="twitterLogo">Twitter</div></a>
+                <a class="instagram" href="https://www.instagram.com/bartoszciechanowski/" title="Instagram"><div class="igLogo">Instagram</div></a>
+                <a class="email" href="mailto:bartosz@ciechanow.ski" title="e-mail"><div class="emailLogo">e-mail</div></a>
+                <a class="rss" href="../atom.xml" title="rss"><div class="rssLogo">rss</div></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+      <div id="content">
+        
+<div class="article">
+    <div class="post_date">July 1, 2020</div>
+    <h1 class="post_title"><a href="index.html">Lights and Shadows</a></h1><p>It&rsquo;s hard to describe how paramount light is. Ultimately, it is the only thing we see. But just as important the presence of light is, so is its absence. To talk about light we have to start in darkness so let&rsquo;s jump straight into it.</p>
+<br>
+<br>
+<br>
+<div class="dark_light_bg_grad_top"></div>
+<div class="dark_light_bg" >
+    <div class="bg_content">
+        
+<br>
+<br>
+<br>
+<p>Light is a visible portion of <a href="https://en.wikipedia.org/wiki/Electromagnetic_radiation">electromagnetic radiation</a>, but in this article I&rsquo;m not going to discuss any of the underlying details like <a href="https://en.wikipedia.org/wiki/Wave%E2%80%93particle_duality">wave-particle duality</a>. Instead, I&rsquo;ll try to explain how light creates so many beautiful effects seen in everyday life. In the demonstration below you can use the sliders to control the position and size of a rectangular light source. You can also drag around the scene to see it from different angles:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_shadow2"></div></div>
+<div id="lns_shadow2_rot_x_slider_container"></div>
+<div class="lns_size" id="lns_shadow2_rot_y_slider_container"></div>
+<p>By the end of this article the effects of light in this demonstration should become more clear, but before we get there we have to take a few steps back and start with a much simpler setup.</p>
+<h1 id="power">Power<a href="index.html#power" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Let&rsquo;s begin by introducing a single spherical light source. While this ball of light is not very exciting, you can at least control its brightness with the slider below:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_power_plain"></div></div>
+<div id="lns_power_plain_slider_container"></div>
+<p>What this slider actually regulates is the <em>power</em> of the light source – the amount of energy emitted from it per second. That energy comes out in a form of <a href="https://en.wikipedia.org/wiki/Photon">photons</a> which we can crudely represent with rays of light coming out of the source. The higher the power the more rays emitted from the source in a unit of time:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_power_rays"></div></div>
+<div id="lns_power_rays_slider_container"></div>
+<p>Unfortunately, this demonstration is quite limited. The number of photons per second emitted by even a simple light bulb is absolutely enormous and there is no fixed set of directions in which they travel. Having said that, the ray analogy will be useful for explaining quite a few phenomena, so despite its flaws, it will serve us as a valuable tool.</p>
+<p>The power of a light source is measured using the unit of watts <strong>W</strong>. Let&rsquo;s see how we perceive the brightness of some source depending on its power:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_power"></div></div>
+<div id="lns_power_slider_container"></div>
+<p>Notice that relative change in the perceived brightness strongly depends on the position of the slider. A change from <a href="index.html#" class="link_button" onclick="lns_power_10();return false;">5 W</a> to <a href="index.html#" class="link_button" onclick="lns_power_20();return false;">10 W</a> is much more perceptible than a change from <a href="index.html#" class="link_button" onclick="lns_power_80();return false;">85 W</a> to <a href="index.html#" class="link_button" onclick="lns_power_90();return false;">90 W</a>. The human visual system has a non-linear response to the power of the incoming light, so a fixed increase in power will not have a fixed increase in perceived brightness.</p>
+<p>Additionally, the brightness of the light itself quickly <a href="index.html#" class="link_button" onclick="lns_sat_power();return false;"> saturates to pure white</a>. We hit the limit of what&rsquo;s easily presentable with web technologies. There are <a href="https://en.wikipedia.org/wiki/Tone_mapping">ways</a> to mitigate that problem, but in this article I want to present unmodified levels of brightness as this makes relative comparisons possible.</p>
+<p>Despite the white saturation, once we put a matte surface next to a bright light we can easily observe the <em>effects</em> of the increased power. You can drag around the demo to see the scene from a different point of view:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_power_surf"></div></div>
+<div id="lns_power_surf_slider_container"></div>
+<p>While on its own the surface doesn&rsquo;t emit any light, it <em>reflects</em> the light emitted from the source. Some part of that reflected light goes straight to our eyes allowing us to see the object. Naturally, the other side of the surface is pitch black – no light gets to it since it&rsquo;s blocked by the front side.</p>
+<p>It may seem trivial to mention these concepts, but reflected and blocked light will end up defining almost everything I&rsquo;ll discuss in this article.</p>
+<h1 id="position">Position<a href="index.html#position" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>If you looked closely at the previous simulation you may have noticed that the surface wasn&rsquo;t uniformly lit. Let&rsquo;s investigate that variation in shading by moving the light around. In the demonstration below you can control its <a href="https://en.wikipedia.org/wiki/Horizontal_coordinate_system">altitude angle</a> and distance:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_cosine_flat"></div></div>
+<div class="lns_altitude" id="lns_cosine_flat_alt_slider_container"></div>
+<div class="lns_distance" id="lns_cosine_flat_dist_slider_container"></div>
+<p>Even with this simple example we can observe that both the angle at which the light is positioned and its distance to the lit object have an impact on the way that matte surface looks. We can try to understand what&rsquo;s going on by visualizing the rays emitted by the source. To make things easier to see, only the rays that hit the surface are drawn with full length:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_ray_flat"></div></div>
+<div class="lns_altitude" id="lns_ray_flat_alt_slider_container"></div>
+<div class="lns_distance" id="lns_ray_flat_dist_slider_container"></div>
+<p>Changing the position of the light changes the numbers of rays hitting the surface which affects how the surface looks. Notice that different parts of the surface get different number of rays, so let&rsquo;s isolate a small area and look at it up close.</p>
+<p>First, let&rsquo;s analyze the impact of altitude angle. In the simulation below a red dot terminates a ray that used to hit the tiny patch in the perpendicular case, but it no longer does so after tilting:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_cosine"></div></div>
+<div class="lns_altitude" id="lns_cosine_slider_container"></div>
+<p><span id="cosine_factor">As</span> soon as the light source slants away from the perpendicular direction some of the rays that used to hit the patch no longer do. We can see this situation even better from a side view. The <span class="lns_blue">blue arrow</span> shows the surface normal. Similarly to the <a href="../gears/index.html#tangent-normal">two dimensional</a> case, a normal direction in three dimensions is locally perpendicular to the surface. The <span class="lns_yellow">yellow arrow</span> points towards the light source:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_cosine_side"></div></div>
+<div class="lns_altitude" id="lns_cosine_side_slider_container"></div>
+<p>As the angle increases, a smaller portion of the original stream of light hits the surface. With the power of the source <strong>P</strong>, the received power <em>per unit area</em> <strong>E</strong> known as <a href="https://en.wikipedia.org/wiki/Irradiance"><em>irradiance</em></a> that hits the tiny patch of the surface with area <strong>A</strong> is proportional to the <em>cosine</em> of the angle of incidence <strong>α</strong> between the to-light direction and the patch&rsquo;s normal vector:</p>
+<div class="lns_equation">
+<span class="lns_frac_lhs">E</span> = <span class="lns_frac"><span>P &middot; cos(&alpha;)</span>
+    <span class="lns_div_symbol">/</span>
+    <span class="lns_div_bottom">A</span>
+</span>
+</div>
+<p>For a flat matte surface with small but distant light source the shading results from this <em>cosine factor</em> aren&rsquo;t particularly exciting, because every point of the surface looks almost the same. However, when every element of the surface has a different angle of incidence, like in the case of a sphere, the shading of a matte surface can look quite pretty. In the example below the <span class="lns_yellow">yellow arrow</span> shows the direction towards a distant light source:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_cosine_sphere"></div></div>
+<p>With the cosine factor covered we can now analyze how the <em>distance</em> to the light source affects the distribution of rays. Yet again, red dots show the intersections of rays that used to hit the patch, but due to increased distance of the light they no longer do so:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_distance"></div></div>
+<div class="lns_distance" id="lns_distance_slider_container"></div>
+<p>The further away the light the fewer photons hit the patch of the surface. For a tiny light source like that we can quantify this relation using geometrical reasoning. In the demonstration below you can witness the rays of light emitted from a small light source in <em>all</em> directions. That source is surrounded by a sphere – you can control its radius with a slider:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_inv_square"></div></div>
+<div id="lns_inv_square_slider_container"></div>
+<p>Notice, that when the radius of the sphere increases, the density of the yellow intersection points <em>decreases</em>. While the number of rays is constant, the total area of the surface increases and the local intensity of light is more diluted. The area of a sphere is proportional to the square of its radius <strong>r</strong>:</p>
+<div class="lns_equation">
+A = 4&pi;r<sup>2</sup>
+</div>
+<p>As such, received power per unit area <strong>E</strong>, is, with fixed power, proportional to the <em>inverse</em> of the square of the distance <strong>r</strong>:</p>
+<div class="lns_equation">
+<span class="lns_frac_lhs">E</span> = <span class="lns_frac"><span>P</span>
+    <span class="lns_div_symbol">/</span>
+    <span class="lns_div_bottom">A</span>
+</span> ~ <span class="lns_frac"><span>1</span>
+    <span class="lns_div_symbol">/</span>
+    <span class="lns_div_bottom">r<sup>2</sup></span>
+</span>
+</div>
+<p>This rule is known as the <a href="https://en.wikipedia.org/wiki/Inverse-square_law">inverse square law</a> and it holds <em>accurately</em> only for infinitely small light sources, which don&rsquo;t exist in the physical world. As a result, that simplifying assumption won&rsquo;t let us explain the variety of shading obtained by even a simple rectangular light source:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_area"></div></div>
+<div class="lns_altitude" id="lns_area_rot_y_slider_container"></div>
+<div class="lns_distance" id="lns_area_rot_x_slider_container"></div>
+<p>To understand what&rsquo;s going on here we need to change pace a little and discuss angles and fields of views.</p>
+<h1 id="angles">Angles<a href="index.html#angles" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>If you&rsquo;ve ever looked at a car that was driving away you&rsquo;ve likely noticed that it seemed smaller as it moved away. In the demonstration below we can recreate this situation by controlling the car&rsquo;s position. The upper part shows the top-down view of that scene, while the lower part shows how it would appear to your eyes if you were standing on the red dot:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_car"></div></div>
+<div id="lns_car_slider_container"></div>
+<p>The gray circle around the red dot symbolizes a full surrounding field of view. As the car moves away the angle it <em>subtends</em> in that field of view, as shown by the yellow arc, gets smaller and for this reason the car <em>appears</em> smaller.</p>
+<h1 id="radians">Radians<a href="index.html#radians" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>The car simulation displayed the angle using the unit of degrees, but observe that the length of the <span class="lns_yellow">yellow arc</span> also gets smaller as the angle gets smaller. In math it&rsquo;s very common to measure angles as the ratio of the arc&rsquo;s length to the radius of the circle on which that arc is spanned:</p>
+<div class="lns_equation">
+<span class="lns_frac_lhs">angle</span> = <span class="lns_frac"><span>arc length</span>
+    <span class="lns_div_symbol">/</span>
+    <span class="lns_div_bottom">radius</span>
+</span>
+</div>
+<p>That measure of an angle is expressed in <a href="https://en.wikipedia.org/wiki/Radian">radians</a>. You can see how degrees and radians relate to each other in the demonstration below:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_radian"></div></div>
+<div class="lns_altitude" id="lns_radian_slider_container"></div>
+<p>When an angle measures <a href="index.html#" class="link_button" onclick="lns_1_rad();return false;">1 radian</a>, the length of the <span class="lns_yellow">yellow arc</span> is equal to the length of the <span style="color:#3D75D7">blue radius</span>. A circle&rsquo;s circumference is equal to 2π times the radius so <em>half</em> a full turn measures just <a href="index.html#" class="link_button" onclick="lns_pi_rad();return false;">π radians</a>.</p>
+<p>Similarly to degrees, the measure of angles in radians is completely agnostic to the circle&rsquo;s radius. The <em>ratio</em> of a circle&rsquo;s circumference to its radius is always equal to 2π and the ratio of arc&rsquo;s length to the arc&rsquo;s radius is just some fraction of that 2π.</p>
+<p>As a final consideration in this section let&rsquo;s investigate what happens to the subtended angle, and thus the arc length, when the object is already small in the field of view and it moves away from the observer:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_angle_small"></div></div>
+<div class="lns_distance" id="lns_angle_small_slider_container"></div>
+<p>Notice that the <span class="lns_yellow">yellow arc</span> is very flat and in this scenario when the object moves twice as far, the angle it subtends gets pretty much twice as small. This follows from a basic proportion of similar triangles when we think of the arc as a straight segment. That approximation becomes more accurate as the arc gets shorter since the curvature becomes even more negligible.</p>
+<h1 id="solid-angles">Solid Angles<a href="index.html#solid-angles" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>In the car example I&rsquo;ve conveniently focused only on the perceived width of the car, but you&rsquo;ve probably noticed that the distant vehicle seems to get shorter too. Human vision isn&rsquo;t just limited to horizontal direction, so let&rsquo;s try to model our field of view by extending the example into the third dimension. This time, to spare myself a 3D modeling exercise, I&rsquo;ll use a simple rectangle:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_steradian"></div></div>
+<div id="lns_steradian_slider_container"></div>
+<p>Notice that as the rectangle moves away, the projected <em>area</em> on the sphere gets smaller. This completes the explanation of why objects seem smaller when they are distant – they simply occupy a smaller part of our visual field.</p>
+<p>In two dimensions we defined an angle as a ratio of the length of an arc of a circle to that circle&rsquo;s radius. In three dimensions we similarly define a <a href="https://en.wikipedia.org/wiki/Solid_angle"><em>solid angle</em></a> to be the ratio of the <em>area</em> of a subtended patch on a sphere to that sphere&rsquo;s radius squared:</p>
+<div class="lns_equation">
+<span class="lns_frac_lhs">solid angle</span> = <span class="lns_frac"><span>patch area</span>
+    <span class="lns_div_symbol">/</span>
+    <span class="lns_div_bottom">radius<sup>2</sup></span>
+</span>
+</div>
+<p>The shape of the patch can be completely arbitrary, all that matters is its area. In the demonstration below you can see some solid angles which are measured in <em>steradians</em>. I highlighted the cone reaching the patch to make things more visible, but ultimately it&rsquo;s just the <span class="lns_yellow">yellow area</span> that defines the solid angle:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_steradian_sphere"></div></div>
+<div id="lns_steradian_sphere_slider_container"></div>
+<p>Since the area of the sphere is 4π times the radius squared the maximum solid angle is <a href="index.html#" class="link_button" onclick="lns_4pi_sterad();return false;">4π steradians</a>. Note that both radian and steradian are dimensionless, we just give them convenient names to recognize that we are talking about angles.</p>
+<p><span id="inverse_square">On</span> a final note, let&rsquo;s look what happens to a small solid angle as the object moves away:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_steradian2"></div></div>
+<div id="lns_steradian2_slider_container"></div>
+<p>When the projection of the rectangle is small enough the curved patch on the hemisphere can be approximated with a flat piece. Since both the projected width and height are inversely proportional to the distance, the <em>area</em> of the patch shrinks with a <em>square</em> of the distance, in some sense recreating the inverse square law from the point of view of the observer.</p>
+<h1 id="surface-vision">Surface Vision<a href="index.html#surface-vision" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Let&rsquo;s try to map the concepts of fields of views and solid angles to the surface from the previous scene. Here it is again:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_area2"></div></div>
+<div class="lns_altitude" id="lns_area2_rot_y_slider_container"></div>
+<div class="lns_distance" id="lns_area2_rot_x_slider_container"></div>
+<p>Every point of the surface is exposed to its environment, but a point can only see its surroundings through a <em>hemisphere</em> centered around it. The other half of the sphere is just blocked by the surface itself – no light can arrive from under it. If we now put the light in the scene and try to project it onto the hemisphere we can observe what&rsquo;s going on with the projected area. I made the backside of the floor look transparent to let you see the hemisphere from the inside:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_hemisphere"></div></div>
+<div class="lns_altitude" id="lns_hemisphere_1_slider_container"></div>
+<div class="lns_distance" id="lns_hemisphere_0_slider_container"></div>
+<p>The smaller the area, the smaller the solid angle of the light source and thus the smaller amount of light getting to the surface. However, we&rsquo;re still not accounting for the cosine factor – the solid angles closer to the horizon should be less influential.</p>
+<p>It turns out we can fix this problem by employing a simple trick of projecting the outline of the subtended angle from the hemisphere onto the base:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_hemisphere_proj"></div></div>
+<div class="lns_altitude" id="lns_hemisphere_proj_1_slider_container"></div>
+<div class="lns_distance" id="lns_hemisphere_proj_0_slider_container"></div>
+<p>This process automatically accounts for the cosine factor – notice that the projected <span class="lns_yellow">yellow area</span> on the surface gets smaller when the light source is close to the horizon. This method of a projected solid angle explains how bright a point on a matte surface will appear when lit by a uniform light source.</p>
+<h1 id="radiance">Radiance<a href="index.html#radiance" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>What I&rsquo;ve shown you so far may seem reasonable, but you may wonder about some inconsistencies. As we&rsquo;ve seen, a matte surface gets dimmer as it moves away from the light and it also gets dimmer as the light&rsquo;s altitude angle tilts away from the perpendicular direction.</p>
+<p>However, the light source itself doesn&rsquo;t seem to undergo the same effects – it remains consistently bright even as we look at it from an oblique angle or move away from it with a slider:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_radiance"></div></div>
+<div id="lns_radiance_slider_container"></div>
+<p>A matte surface seems to collect the surrounding light from every direction. The human eye and digital cameras work quite differently. Through the optical system, each of the receptors in a retina, or each of the pixels in a camera, collects light only from a very small solid angle. In the demonstration below a tiny <span class="lns_blue">blue receptor</span> on the left is exposed only to the light &ldquo;seen&rdquo; by the <span class="lns_yellow">yellow cone</span>:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_radiance_area"></div></div>
+<div  id="lns_radiance_area_slider_container"></div>
+<p>As the light source moves away, the power reaching the receptor is reduced by the inverse of the square of a distance. However, at the same time the amount of light&rsquo;s surface visible to the solid angle <em>increases</em> by a square of distance – you can observe the circle of the cone&rsquo;s base in the bottom right corner. These two effects cancel each other out and the perceived brightness remains constant.</p>
+<p>Receptors like these measure <a href="https://en.wikipedia.org/wiki/Radiance"><em>radiance</em></a> which is power per unit area <em>and</em> per unit solid angle. Both the size of the receptor <em>and</em> the solid angle from which it receives the light contribute to the amount of collected energy.</p>
+<p>When the light is seen by a person we often use the term <a href="https://en.wikipedia.org/wiki/Luminance"><em>luminance</em></a>, which is just radiance weighted by <a href="https://en.wikipedia.org/wiki/Luminosity_function">wavelength sensitivity function</a> of the human visual system. Luminance defines how bright an object appears to our eyes and it&rsquo;s expressed in <a href="https://en.wikipedia.org/wiki/Candela_per_square_metre">nits</a> – you may have heard that term referring to a display&rsquo;s brightness.</p>
+<p>The viewing <em>angle</em> independence of light sources applies only to so called Lambertian emitters, however, many of the typical light sources like frosted light bulbs and the Sun are a close approximation of these idealized generators.</p>
+<p>Every point of a Lambertian emitter emits light in the following spherical pattern, the length of an arrow corresponds to relative number of photons per second emitted in the arrow&rsquo;s direction:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_lambert_emitter"></div></div>
+<div id="lns_lambert_emitter_slider_container"></div>
+<p>The lengths of the vectors are proportional to the cosine of the angle away from the normal which ends up forming a perfect sphere. To see how this distribution affects the total brightness let&rsquo;s look at how an observer perceives the light&rsquo;s surface as seen from a side view:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_lambert_emitter_side"></div></div>
+<div id="lns_lambert_emitter_side_slider_container"></div>
+<p>The <span class="lns_yellow">yellow shape</span> represents a solid angle from which the receptor receives the light, only the  photons emitted directly in its direction will get to it.</p>
+<p>As the viewing angle tilts, the length of each arrow gets smaller, so each point of the surface contributes fewer photons towards the observer. However, at the same time the receptor sees a bigger chunk of the surface. The effect of shorter arrows is counterweighted by <em>more</em> arrows being seen.</p>
+<p>Since the length of the arrows is proportional to the cosine of the angle and the visible area is <em>inversely</em> proportional to the cosine of the very same angle the total perceived brightness remains constant.</p>
+<h1 id="reflections">Reflections<a href="index.html#reflections" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Eyes and matte surfaces accumulate light differently so this explains why a moving light source affects them differently. The hemispherical model of light aggregation seems to work well for a matte surface, but it certainly doesn&rsquo;t explain the behavior of a plain mirror:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_mirror_simple"></div></div>
+<div class="lns_altitude" id="lns_mirror_simple_slider_container"></div>
+<p>Let&rsquo;s try to visualize how a ray of incoming light, represented with a <span class="lns_blue">blue arrow</span>, ends up being reflected by the mirror in the direction of a <span class="lns_red">red arrow</span>:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_mirror"></div></div>
+<div class="lns_altitude" id="lns_mirror_slider_container"></div>
+<p>Notice that you&rsquo;ll only see the reflection of the light source in a place pointed to by an <span class="lns_blue">incoming ray</span> if the <span class="lns_red">outgoing ray</span> points <a href="index.html#" class="link_button" onclick="lns_mirror_view();return false;">directly at you</a>. The way a mirror looks depends on the position of the observer – the same point on its surface may have a very different appearance.</p>
+<p>Let&rsquo;s consider a slightly rougher mirror, one that perhaps wasn&rsquo;t polished that well. It may reflect light in a pattern similar to this:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_rough"></div></div>
+<div class="lns_altitude" id="lns_rough_slider_container"></div>
+<p>Notice how the edges of the reflected light in this material are slightly fuzzier. The lengths of arrows represent radiance and a rougher surface will scatter some amount of light into directions that aren&rsquo;t exactly aligned with the perfect reflection.</p>
+<p>The previous visualization was very light centric since we investigated how the <span class="lns_blue">incoming light</span> is scattered into <span class="lns_red">outgoing light</span>, however, we can also try to invert the situation and examine how a single <em>fixed</em> direction of the <span class="lns_red"><em>outgoing</em> light</span> is affected by the <span class="lns_blue">incoming light</span> coming from various directions:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_rough_inv"></div></div>
+<div class="lns_altitude" id="lns_rough_inv_slider_container"></div>
+<p>When you <a href="index.html#" class="link_button" onclick="lns_rough_side();return false;">position the light</a> slightly off-center of the bulk of the incoming rays and you <a href="index.html#" class="link_button" onclick="lns_rough_view();return false;">look directly</a> at the outgoing direction, you&rsquo;ll notice that the reflection in that place is indeed less bright because not all of the <span class="lns_blue">incoming directions</span> that affect the <span class="lns_red">viewing direction</span> intersect with the light source.</p>
+<p>Finally, let&rsquo;s consider a <em>Lambertian surface</em>, which describes a perfectly matte, diffusing material:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_lambert"></div></div>
+<div id="lns_lambert_slider_container"></div>
+<p>Every point of a Lambertian surface just emits a uniform radiance around it. At fixed distance only the cosine factor affects how bright the point is. Effectively, each point of a Lambertian surface acts as a Lambertian emitter – it looks exactly the same from every direction we look at it.</p>
+<p>If we analyze how incoming radiance affects outgoing radiance in a single direction we&rsquo;ll end up with a distribution like this:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_lambert_inv"></div></div>
+<div id="lns_lambert_inv_slider_container"></div>
+<p>This distribution is completely agnostic to the <span class="lns_red">outgoing direction</span> and it actually is exactly equivalent to the hemispherical surface-projected solid angle method we&rsquo;ve been playing with before – light coming from directions closer to horizon has weaker impact on the final shading.</p>
+<p>The way an <em>arbitrary</em> surface reflects light can be significantly more complicated and it is mathematically described with a <a href="https://en.wikipedia.org/wiki/Bidirectional_reflectance_distribution_function">certain function</a>. While there are also more abstract ways to categorize materials e.g. by their roughness, metallicness, or sheen, the general method stands – the outgoing radiance can always be <a href="https://en.wikipedia.org/wiki/Rendering_equation">calculated</a> as a weighted sum of incoming radiances from all directions.</p>
+<p>My primary focus in this article are Lambertian surfaces since they&rsquo;re a decent model of many real-life materials like matte wall paints and paper. For every viewing direction they&rsquo;re affected by the light coming from <em>any</em> viewing direction which creates many beautiful shading effects.</p>
+<h1 id="shadow">Shadow<a href="index.html#shadow" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>In the demonstration below we face a scene with a familiar rectangular light, but this time I put a black wall in the middle of the floor surface. The wall has a faint outline so that it&rsquo;s more visible. Using the sliders you can control the source&rsquo;s altitude angle and size. The total power of light is constant, so that when the source gets smaller its power per area increases – this keeps the scene consistently bright.</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_shadow"></div></div>
+<div class="lns_altitude" id="lns_shadow_rot_x_slider_container"></div>
+<div class="lns_size" id="lns_shadow_rot_y_slider_container"></div>
+<p>There are so many interesting phenomena that we can experience here, for instance, notice that as the light source gets smaller, the shadows it creates get sharper. With our projected hemisphere we can easily see why it happens:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_shadow_hemi"></div></div>
+<div id="lns_shadow_hemi0_slider_container"></div>
+<div class="lns_size" id="lns_shadow_hemi1_slider_container"></div>
+<p>With a <a href="index.html#" class="link_button" onclick="lns_shadow_small();return false;">small light source</a> even a small change in position on the surface has big effects on the light&rsquo;s visibility – it quickly becomes fully visible or fully occluded. On the other hand, with a <a href="index.html#" class="link_button" onclick="lns_shadow_big();return false;">big light source</a> that transition is much smoother – the distance on the floor surface between a completely exposed and completely invisible light source is much larger.</p>
+<p>Don&rsquo;t get misled by the microscopic size of the projected area when the source is tiny. Recall that I keep the total power of the source constant, so the power emitted <em>per area</em> is significantly higher for a smaller light and thus even at miniature size it is still very impactful. In this scenario it&rsquo;s the visible <em>fraction</em> of the total light area that matters.</p>
+<p>It&rsquo;s also worth pointing out that even when the light source is large, the shadow is sharp right at the place where the wall meets the surface since only a tiny step on the floor is required for the light to completely disappear.</p>
+<h1 id="color">Color<a href="index.html#color" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>So far we&rsquo;ve been dealing with light sources that emitted white light which was in turn reflected by white surfaces. White light is in fact a combination of many different monochromatic wavelengths. For instance, the spectral distribution of sunlight is <a href="https://en.wikipedia.org/wiki/Sunlight#/media/File:Solar_spectrum_en.svg">fairly complicated</a>. However, nothing prevents us from considering light sources of particular hues:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_color_simple"></div></div>
+<div class="lns_segmented" id="lns_color_simple_segment_container"></div>
+<p>While pure monochromatic sources of light exist, most of the light we see is some combination of different wavelengths that end up creating a perception of color in our brain. The details of wavelengths, vision, and the way we specify colors deserve <a href="../color-spaces.html">an article on its own</a> so in here I&rsquo;ll continue with a little less formal discussion of color.</p>
+<p>Light is additive so when a surface is lit by multiple light sources the final shading effect is just a sum of shading effects of all the individual light sources. A white surface lit by both red and blue light will reflect <em>both</em> red and blue light which we perceive as purple:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_color_rgb"></div></div>
+<div class="lns_r" id="lns_rgb0_slider_container"></div>
+<div class="lns_g" id="lns_rgb1_slider_container"></div>
+<div class="lns_b" id="lns_rgb2_slider_container"></div>
+<p>Note that when some red, green, and blue lights have <a href="index.html#" class="link_button" onclick="lns_rgb();return false;">equal strength</a> their perfectly even overlap in the center is perceived as a shade of gray which is nothing more than a white light of reduced strength. That color combining property of the human visual system is exploited by various <a href="https://en.wikipedia.org/wiki/Pixel#Subpixels">display technologies</a>.</p>
+<p>Colorful light sources aren&rsquo;t very dramatic without a surface to shine on so in the demonstration below you can change the light&rsquo;s color and see how it changes the look of these nine tiles. The cyan light is created by a mix of green and blue light:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_color"></div></div>
+<div class="lns_segmented" id="lns_color_segment_container"></div>
+<p>A tile is of a particular color because it reflects only that part of the spectrum which forms <em>that</em> color while simultaneously absorbing the other parts of light. For example, a green tile absorbs red and blue light, so under white or green light it still looks green. However, that same green tile appears black under red or blue light because it completely absorbs these wavelengths. This substantial dimming effect is actually commonly visible with yellow <a href="https://en.wikipedia.org/wiki/Sodium-vapor_lamp#/media/File:Red_and_black_cars_under_low_pressure_sodium_lamps.jpg">sodium lamps</a>.</p>
+<p>It&rsquo;s important to note that once the light hits the surface the absorbed part of the source&rsquo;s spectrum is lost – only red light leaves a red tile when lit with a white light. That tile then effectively acts as an emitter of a red light.</p>
+<h1 id="bounces">Bounces<a href="index.html#bounces" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>In all the demonstrations so far we&rsquo;ve only been looking at mostly flat scenes, so let&rsquo;s build a slightly more complex system consisting of a white floor, a red wall, and a rectangular light source. In the demonstration below you can control the power of that light:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_bounce"></div></div>
+<div id="lns_bounce_slider_container"></div>
+<p>Notice that the red wall doesn&rsquo;t receive any light from the emitter directly, yet it is visibly lit. Moreover, the back part of the white floor has some reddish hue to it. Each point of a lambertian surface is affected by the light coming from every direction and each point of a lit lambertian surface becomes a light emitter itself. Let&rsquo;s see how light propagates in the scene by looking at a slice from a side view:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_bounce_paths"></div></div>
+<div id="lns_bounce_paths_slider_container"></div>
+<p>The light reflected from the white floor hits the red wall, which in turn is reflected by the red wall as a red light and it reaches the white floor and so on. In the demonstration below you can see a contribution of each bounce to the final shading in the scene:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_bounce_steps"></div></div>
+<div class="lns_segmented" id="lns_bounce_steps_segment_container"></div>
+<p>With zero bounces we only see the light directly. The first bounce is critical, it provides the initial lighting for the entire rest of the scene – it effectively acts as a light source on its own. After the second bounce the light emitted from the wall is purely red, so once it gets reflected from the white floor in the third bounce it maintains its redness.</p>
+<p>This process continues forever, but, thankfully, with each step the amount of the reflected light gets reduced since not all light reflected from a surface falls on the neighboring surface and the surfaces themselves aren&rsquo;t perfectly reflective – they absorb some part of light. At some point the additional bounces become imperceptible.</p>
+<h1 id="sphere-of-light">Sphere of Light<a href="index.html#sphere-of-light" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Let&rsquo;s go back to our simple scene with just a white floor, but instead of looking at a single light source we&rsquo;ll add many small ones. In the simulation below a scene is surrounded by a swarm of tiny light sources, you can see their projections onto the hemisphere of the central point:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_ambient_dots"></div></div>
+<p>In limit, if we cover the entire surrounding sphere with tiny light sources it would look like something in the demonstration below. The light covers everything now so we can&rsquo;t really see the scene anymore, but by dragging the slider you can make the surrounding sphere of light so big that it will start to encompass even you, revealing what&rsquo;s hidden inside:</p>
+<br>
+<br>
+<br>
+
+    </div>
+</div>
+<div class="dark_light_bg_grad_bottom"></div>
+<div id="lns_ambient_hemi_container">
+<div class="padding_wrapper"><div class="drawer_container" id="lns_ambient_hemi"></div></div>
+<div id="lns_ambient_hemi_slider_container"></div>
+<br>
+<br>
+<br>
+</div>
+<br>
+<br>
+<br>
+<p>For the final part of this article we will remain inside that sphere of light, it will completely surround us and the scenes we will look at. In the demonstration above notice that every point of the surface is now exposed to the entire hemisphere of light with uniform intensity. This removes any differences between the points on the surface – they all receive the same light and end up with the same shading.</p>
+<p>You may have seen a situation like that on an overcast day – the Sun isn&rsquo;t directly visible and the entire sky emits light from every direction. In the last scene of this article let&rsquo;s see what effects are created when a part of that surrounding light gets occluded. In the demonstration below you can control the position of the black tile and see the shadow it ends up creating:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_ambient_occ"></div></div>
+<div class="lns_block" id="lns_ambient_occ_slider_container"></div>
+<p>The closer the black tile is to the gray plane the more light it obscures and the darker the shadow is. We can observe this easily using the hemisphere model. The <span class="lns_yellow">yellow area</span> represents the projection of the visible light:</p>
+<div class="padding_wrapper"><div class="drawer_container" id="lns_ambient_proj"></div></div>
+<div class="lns_block" id="lns_ambient_proj_slider_container"></div>
+<p>This shadow is ultimately no different from the shadows cast by a rectangular wall that we saw before. Shadows are simply the absence of light.</p>
+<h1 id="further-watching-and-reading">Further Watching and Reading<a href="index.html#further-watching-and-reading" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p><a href="https://www.elsevier.com/books/physically-based-rendering/pharr/978-0-12-800645-0">Physically Based Rendering</a> by Matt Pharr, Wenzel Jakob, and Greg Humphreys is <em>the</em> book on creation of photorealistic images with computer graphics. Over the course of the publication authors cover a wide variety of topics related to geometry, color, lights, and materials, while building a full-featured ray tracer at the same time. As of <a href="https://pharr.org/matt/blog/2018/10/15/pbr-online.html">two years ago</a> the complete book is <a href="http://www.pbr-book.org">available online</a>, for free!</p>
+<p>For a shorter overview of a production renderer I recommend <a href="https://google.github.io/filament/Filament.html">Physically Based Rendering in Filament</a>. This documentation provides more rigorous treatment of material properties than what I&rsquo;ve presented here and it elaborates on many approximating models used in realtime computer graphics.</p>
+<p>As the name implies, Vsauce&rsquo;s <a href="https://www.youtube.com/watch?v=JTvcpdfGUtQ">What Is The Speed of Dark?</a> discusses an interesting concept of a speed of darkness and it explains how shadows can break the speed of light, thankfully, without breaking the laws of physics.</p>
+<h1 id="final-words">Final Words<a href="index.html#final-words" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>It&rsquo;s truly remarkable that what starts at light sources, what interacts with different objects, and what eventually ends up in our eyes is electromagnetic radiation with different wavelengths and of varying intensity. Math helps us understand <em>how</em> changes to those intensities happen.</p>
+<p>With Lambertian surfaces and uniformly bright lights, we can simplify countless interactions of trillions of photons into relatively straightforward geometrical concepts, but even with more complicated materials and light sources, every step of the way can be simulated to create extremely convincing simulations of real life environments.</p>
+<p>Naturally, it&rsquo;s impossible to <em>completely</em> articulate the sheer intricacy and immensity of what spontaneously just happens in the physical world to every photon on a sunny day. Math, however, gives us the tools to raise above that complexity and see the bigger picture.</p>
+</div>
+      </div>
+    </div>
+    <div id="footer">
+        Copyright &copy; 2022 Bartosz Ciechanowski
+    </div>
+  </div>
+</body>
+
+</html>

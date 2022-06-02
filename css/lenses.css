@@ -1,0 +1,182 @@
+
+.dark_light_bg {
+  background: black;
+  color:#ddd;
+
+  width: 100%;
+  max-width: 100%;
+
+  position: relative;
+
+
+  margin-top: 0;
+  padding-top: 0;
+  padding-left: 0;
+  padding-right: 0;
+  display: inline-block;
+
+
+}
+.dark_light_bg  a:visited {
+  color: #658299;
+}
+
+.dark_light_bg  a.link_button {
+color: #dfb870;
+}
+
+.drawer_container {
+  margin-bottom: 3.5em;
+}
+
+.lens_yellow {
+  color: #cea862;
+  font-weight: 500;
+  }
+
+  .lens_blue  {
+    color:#2182C7;
+    font-weight: 500;
+} 
+
+.lens_black  {
+    color:#111;
+    font-weight: 500;
+} 
+
+.lens_red  {
+  color:#FF593F;
+  font-weight: 500;
+} 
+
+.lens_gray  {
+  color:#777;
+  font-weight: 500;
+} 
+
+.lens_red .slider_left_gutter,
+.lens_red .slider_right_gutter,
+.lens_red .slider_knob {
+        background:#FF593F;
+    }
+
+
+.lens_yellow .slider_left_gutter,
+.lens_yellow .slider_right_gutter,
+.lens_yellow .slider_knob {
+        background:#E8A938;
+    }
+
+.lens_blue .slider_left_gutter,
+.lens_blue .slider_right_gutter,
+.lens_blue .slider_knob {
+        background:#2182C7;
+    }
+
+.lens_black .slider_left_gutter,
+.lens_black .slider_right_gutter,
+.lens_black .slider_knob {
+        background:#333;
+    }
+
+
+    
+    .dark_light_bg .lens_yellow .slider_left_gutter,
+    .dark_light_bg .lens_yellow .slider_right_gutter,
+    .dark_light_bg .lens_yellow .slider_knob {
+            background:#af8028;
+        }
+    
+
+  tr { 
+    border: #ddd 1px solid;
+    border-width: 1px 0;
+    font-size: 1.1em;
+  }
+
+  tr:first-child {
+    border-top: none;  
+  }
+  tr:last-child {
+    border-bottom: none;
+  }
+
+  td {
+    padding: 0.4em;
+  }
+
+.lens_list_item_material {
+  padding-right: 3em;
+}
+
+.lens_long_drawer:after {
+  padding-top: 50%;
+}
+
+.lens_very_long_drawer:after {
+  padding-top: 40%;
+}
+
+
+#lens_simple {
+  max-width: 400px;
+}
+
+#lens_snell {
+  max-width: 400px;
+}
+
+
+#lens_subdiv_seg0 {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+#lens_f_seg0 .segmented_control_container {
+  background: #111;
+}
+
+#lens_f_seg0 .segmented_control_on {
+  background: #272727;
+}
+
+#lens_f_seg0 .segmented_control_off:hover {
+  background: #2c2c2c;
+}
+  
+
+#lens_f_seg0 .segmented_control_on {
+  font-weight: 400;
+}
+
+#lens_f_seg0 .segmented_control_off {
+  font-weight: 400;
+}
+
+#lens_f {
+  max-width: 300px;
+}
+
+#lens_blades {
+  max-width: 300px;
+}
+
+#lens_snell:after {
+  padding-top: 100%;
+}
+
+.double_drawer:after {
+  padding-top: 50%;
+}
+
+#lens_film_invert {
+  max-width: 400px;
+}
+
+#lens_film_invert:after {
+  padding-top: 100%;
+}
+
+#lens_box {
+  max-width: 350px;
+}

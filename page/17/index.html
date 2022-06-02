@@ -1,0 +1,324 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2052BB">
+<meta name="author" content="Bartosz Ciechanowski">
+<meta name="format-detection" content="telephone=no">
+<link rel="alternate" type="application/rss+xml" href="../../atom.xml" title="Bartosz Ciechanowski" />
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-25335284-3"></script>
+
+
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-25335284-3');
+</script>
+    <link href="../../css/base.css" rel="stylesheet" type="text/css"/>
+<link href="https://fonts.googleapis.com/css?family=Lato:700&display=swap" rel="stylesheet" type="text/css" async>
+<link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,400i,500&display=swap" rel="stylesheet" async>
+    <title>Bartosz Ciechanowski</title>
+    <link rel="icon" href="../../favicon.ico">
+    <meta name="description" content="Interactive articles about physics, math, and engineering.">
+    <meta name="keywords" content="interactive,article,simulation,physics,math,engineering,stem">
+
+    
+            <script defer src="../../js/base.js"></script>
+                <script defer src="../../js/beziers.js"></script>
+                <script defer src="../../js/drawingBezierCurves.js"></script>
+                <link href="../../css/syntax.css" rel="stylesheet" type="text/css"/>
+                <link href="../../css/beziers.css" rel="stylesheet" type="text/css"/>
+    
+</head>
+<body>
+    <div id="main_container">
+        <div id="body">
+            <div id="banner">
+    <div id="banner_wrapper">
+        <div id="banner_content">
+            <div id="site_title">
+                <a href="../../index.html">Bartosz Ciechanowski</a>
+            </div>
+            <div id="navigation">
+                <a href="../../index.html">Blog</a>
+                <a href="../../archives.html">Archives</a>
+            </div>
+            <div id="social">
+                <a class="patreon" href="https://www.patreon.com/ciechanowski" title="Patreon"><div class="patreonLogo">Patreon</div></a>
+                <a class="twitter" href="https://twitter.com/bciechanowski" title="Twitter"><div class="twitterLogo">Twitter</div></a>
+                <a class="instagram" href="https://www.instagram.com/bartoszciechanowski/" title="Instagram"><div class="igLogo">Instagram</div></a>
+                <a class="email" href="mailto:bartosz@ciechanow.ski" title="e-mail"><div class="emailLogo">e-mail</div></a>
+                <a class="rss" href="../../atom.xml" title="rss"><div class="rssLogo">rss</div></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+            <div id="content">
+                
+                    
+<div class="article">
+    <div class="post_date">February 18, 2014</div>
+    <h1 class="post_title"><a href="../../drawing-bezier-curves/index.html">Drawing Bézier Curves</a></h1>
+    <div class="padding_wrapper"><p>A few months ago I&rsquo;ve released my latest iPad app – <a href="http://revolvedapp.com">Revolved</a>. The core idea of Revolved is super simple – you draw curves on the right hand side of the screen and they get revolved around the axis to create a 3D model.</p>
+<p>In this article I&rsquo;m going to walk through the process of displaying <a href="http://en.wikipedia.org/wiki/B%C3%A9zier_curve">Bézier curves</a> on the iPad screen as it happens in the app. Since the line drawing engine powering Revolved is OpenGL based, presenting curves on the display is not as easy as calling some <a href="https://developer.apple.com/library/ios/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/Introduction/Introduction.html">Core Graphics</a> functions here and there.</p>
+<p>To make the story more interesting I made a few interactive demos that should make understanding the presented concepts much easier. Here&rsquo;s the small part of Revolved in your browser. This is what we&rsquo;re going to build:</p>
+<div class="bezierContainer">
+<canvas id="bezierCurvesDemo"></canvas>
+</div>
+<p><em>Note: the demos are made in HTML5 using the canvas API which (unfortunately) is not a match for the full-fledged OpenGL based rendering. While some small glitches and artifacts may occur in the browser, Revolved doesn&rsquo;t suffer from those problems.</em></p>
+<p>The OpenGL code powering the line drawing in Revolved is <a href="https://github.com/Ciechan/Drawing-Bezier-Curves-GL">available on my GitHub</a>. As an added bonus I&rsquo;ve also published <a href="https://github.com/Ciechan/Drawing-Bezier-Curves-JS">the canvas/JS version</a> that runs the demos in this article.</p>
+<h1 id="bézier-curves">Bézier Curves<a href="../../drawing-bezier-curves/index.html#bézier-curves" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>I&rsquo;m absolutely fascinated with Bézier curves. Not only are they ubiquitous in computer graphics, but also they&rsquo;re just so much fun to play with. Dragging the control points and watching the curve wiggle is an experience on its own.</p>
+<p>The most popular Bézier curves out there are <a href="http://en.wikipedia.org/wiki/B%C3%A9zier_curve#Cubic_B.C3.A9zier_curves">cubic Bézier curves</a>. They&rsquo;re defined in terms of four control points. While the first and last control points specify locations of the endpoints of the drawn curve, the second and the third control points influence the tangency of the curve.</p>
+<p>If you&rsquo;re interested in mastering Bézier curves, I highly recommend diving into <a href="http://pomax.github.io/bezierinfo/">A Primer on Bézier Curves</a>, which is <em>the</em> resource on the matter. However, this article doesn&rsquo;t require any meaningful background apart from intuitive understanding of how the curves work.</p>
+<p>Having decided to utilize the curves in Revolved, I&rsquo;ve faced the challenge of rendering smooth cubic Bézier curves on the GPU, using the OpenGL primitives.</p>
+<h1 id="subdivisions">Subdivisions<a href="../../drawing-bezier-curves/index.html#subdivisions" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>One of the easiest way to approximate any curvy shape is to split it into line segments. We&rsquo;re going to divide a Bézier curve into a set of connected linear components, with the intention that large enough number of segments will look sufficiently smooth for the user. The most important problem we have to solve is finding the connection points for those segments.</p>
+<p>Fortunately, Bézier curves are parametric that is their <em>x</em> and <em>y</em> components are defined in terms of a parameter <em>t</em>, which varies from 0 to 1. For the value of <em>t</em> equal to 0, we land on the first end point of the curve and for the value of <em>t</em> equal to 1, we land on the last end point of the curve. For in-between values of <em>t</em> we get some points that lie on the curve in-between those end points.</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../../images/bezierParametric@2x.jpg"
+         alt="Bézier curve parametrization"width="515px"height="115px"
+    /> 
+    </div><span>
+            <p>Bézier curve parametrization</p>
+        </span>
+</div>
+
+<p>To approximate a shape of a Bézier curve using 2 line segments, calculate the position of 3 connection points for <em>t</em> equal to 0, 0.5 and 1. Using 10 segments requires 11 points for <em>t</em> values of 0, 0.1, 0.2, &hellip;, 0.9 and 1.0 respectively.</p>
+<h2 id="subdivision-in-action">Subdivision in Action<a href="../../drawing-bezier-curves/index.html#subdivision-in-action" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>The little simulator below depicts the method. Try dragging both end points and control points. You can adjust the number of segments with a slider. The faint gray line is the  exact (hopefully) Bézier curve drawn with HTML5 canvas primitives.</p>
+<div class="bezierContainer">
+	<canvas class="center" id="bezierCurvesLine"></canvas>
+</div>
+<div class="sliderContainer">
+	<div class="knob" id="subdivisionKnob">
+	</div>
+</div>
+<p>A very nice feature of Bézier curves is that the subdivision points accumulate near areas of large curvature. Try making a V-shaped curve and notice how little red knots tend to stick together near the tip, they don&rsquo;t divide the curve into equal-length segments. Moreover, even for a small number of linear segments the drawn shape is not far off from the exact curve.</p>
+<h2 id="drawing-lines">Drawing Lines<a href="../../drawing-bezier-curves/index.html#drawing-lines" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>Even though OpenGL does support line drawing, I didn&rsquo;t want to use this feature for two reasons. First of all, the line width can only be set once per draw call. Animating curves' thicknesses would require separating the drawing commands into different batches thus potentially requiring multiple draw calls to render all the segments. This is unnecessarily complex.</p>
+<p>The most important factor is that the lines rendered by OpenGL are plain wrong:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../../images/bezierLinesGL@2x.jpg"
+         alt="This is actual slanted line drawn by OpenGL"width="150px"height="150px"
+    /> 
+    </div><span>
+            <p>This is actual slanted line drawn by OpenGL</p>
+        </span>
+</div>
+
+<p>The &ldquo;algorithm&rdquo; seems to clone pixels in either horizontal or vertical direction, making lines look like parallelograms instead of rotated rectangles. Needless to say, this doesn&rsquo;t fulfill my quality requirements. While simple line drawing would work for very thin lines, I wanted the curves in Revolved to be bold and prominently presented on the screen.</p>
+<h1 id="adding-width">Adding Width<a href="../../drawing-bezier-curves/index.html#adding-width" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Having nailed approximating the shape of Bézier curves with line segments, we should focus on making them wider. Rejecting OpenGL line drawing method forces us to jump into the usual GPU suspect – a triangle. A single line segment will consist of two triangles that will form a quadrilateral. We just have to calculate 4 corner points for a given segment and connect them with edges:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../../images/bezierAddingWidth@2x.jpg"width="708px"height="330px"
+    /> 
+    </div>
+</div>
+
+<ol>
+<li>Start with a linear segment.</li>
+<li>Extend it in a perpendicular direction.</li>
+<li>Create vertices at new endpoints.</li>
+<li>Connect them to create two triangles.</li>
+</ol>
+<p>While this high-level overview sounds relatively simple, the devil, as usual, is in the details.</p>
+<h2 id="the-perpendicular">The Perpendicular<a href="../../drawing-bezier-curves/index.html#the-perpendicular" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>Given a vector, finding a vector perpendicular to it is one of the easiest trick in vector math. Just exchange the coordinates and negate <em>one</em> of them. That&rsquo;s it:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../../images/bezierPerpendicularity@2x.jpg"
+         alt="Perpendicular vector has its coordinates flipped and one of them is negated"width="440px"height="281px"
+    /> 
+    </div><span>
+            <p>Perpendicular vector has its coordinates flipped and one of them is negated</p>
+        </span>
+</div>
+
+<p>Having the perpendicular direction makes it easy to calculate the positions of vertices that will get further used for triangles rendering.</p>
+<h2 id="the-bad-tangent">The Bad Tangent<a href="../../drawing-bezier-curves/index.html#the-bad-tangent" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>We&rsquo;re just one step short of rendering the Bézier curve with some width. Unfortunately, making the straight line segments wider by applying the above-mentioned perpendicularity wouldn&rsquo;t work well. Try making V-shape again and notice the discontinuities:</p>
+<div class="bezierContainer">
+<canvas id="bezierCurvesRect"></canvas>
+</div>
+<div class="sliderContainer">
+	<div class="knob" id="bezierCurvesRectKnob">
+	</div>
+</div>
+<p>The problem is we&rsquo;re treating the linear segments as independent entities, forgetting that they are part of the curve.</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../../images/bezierBadTangent@2x.jpg"
+         alt="Two rectangular segments create cracks"width="498px"height="162px"
+    /> 
+    </div><span>
+            <p>Two rectangular segments create cracks</p>
+        </span>
+</div>
+
+<p>While we could somehow merge the vertices in the midpoint, this wouldn&rsquo;t be <em>perfect</em>. Since Bézier curves are defined in pristine mathematical terms we can get the vertex position much more precisely.</p>
+<h2 id="the-good-tangent">The Good Tangent<a href="../../drawing-bezier-curves/index.html#the-good-tangent" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>What&rsquo;s wrong in the above approach is that we&rsquo;re ignoring the fact that a curve is, well, a curve. As mentioned before, to get direction perpendicular to the direction of the curve we have to calculate the actual local direction of the curve itself. In other words, if we were to draw an arrow at the given point of the curve showing its local direction, which way should the arrow point? What&rsquo;s the <em>tangent</em> at this point?</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../../images/bezierTangent@2x.jpg"
+         alt="A tangent vector"width="422px"height="146px"
+    /> 
+    </div><span>
+            <p>A tangent vector</p>
+        </span>
+</div>
+
+<p><a href="http://en.wikipedia.org/wiki/Derivative">Derivatives</a> come to the rescue. Since a Bézier curve is parametrized in terms of <em>t</em> in a form of <em>x(t)</em> and <em>y(t)</em>, we can simply derive the equations with respect to <em>t</em>. I won&rsquo;t bother you with the equations, you can look up the exact solution directly in the source code.</p>
+<p>With the tangent vector in hand it&rsquo;s just the matter of generating the correct positions of vertices:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../../images/bezierGoodTangent@2x.jpg"
+         alt="Correct segments have their vertices connected"width="498px"height="165px"
+    /> 
+    </div><span>
+            <p>Correct segments have their vertices connected</p>
+        </span>
+</div>
+
+<p>Having derived the <em>exact</em> direction of a curve at a given point, we can generate the <em>exact</em> perpendicular direction finally receiving the <em>exact</em> position of the vertex:</p>
+<div class="bezierContainer">
+<canvas id="bezierCurvesPerfect"></canvas>
+</div>
+<div class="sliderContainer">
+	<div class="knob" id="bezierCurvesPerfectKnob">
+	</div>
+</div>
+<p>Notice that for small number of segments the tight curves look really weird. This is actually easy to explain – for sufficiently long segments, the tangent vector may vary greatly, thus the surplus width may be added in completely different directions. However, when the segments are small enough it&rsquo;s really difficult for the tangent vector to mess things up.</p>
+<h1 id="auto-segmentation">Auto-Segmentation<a href="../../drawing-bezier-curves/index.html#auto-segmentation" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>At this point we&rsquo;ve almost recreated the line drawing technique used in Revolved. For the final step we&rsquo;re not going to add anything new to our drawing routine. Instead, we&rsquo;re going to reduce the interaction complexity. We&rsquo;re going to get rid of the slider.</p>
+<p>The purpose of the slider is to define how many segments should the curve be split into.  We don&rsquo;t want to stick in a single large value and call it a day. Rendering a few dozen triangles for even the shortest segment is surely a waste. Instead, we&rsquo;re going to figure out a way to <em>automatically</em> calculate the number of required segments.</p>
+<h2 id="estimating-length">Estimating Length<a href="../../drawing-bezier-curves/index.html#estimating-length" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>If you look closely at a Bézier curve you&rsquo;ll notice that its shape always resembles the shape of line connecting all four control points.</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../../images/bezierResemblance@2x.jpg"
+         alt="Curve&amp;rsquo;s shape resembles the line connecting control points"width="469px"height="300px"
+    /> 
+    </div><span>
+            <p>Curve&rsquo;s shape resembles the line connecting control points</p>
+        </span>
+</div>
+
+<p>The length of the curve is never longer than the length of the connecting polyline. Calculating the total length of AB, BC, and CD segments we derive an upper bound for curve&rsquo;s length:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="kt">float</span> <span class="n">estimatedLength</span> <span class="o">=</span> <span class="p">(</span><span class="n">GLKVector2Length</span><span class="p">(</span><span class="n">GLKVector2Subtract</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">))</span> <span class="o">+</span>
+                         <span class="n">GLKVector2Length</span><span class="p">(</span><span class="n">GLKVector2Subtract</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span> <span class="o">+</span>
+                         <span class="n">GLKVector2Length</span><span class="p">(</span><span class="n">GLKVector2Subtract</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">c</span><span class="p">)));</span>
+</code></pre></div><p>As you might have noticed, I&rsquo;m using <a href="https://developer.apple.com/library/ios/documentation/GLkit/Reference/GLKit_Collection/_index.html">Apple&rsquo;s GLKit</a> for the vector operations. While most parts of GLKit quickly become too primitive for any serious OpenGL programming, the math part of GLKit is wonderful. The only real drawback is its verbosity, but this is something most Cocoa devs should be used to.</p>
+<h2 id="estimating-number-of-segments">Estimating number of segments<a href="../../drawing-bezier-curves/index.html#estimating-number-of-segments" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>Having calculated the estimated length it&rsquo;s just a matter of getting the number of segments required to display a curve. While we could simply divide the estimated length and take the ceil of the value, it would mean that for very short curves we could end up with only one or two segments. Instead, we should opt for slightly biased function that will boost smaller input values. We&rsquo;re going to pick <a href="http://en.wikipedia.org/wiki/Hyperbola">hyperbola</a> – it&rsquo;s just so awesome:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../../images/bezierHyperbola@2x.jpg"
+         alt="Hyperbola"width="335px"height="309px"
+    /> 
+    </div><span>
+            <p>Hyperbola</p>
+        </span>
+</div>
+
+<p>For small input values hyperbola bumps the output value, for large input values the function is asymptotically similar to plain old linear function. A few minutes spend on parameters tweaking crafts the final solution. Notice how the number of knots changes when the curve gets longer or shorter:</p>
+<div class="bezierContainer">
+<canvas id="bezierCurvesAutoTess"></canvas>
+</div>
+<h2 id="block-based-subdivider">Block Based Subdivider<a href="../../drawing-bezier-curves/index.html#block-based-subdivider" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>While writing Revolved I&rsquo;ve found yet another great application for Objective-C blocks. Instead of passing the model object through the rendering system, I&rsquo;ve opted for using a subdivider block. Given a value of <em>t</em> (the same one that parametrizes the curve), it returns the <code>SegmentSubdivision</code> which is a <code>struct</code> that defines both position and perpendicular vector at a given point of the curve. Naturally, the block is a <code>typedef</code>. I don&rsquo;t seem to be the only one who has problems <a href="http://fuckingblocksyntax.com">remembering block syntax</a>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">SegmentSubdivision</span> <span class="p">{</span>
+    <span class="n">GLKVector2</span> <span class="n">p</span><span class="p">;</span>
+    <span class="n">GLKVector2</span> <span class="n">n</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">SegmentSubdivision</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="nf">SegmentSubdivision</span> <span class="p">(</span><span class="o">^</span><span class="n">SegmentDivider</span><span class="p">)(</span><span class="kt">float</span> <span class="n">t</span><span class="p">);</span>
+</code></pre></div><p>The line mesh generator can then utilize the passed block to generate the vertex positions:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">seg</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">seg</span> <span class="o">&lt;=</span> <span class="n">segmentsCount</span><span class="p">;</span> <span class="n">seg</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+	
+	<span class="n">SegmentSubdivision</span> <span class="n">subdivision</span> <span class="o">=</span> <span class="n">subdivider</span><span class="p">((</span><span class="kt">double</span><span class="p">)</span><span class="n">seg</span><span class="o">/</span><span class="p">(</span><span class="kt">double</span><span class="p">)</span><span class="n">segmentsCount</span><span class="p">);</span>
+	<span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">GLKVector2Add</span><span class="p">(</span><span class="n">subdivision</span><span class="p">.</span><span class="n">p</span><span class="p">,</span> <span class="n">GLKVector2MultiplyScalar</span><span class="p">(</span><span class="n">subdivision</span><span class="p">.</span><span class="n">n</span><span class="p">,</span> <span class="o">+</span><span class="n">_lineSize</span> <span class="o">/</span><span class="mf">2.0f</span><span class="p">));</span>
+	<span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">GLKVector2Add</span><span class="p">(</span><span class="n">subdivision</span><span class="p">.</span><span class="n">p</span><span class="p">,</span> <span class="n">GLKVector2MultiplyScalar</span><span class="p">(</span><span class="n">subdivision</span><span class="p">.</span><span class="n">n</span><span class="p">,</span> <span class="o">-</span><span class="n">_lineSize</span> <span class="o">/</span><span class="mf">2.0f</span><span class="p">));</span>
+	<span class="p">...</span>	
+<span class="p">}</span>
+</code></pre></div><h1 id="why-not-core-graphics">Why not Core Graphics?<a href="../../drawing-bezier-curves/index.html#why-not-core-graphics" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Having read all that you might be wondering: why bother with OpenGL drawing at all? The obvious choice for any seasoned iOS developer would be enrolling Core Graphics and drawing the curves using its functions. Let&rsquo;s discuss the options I could have used.</p>
+<p>For the stage setting purpose I should note that Revolved is currently limited to 60 curves and the drawing area of the app has dimensions of 448x768 points (896x1536 pixels on a retina device).</p>
+<h2 id="a-single-layer-for-all-the-curves">A Single Layer for all the Curves<a href="../../drawing-bezier-curves/index.html#a-single-layer-for-all-the-curves" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>The first Quartz-based solution is quite obvious – a single view with custom <code>- drawRect:</code> implementation. Whenever user drags anything, the entire view would have to be redrawn. Segment deletion? Redraw the entire thing. A single animation? Redraw the entire thing, 60 times per second.</p>
+<p>Good luck pulling off redrawing that many segments that fast and that often. Did I mention that the rasterization of Core Graphics calls <a href="https://devforums.apple.com/message/643497#643497">happens on the CPU, <em>not</em> on the GPU</a> (Apple Dev account required)?</p>
+<h2 id="one-layer-per-curve">One Layer per Curve<a href="../../drawing-bezier-curves/index.html#one-layer-per-curve" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>A single view is definitely not a good idea. Alternatively I could dedicate a single view per segment.</p>
+<p>First of all, let&rsquo;s consider the memory requirements. Each pixel has four 8-bits components (RGBA). Storing the data drawn in <code>- drawRect:</code> for each curve would take a total of 60*896*1536*4 bytes, that is 315 MB! Even though modern iPads are capable of handling those huge RAM demands, we still have to draw a 3D model. Adding space for OpenGL buffers doesn&rsquo;t really help.</p>
+<p>Secondly, the overdraw is huge. Since layers have to be transparent, every pixel on the right side of the screen is overdrawn up to 60 times. In total, the GPU has to push over 26 full-screens worth of pixels, at 60 frames per second. This is not something you want in your app.</p>
+<h2 id="optimizations">Optimizations<a href="../../drawing-bezier-curves/index.html#optimizations" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>I tested these approaches on the latest &amp; greatest iPad Air and the stuttering was absolutely abysmal.</p>
+<p>The performance of both methods could be improved by implementing various optimizations, mostly in terms of keeping the redrawn areas small. This would require huge amounts of code that would dynamically resize the views, clip the Bézier paths and do other crazy tricks, just with an <em>expectation</em> of making things better. All those efforts would still become worthless for curves covering the entirety of the drawing area.</p>
+<p>Drawing dozens of animated curves, as it exists in Revolved, is a case in which the abstractions starts to leak, forcing the programmer to fight against the clean, high-level API to do the work that could be done on a lower level <em>much</em> more efficiently.</p>
+<h2 id="throwing-stuff-at-gpu">Throwing Stuff at GPU<a href="../../drawing-bezier-curves/index.html#throwing-stuff-at-gpu" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>Revolved features 3D models, so it was obvious that some parts of the app would rely on OpenGL. Generating models' meshes required converting the abstract, mathematical notion of Bézier curves into concrete set of vertices and faces. This got me thinking – if I already have to go through the trouble of transforming the Béziers into the vertex representation of 3D models, why not to enroll the same process for 2D lines? This was an important reason for going the GPU way.</p>
+<p>The crucial factor for choosing OpenGL is that it made the animation and interaction possibilities <em>endless</em>. Some of the line effects I&rsquo;ve implemented and/or had in mind would simply be next to impossible to craft using Core Graphics.</p>
+<h1 id="final-words">Final Words<a href="../../drawing-bezier-curves/index.html#final-words" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Cushioned with easy to use, high level API one often ignores the underlying concepts and nitty-gritty details of how stuff works. Consciously depriving myself of Core Graphics conveniences forced me to think about drawing Bézier curves in terms of &ldquo;<em>how?</em>&rdquo;. Understanding the mathematical foundations guiding the drawn shapes is something worth going through, even just for the sake of curiosity.</p>
+<p>The presented method is not the state of the art. There are actually more <a href="http://antigrain.com/research/adaptive_bezier/">complex and robust methods</a> of drawing the curves, but the solution implemented in Revolved fits the purpose completely (the fact that I found the linked resource just a few days ago certainly didn&rsquo;t help).</p>
+<p>As for the rendering implementation, OpenGL was the right choice. While some less important elements of Revolved like buttons, tutorial and credits panels are UIKit based, the essential part of the application runs <em>entirely</em> in OpenGL. This is still not a <a href="http://atp.fm/episodes/22-full-brichter">full Brichter</a>, but writing an app this way was an absolute joy.</p>
+<p>If you get bored dissecting the Bézier curves I encourage you to try playing with them, this time in 3D, <a href="https://itunes.apple.com/app/revolved/id689658680?mt=8">on your iPad</a>.</p>
+
+    </div>
+</div>
+                
+                
+                
+                    <div class="pagination">
+                    
+                    
+                    <a href="../18/index.html" class="older_entries">
+                        &#8592;&nbsp; &nbsp;Older
+                    </a>
+                    
+
+                    
+                    <a href="../16/index.html" class="newer_entries">
+                        Newer&nbsp; &nbsp;&#8594;
+                    </a>
+                    
+
+                    </div>
+                
+
+            </div>
+        </div>
+        <div id="footer">
+            Copyright &copy; 2022 Bartosz Ciechanowski
+        </div>
+    </div>
+</body>
+</html>

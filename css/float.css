@@ -1,0 +1,224 @@
+.vinculum {
+    text-decoration: overline;
+}
+
+.float_bit_number, .float_int_number {
+font-family: monospace;
+white-space: pre;
+font-size:1.34em;
+font-weight: bold;
+overflow-x: auto;
+overflow-y: visible;
+margin:-0.5em auto;
+text-align: center;
+padding: 1em 1em 2em 1em;
+}
+
+.float_sign, .float_exp, .float_mant, .float_int {
+    position: relative;
+    margin: 0 0.1em;
+    padding: 0.1em 0.25em;
+    border-radius: 0.2em;
+}
+
+.float_sign {
+    text-align: center;
+    background: rgba(232, 62, 93, 0.3);
+}
+
+
+.float_exp {
+    background: rgba(65, 186, 99, 0.3);
+}
+        
+.float_mant {
+    background: rgba(87, 126, 199, 0.3);
+}
+
+.float_int_number {
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    letter-spacing:0.045em;
+}
+
+.float_int {
+    background: rgba(100, 100, 100, 0.3);
+}
+
+.float_sign:after, .float_exp:after, .float_mant:after  {
+    font-weight: normal;
+    font-family: "IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+    position: absolute;
+    font-size: 0.55em;
+    bottom: -1.2em;
+    text-align: center;
+    width: 100%;
+    left:0;
+    width: calc(30em);
+    left:calc(50% - 15em);
+}
+
+.float_sign:after  {
+    content: 'sign';
+}
+
+.float_exp:after  {
+    content: 'exponent';
+}
+.float_mant:after  {
+    content: 'significand';
+}
+
+
+.float_sign:after  {
+    color: rgba(232, 62, 93, 1.0);
+}
+
+.float_exp:after  {
+    color: rgba(65, 186, 99, 1.0);
+}
+.float_mant:after  {
+    color: rgba(87, 126, 199, 1.0);
+}
+
+.float_bit_number .float_sign:after, .float_bit_number .float_exp:after,.float_bit_number  .float_mant:after  {
+    font-family: monospace;
+}
+
+.standard_number, .big_number {
+    text-align: center;
+    padding: 1em 0;
+    padding-bottom: 2em;
+}
+
+.big_number .standard_digit {
+    font-size: 3.2em;
+}
+
+.standard_digits_ignored {
+    position: absolute;
+}
+.big_number span {
+    display: inline-block;
+}
+
+.big_number .standard_exponent {
+    font-size: 0.7em;
+    color:#999;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -ms-user-select: none;
+}
+
+.standard_number sup {
+    vertical-align: top;
+    font-size: 0.6em;
+    position: relative;
+    top: -0.1em;
+}
+
+.standard_number .standard_digit {
+    font-size: 2.1em;
+}
+
+
+.standard_number.small {
+    padding: 0.6em 0;
+    margin-bottom: 0.5em;
+}
+
+.standard_number.small .standard_digit {
+    padding: 0;
+    font-size: 1.5em;
+}
+
+
+
+.standard_number .float_sign, .standard_number .float_exp, .standard_number .float_mant {
+    padding: 0.1em 0.15em;
+    margin: 0 0.05em;
+}
+
+.standard_number .float_sign:after, .standard_number .float_exp:after, .standard_number .float_mant:after {
+    font-size: 0.35em;
+    bottom: -1.2em;
+}
+
+.standard_number .float_exp {
+    padding-left: 0.2em;
+    padding-right: 0.2em;
+}
+
+
+@media only screen and (max-width: 800px) {
+    .standard_number .standard_digit {
+        font-size: 1.7em;
+    }
+ }
+
+ @media only screen and (max-width: 700px) {
+    .standard_number .standard_digit {
+        font-size: 1.5em;
+    }
+
+    .standard_number .float_sign:after, .standard_number .float_exp:after, .standard_number .float_mant:after {
+        font-size: 0.5em;
+        bottom: -1.3em;
+    }
+ }
+
+@media only screen and (max-width: 550px) {
+    .standard_number .standard_digit {
+        font-size: 1.2em;
+    }
+
+    .standard_number .float_sign:after, .standard_number .float_exp:after, .standard_number .float_mant:after {
+        font-size: 0.7em;
+        bottom: -1.2em;
+    }
+ }
+
+ @media only screen and (max-width: 420px) {
+
+    .float_bit_number, .float_int_number {
+        font-size:1.15em;
+        padding: 1em 0;
+        }
+
+        .float_sign, .float_exp, .float_mant, .float_int {
+            position: relative;
+            margin: 0 0.05em;
+            padding: 0.1em 0.25em;
+            border-radius: 0.2em;
+        }
+        
+    .standard_number .standard_digit {
+        font-size: 1.06em;
+    }
+
+    .standard_number.small .standard_digit {
+        font-size: 1.2em;
+    }
+
+    .standard_number .float_sign:after, .standard_number .float_exp:after, .standard_number .float_mant:after {
+        font-size: 0.6em;
+        bottom: -1.2em;
+    }
+ }
+
+ @media only screen and (max-width: 360px) {
+
+    .big_number .standard_digit {
+        font-size: 2.8em;
+    }
+
+    .standard_number .standard_digit {
+        font-size: 0.9em;
+    }
+
+
+    .standard_number.small .standard_digit {
+        font-size: 1em;
+    }
+ }

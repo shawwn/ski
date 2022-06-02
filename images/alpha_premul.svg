@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="440" height="262" viewBox="0 0 440 262">
+  <defs>
+    <rect id="alpha_premul-a" width="12" height="12" rx="3"/>
+    <rect id="alpha_premul-c" width="12" height="12" rx="3"/>
+    <rect id="alpha_premul-d" width="12" height="12" rx="3"/>
+    <rect id="alpha_premul-f" width="12" height="12" rx="3"/>
+    <linearGradient id="alpha_premul-g" x1="0%" y1="50%" y2="50%">
+      <stop offset="0%" stop-color="#E74C3C" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#E74C3C"/>
+    </linearGradient>
+    <linearGradient id="alpha_premul-h" x1="0%" y1="50%" y2="50%">
+      <stop offset="0%" stop-color="#FFF" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#FFF"/>
+    </linearGradient>
+  </defs>
+  <g fill="none" fill-rule="evenodd">
+    <g fill="#EEE" transform="translate(0 70)">
+      <rect width="20" height="20"/>
+      <rect width="20" height="20" x="40"/>
+      <rect width="20" height="20" x="80"/>
+      <rect width="20" height="20" x="120"/>
+      <rect width="20" height="20" x="160"/>
+      <rect width="20" height="20" x="20" y="20"/>
+      <rect width="20" height="20" x="60" y="20"/>
+      <rect width="20" height="20" x="100" y="20"/>
+      <rect width="20" height="20" x="140" y="20"/>
+      <rect width="20" height="20" x="180" y="20"/>
+      <rect width="20" height="20" y="40"/>
+      <rect width="20" height="20" x="40" y="40"/>
+      <rect width="20" height="20" x="80" y="40"/>
+      <rect width="20" height="20" x="120" y="40"/>
+      <rect width="20" height="20" x="160" y="40"/>
+      <rect width="20" height="20" x="20" y="60"/>
+      <rect width="20" height="20" x="60" y="60"/>
+      <rect width="20" height="20" x="100" y="60"/>
+      <rect width="20" height="20" x="140" y="60"/>
+      <rect width="20" height="20" x="180" y="60"/>
+      <rect width="20" height="20" y="80"/>
+      <rect width="20" height="20" x="40" y="80"/>
+      <rect width="20" height="20" x="80" y="80"/>
+      <rect width="20" height="20" x="120" y="80"/>
+      <rect width="20" height="20" x="160" y="80"/>
+    </g>
+    <g transform="translate(121 180)">
+      <mask id="alpha_premul-b" fill="#fff">
+        <use xlink:href="#alpha_premul-a"/>
+      </mask>
+      <use stroke="#000" stroke-opacity=".139" transform="matrix(1 0 0 -1 0 12)" xlink:href="#alpha_premul-a"/>
+      <rect width="4" height="4" x="8" y="8" fill="#D8D8D8" mask="url(#alpha_premul-b)"/>
+      <rect width="4" height="4" y="8" fill="#D8D8D8" mask="url(#alpha_premul-b)"/>
+      <rect width="4" height="4" x="4" y="4" fill="#D8D8D8" mask="url(#alpha_premul-b)"/>
+      <rect width="4" height="4" x="8" fill="#D8D8D8" mask="url(#alpha_premul-b)"/>
+      <rect width="4" height="4" fill="#D8D8D8" mask="url(#alpha_premul-b)"/>
+      <use stroke="#000" stroke-opacity=".139" transform="matrix(1 0 0 -1 0 12)" xlink:href="#alpha_premul-c"/>
+    </g>
+    <rect width="12" height="12" x="67" y="180" fill="#E74C3C" stroke="#000" stroke-opacity=".146" rx="3" transform="matrix(1 0 0 -1 0 372)"/>
+    <rect width="12" height="12" x="103" y="180" fill="#5D76E8" stroke="#000" stroke-opacity=".146" rx="3" transform="matrix(1 0 0 -1 0 372)"/>
+    <rect width="12" height="12" x="85" y="180" fill="#35C25B" stroke="#000" stroke-opacity=".146" rx="3" transform="matrix(1 0 0 -1 0 372)"/>
+    <g transform="translate(334 250)">
+      <mask id="alpha_premul-e" fill="#fff">
+        <use xlink:href="#alpha_premul-d"/>
+      </mask>
+      <use stroke="#000" stroke-opacity=".139" transform="matrix(1 0 0 -1 0 12)" xlink:href="#alpha_premul-d"/>
+      <rect width="4" height="4" x="8" y="8" fill="#D8D8D8" mask="url(#alpha_premul-e)"/>
+      <rect width="4" height="4" y="8" fill="#D8D8D8" mask="url(#alpha_premul-e)"/>
+      <rect width="4" height="4" x="4" y="4" fill="#D8D8D8" mask="url(#alpha_premul-e)"/>
+      <rect width="4" height="4" x="8" fill="#D8D8D8" mask="url(#alpha_premul-e)"/>
+      <rect width="4" height="4" fill="#D8D8D8" mask="url(#alpha_premul-e)"/>
+      <use stroke="#000" stroke-opacity=".139" transform="matrix(1 0 0 -1 0 12)" xlink:href="#alpha_premul-f"/>
+    </g>
+    <rect width="12" height="12" x="316" y="110" fill="#E74C3C" stroke="#000" stroke-opacity=".146" rx="3" transform="matrix(1 0 0 -1 0 232)"/>
+    <rect width="12" height="12" x="352" y="110" fill="#5D76E8" stroke="#000" stroke-opacity=".146" rx="3" transform="matrix(1 0 0 -1 0 232)"/>
+    <rect width="12" height="12" x="334" y="110" fill="#35C25B" stroke="#000" stroke-opacity=".146" rx="3" transform="matrix(1 0 0 -1 0 232)"/>
+    <rect width="199" height="99" x=".5" y="70.5" stroke="#979797"/>
+    <rect width="199" height="99" x="240.5" y=".5" fill="#000" stroke="#979797"/>
+    <rect width="199" height="99" x="240.5" y="140.5" fill="#000" stroke="#979797"/>
+    <rect width="160" height="60" x="20" y="90" fill="url(#alpha_premul-g)"/>
+    <rect width="160" height="60" x="260" y="20" fill="url(#alpha_premul-g)"/>
+    <rect width="160" height="60" x="260" y="162" fill="url(#alpha_premul-h)"/>
+  </g>
+</svg>

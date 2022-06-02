@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2052BB">
+<meta name="author" content="Bartosz Ciechanowski">
+<meta name="format-detection" content="telephone=no">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-25335284-3"></script>
+
+
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-25335284-3');
+</script>
+  <meta property="og:title" content="__NSDictionaryI objectForKey: – Bartosz Ciechanowski" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ciechanow.ski/extra/objectforkeyassembly/" />
+<meta property="og:description" content="" />
+<meta property="og:locale" content="en_US">
+  <link href="../../css/base.css" rel="stylesheet" type="text/css"/>
+<link href="https://fonts.googleapis.com/css?family=Lato:700&display=swap" rel="stylesheet" type="text/css" async>
+<link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,400i,500&display=swap" rel="stylesheet" async>
+  <title>__NSDictionaryI objectForKey: – Bartosz Ciechanowski</title>
+  <link rel="icon" href="../../favicon.ico">
+  <script defer src="../../js/base.js"></script>
+</head>
+
+<body>
+  <div id="main_container">
+    <div id="body">
+      <div id="banner">
+    <div id="banner_wrapper">
+        <div id="banner_content">
+            <div id="site_title">
+                <a href="../../index.html">Bartosz Ciechanowski</a>
+            </div>
+            <div id="navigation">
+                <a href="../../index.html">Blog</a>
+                <a href="../../archives.html">Archives</a>
+            </div>
+            <div id="social">
+                <a class="patreon" href="https://www.patreon.com/ciechanowski" title="Patreon"><div class="patreonLogo">Patreon</div></a>
+                <a class="twitter" href="https://twitter.com/bciechanowski" title="Twitter"><div class="twitterLogo">Twitter</div></a>
+                <a class="instagram" href="https://www.instagram.com/bartoszciechanowski/" title="Instagram"><div class="igLogo">Instagram</div></a>
+                <a class="email" href="mailto:bartosz@ciechanow.ski" title="e-mail"><div class="emailLogo">e-mail</div></a>
+                <a class="rss" href="../../atom.xml" title="rss"><div class="rssLogo">rss</div></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+      <div id="content">
+        
+<div class="article">
+    <div class="post_date">April 8, 2014</div>
+    <h1 class="post_title"><a href="index.html">__NSDictionaryI objectForKey:</a></h1>
+    <div class="padding_wrapper"><p>This is a companion article for my <a href="../../blog/2014/04/08/exposing-nsdictionary/index.html#howItWorks">blog post</a> on <code>NSDictionary</code>. It contains the disassembly analysis for <code>objectForKey:</code> method of <code>__NSDictionaryI</code> class. The disassembly was generated using <a href="http://www.hopperapp.com">Hopper</a> and it&rsquo;s based on iOS 7.1 SDK targeting ARM64 architecture.</p>
+<h2 id="the-code">The Code<a href="index.html#the-code" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>Here&rsquo;s what we&rsquo;re going to digest:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14e90</span>       <span class="n">stp</span>        <span class="n">x29</span><span class="p">,</span> <span class="n">x30</span><span class="p">,</span> <span class="n">[sp</span><span class="p">,</span> <span class="c1">#0xfffffff0]!</span>
+<span class="mh">0x14e94</span>       <span class="n">mov</span>        <span class="n">x29</span><span class="p">,</span> <span class="n">sp</span>
+<span class="mh">0x14e98</span>       <span class="n">stp</span>        <span class="n">x20</span><span class="p">,</span> <span class="n">x19</span><span class="p">,</span> <span class="n">[sp</span><span class="p">,</span> <span class="c1">#0xfffffff0]!</span>
+<span class="mh">0x14e9c</span>       <span class="n">stp</span>        <span class="n">x22</span><span class="p">,</span> <span class="n">x21</span><span class="p">,</span> <span class="n">[sp</span><span class="p">,</span> <span class="c1">#0xfffffff0]!</span>
+<span class="mh">0x14ea0</span>       <span class="n">stp</span>        <span class="n">x24</span><span class="p">,</span> <span class="n">x23</span><span class="p">,</span> <span class="n">[sp</span><span class="p">,</span> <span class="c1">#0xfffffff0]!</span>
+<span class="mh">0x14ea4</span>       <span class="n">mov</span>        <span class="n">x19</span><span class="p">,</span> <span class="n">x2</span>
+<span class="mh">0x14ea8</span>       <span class="n">mov</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x0</span>
+<span class="mh">0x14eac</span>       <span class="n">movz</span>       <span class="n">x0</span><span class="p">,</span> <span class="c1">#0x0</span>
+<span class="mh">0x14eb0</span>       <span class="n">adrp</span>       <span class="n">x9</span><span class="p">,</span> <span class="c1">#0x1d1000</span>
+<span class="mh">0x14eb4</span>       <span class="n">ldrsw</span>      <span class="n">x9</span><span class="p">,</span> <span class="n">[x9</span><span class="p">,</span> <span class="c1">#0x60]</span>
+<span class="mh">0x14eb8</span>       <span class="n">ldrb</span>       <span class="n">w9</span><span class="p">,</span> <span class="n">[x8</span><span class="p">,</span> <span class="n">x9]</span>
+<span class="mh">0x14ebc</span>       <span class="n">lsr</span>        <span class="n">w21</span><span class="p">,</span> <span class="n">w9</span><span class="p">,</span> <span class="c1">#0x2</span>
+<span class="mh">0x14ec0</span>       <span class="n">cbz</span>        <span class="n">w21</span><span class="p">,</span> <span class="mh">0x14f80</span>
+
+<span class="mh">0x14ec4</span>       <span class="n">mov</span>        <span class="n">x0</span><span class="p">,</span> <span class="n">x8</span>
+<span class="mh">0x14ec8</span>       <span class="n">bl</span>         <span class="n">imp___stubs__object_getIndexedIvars</span>
+<span class="mh">0x14ecc</span>       <span class="n">mov</span>        <span class="n">x20</span><span class="p">,</span> <span class="n">x0</span>
+<span class="mh">0x14ed0</span>       <span class="n">adrp</span>       <span class="n">x8</span><span class="p">,</span> <span class="c1">#0x1ad000</span>
+<span class="mh">0x14ed4</span>       <span class="n">add</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x8</span><span class="p">,</span> <span class="c1">#0x768</span>
+<span class="mh">0x14ed8</span>       <span class="n">ldr</span>        <span class="n">x1</span><span class="p">,</span> <span class="n">[x8]</span>
+<span class="mh">0x14edc</span>       <span class="n">mov</span>        <span class="n">x0</span><span class="p">,</span> <span class="n">x19</span>
+<span class="mh">0x14ee0</span>       <span class="n">bl</span>         <span class="n">imp___stubs__objc_msgSend</span>
+<span class="mh">0x14ee4</span>       <span class="n">mov</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x0</span>
+<span class="mh">0x14ee8</span>       <span class="n">movz</span>       <span class="n">x0</span><span class="p">,</span> <span class="c1">#0x0</span>
+<span class="mh">0x14eec</span>       <span class="n">and</span>        <span class="n">w9</span><span class="p">,</span> <span class="n">w21</span><span class="p">,</span> <span class="c1">#0xff</span>
+<span class="mh">0x14ef0</span>       <span class="n">cmp</span>        <span class="n">w9</span><span class="p">,</span> <span class="c1">#0x3f</span>
+<span class="mh">0x14ef4</span>       <span class="n">b.eq</span>       <span class="mh">0x14f80</span>
+
+<span class="mh">0x14ef8</span>       <span class="n">movz</span>       <span class="n">x23</span><span class="p">,</span> <span class="c1">#0x0</span>
+<span class="mh">0x14efc</span>       <span class="n">adrp</span>       <span class="n">x9</span><span class="p">,</span> <span class="c1">#0x156000</span>
+<span class="mh">0x14f00</span>       <span class="n">add</span>        <span class="n">x9</span><span class="p">,</span> <span class="n">x9</span><span class="p">,</span> <span class="c1">#0xf38</span>
+<span class="mh">0x14f04</span>       <span class="n">add</span>        <span class="n">x9</span><span class="p">,</span> <span class="n">x9</span><span class="p">,</span> <span class="n">w21</span><span class="p">,</span> <span class="n">uxtb</span> <span class="c1">#3</span>
+<span class="mh">0x14f08</span>       <span class="n">ldr</span>        <span class="n">x22</span><span class="p">,</span> <span class="n">[x9]</span>
+<span class="mh">0x14f0c</span>       <span class="n">udiv</span>       <span class="n">x9</span><span class="p">,</span> <span class="n">x8</span><span class="p">,</span> <span class="n">x22</span>
+<span class="mh">0x14f10</span>       <span class="n">msub</span>       <span class="n">x24</span><span class="p">,</span> <span class="n">x9</span><span class="p">,</span> <span class="n">x22</span><span class="p">,</span> <span class="n">x8</span>
+<span class="mh">0x14f14</span>       <span class="n">adrp</span>       <span class="n">x8</span><span class="p">,</span> <span class="c1">#0x1ad000</span>
+<span class="mh">0x14f18</span>       <span class="n">add</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x8</span><span class="p">,</span> <span class="c1">#0x770</span>
+<span class="mh">0x14f1c</span>       <span class="n">ldr</span>        <span class="n">x21</span><span class="p">,</span> <span class="n">[x8]</span>
+
+<span class="mh">0x14f20</span>       <span class="n">add</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x20</span><span class="p">,</span> <span class="n">x24</span><span class="p">,</span> <span class="n">lsl</span> <span class="c1">#4</span>
+<span class="mh">0x14f24</span>       <span class="n">ldr</span>        <span class="n">x0</span><span class="p">,</span> <span class="n">[x8]</span>
+<span class="mh">0x14f28</span>       <span class="n">cmp</span>        <span class="n">x0</span><span class="p">,</span> <span class="c1">#0x0</span>
+<span class="mh">0x14f2c</span>       <span class="n">ccmp</span>       <span class="n">x0</span><span class="p">,</span> <span class="n">x19</span><span class="p">,</span> <span class="c1">#0x4, ne</span>
+<span class="mh">0x14f30</span>       <span class="n">b.eq</span>       <span class="mh">0x14f68</span>
+
+<span class="mh">0x14f34</span>       <span class="n">mov</span>        <span class="n">x1</span><span class="p">,</span> <span class="n">x21</span>
+<span class="mh">0x14f38</span>       <span class="n">mov</span>        <span class="n">x2</span><span class="p">,</span> <span class="n">x19</span>
+<span class="mh">0x14f3c</span>       <span class="n">bl</span>         <span class="n">imp___stubs__objc_msgSend</span>
+<span class="mh">0x14f40</span>       <span class="n">tbnz</span>       <span class="n">w0</span><span class="p">,</span> <span class="c1">#0x0, 0x14f68</span>
+
+<span class="mh">0x14f44</span>       <span class="n">movz</span>       <span class="n">x0</span><span class="p">,</span> <span class="c1">#0x0</span>
+<span class="mh">0x14f48</span>       <span class="n">add</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x24</span><span class="p">,</span> <span class="c1">#0x1</span>
+<span class="mh">0x14f4c</span>       <span class="n">cmp</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x22</span>
+<span class="mh">0x14f50</span>       <span class="n">csel</span>       <span class="n">x9</span><span class="p">,</span> <span class="n">xzr</span><span class="p">,</span> <span class="n">x22</span><span class="p">,</span> <span class="n">lo</span>
+<span class="mh">0x14f54</span>       <span class="n">sub</span>        <span class="n">x24</span><span class="p">,</span> <span class="n">x8</span><span class="p">,</span> <span class="n">x9</span>
+<span class="mh">0x14f58</span>       <span class="n">add</span>        <span class="n">x23</span><span class="p">,</span> <span class="n">x23</span><span class="p">,</span> <span class="c1">#0x1</span>
+<span class="mh">0x14f5c</span>       <span class="n">cmp</span>        <span class="n">x23</span><span class="p">,</span> <span class="n">x22</span>
+<span class="mh">0x14f60</span>       <span class="n">b.lo</span>       <span class="mh">0x14f20</span>
+
+<span class="mh">0x14f64</span>       <span class="n">b</span>          <span class="mh">0x14f80</span>
+
+<span class="mh">0x14f68</span>       <span class="n">movz</span>       <span class="n">x0</span><span class="p">,</span> <span class="c1">#0x0</span>
+<span class="mh">0x14f6c</span>       <span class="n">lsl</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x24</span><span class="p">,</span> <span class="c1">#0x1</span>
+<span class="mh">0x14f70</span>       <span class="n">cmp</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x22</span><span class="p">,</span> <span class="n">lsl</span> <span class="c1">#1</span>
+<span class="mh">0x14f74</span>       <span class="n">b.hs</span>       <span class="mh">0x14f80</span>
+
+<span class="mh">0x14f78</span>       <span class="n">orr</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x8</span><span class="p">,</span> <span class="c1">#0x1</span>
+<span class="mh">0x14f7c</span>       <span class="n">ldr</span>        <span class="n">x0</span><span class="p">,</span> <span class="n">[x20</span><span class="p">,</span> <span class="n">x8</span><span class="p">,</span> <span class="n">lsl</span> <span class="c1">#3]</span>
+
+<span class="mh">0x14f80</span>       <span class="n">ldp</span>        <span class="n">x24</span><span class="p">,</span> <span class="n">x23</span><span class="p">,</span> <span class="n">[sp]</span><span class="p">,</span> <span class="c1">#0x10</span>
+<span class="mh">0x14f84</span>       <span class="n">ldp</span>        <span class="n">x22</span><span class="p">,</span> <span class="n">x21</span><span class="p">,</span> <span class="n">[sp]</span><span class="p">,</span> <span class="c1">#0x10</span>
+<span class="mh">0x14f88</span>       <span class="n">ldp</span>        <span class="n">x20</span><span class="p">,</span> <span class="n">x19</span><span class="p">,</span> <span class="n">[sp]</span><span class="p">,</span> <span class="c1">#0x10</span>
+<span class="mh">0x14f8c</span>       <span class="n">ldp</span>        <span class="n">x29</span><span class="p">,</span> <span class="n">x30</span><span class="p">,</span> <span class="n">[sp]</span><span class="p">,</span> <span class="c1">#0x10</span>
+<span class="mh">0x14f90</span>       <span class="n">ret</span>      
+</code></pre></div><p>This is quite a lot, but we&rsquo;re going to take it chunk by chunk and I will more or less describe what each instruction does.</p>
+<h2 id="the-setup">The Setup<a href="index.html#the-setup" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>We begin the procedure by with ARM64 function prolog. We&rsquo;re also storing <code>x19</code>, <code>x20</code>, <code>x21</code>, <code>x22</code>, <code>x23</code> and <code>x24</code> registers on the stack. Those are callee-saved registers and since the function is going to make use of those, we have to store their previous value, thus fulfilling caller&rsquo;s expectations of those register maintaining their value:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14e90</span>       <span class="n">stp</span>        <span class="n">x29</span><span class="p">,</span> <span class="n">x30</span><span class="p">,</span> <span class="n">[sp</span><span class="p">,</span> <span class="c1">#0xfffffff0]!</span>
+<span class="mh">0x14e94</span>       <span class="n">mov</span>        <span class="n">x29</span><span class="p">,</span> <span class="n">sp</span>
+<span class="mh">0x14e98</span>       <span class="n">stp</span>        <span class="n">x20</span><span class="p">,</span> <span class="n">x19</span><span class="p">,</span> <span class="n">[sp</span><span class="p">,</span> <span class="c1">#0xfffffff0]!</span>
+<span class="mh">0x14e9c</span>       <span class="n">stp</span>        <span class="n">x22</span><span class="p">,</span> <span class="n">x21</span><span class="p">,</span> <span class="n">[sp</span><span class="p">,</span> <span class="c1">#0xfffffff0]!</span>
+<span class="mh">0x14ea0</span>       <span class="n">stp</span>        <span class="n">x24</span><span class="p">,</span> <span class="n">x23</span><span class="p">,</span> <span class="n">[sp</span><span class="p">,</span> <span class="c1">#0xfffffff0]!</span>
+</code></pre></div><p>When the function is called, the <code>x0</code> register contains <code>self</code> pointer and <code>x2</code> register has a pointer to <code>key</code>. Since we&rsquo;re going to make a few calls from the function itself, and those registers are used for arguments passing, we need to keep their current value aside. We move the values from <code>x2</code> and <code>x0</code> registers to <code>x19</code> and <code>x8</code> register respectively:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14ea4</span>       <span class="n">mov</span>        <span class="n">x19</span><span class="p">,</span> <span class="n">x2</span>
+<span class="mh">0x14ea8</span>       <span class="n">mov</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x0</span>
+</code></pre></div><p>We clear out the <code>x0</code> register, effectively making it store <code>nil</code> value:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14eac</span>       <span class="n">movz</span>       <span class="n">x0</span><span class="p">,</span> <span class="c1">#0x0</span>
+</code></pre></div><h2 id="fetching-size-index">Fetching Size Index<a href="index.html#fetching-size-index" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>As <a href="../../blog/2014/03/05/exposing-nsmutablearray/index.html#fetching-count">it&rsquo;s been discussed previously</a>, the next three instructions simply fetch the one byte contents of <code>_szidx</code> ivar into <code>w9</code> register:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14eb0</span>       <span class="n">adrp</span>       <span class="n">x9</span><span class="p">,</span> <span class="c1">#0x1d1000</span>
+<span class="mh">0x14eb4</span>       <span class="n">ldrsw</span>      <span class="n">x9</span><span class="p">,</span> <span class="n">[x9</span><span class="p">,</span> <span class="c1">#0x60]</span>
+<span class="mh">0x14eb8</span>       <span class="n">ldrb</span>       <span class="n">w9</span><span class="p">,</span> <span class="n">[x8</span><span class="p">,</span> <span class="n">x9]</span>
+</code></pre></div><p>Notice that we&rsquo;ve fetched 8 bits of memory, but <code>_szidx</code> is defined as 6-bits bitfield. We have to shift the <code>w9</code> register 2 bits to the right, discarding the unwanted bits, and storing the result into <code>w21</code> register:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14ebc</span>       <span class="n">lsr</span>        <span class="n">w21</span><span class="p">,</span> <span class="n">w9</span><span class="p">,</span> <span class="c1">#0x2</span>
+</code></pre></div><p>At this point we can compare whether the value of <code>_szidx</code> is equal to <code>0</code>, if so, we jump to instruction at offset of <code>0x14f80</code>, which is a function epilog. At this point we still have <code>0</code> in <code>x0</code> so the function will return <code>nil</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14ec0</span>       <span class="n">cbz</span>        <span class="n">w21</span><span class="p">,</span> <span class="mh">0x14f80</span>
+</code></pre></div><p>As we will see very soon, it&rsquo;s rare for <code>_szidx</code> to be equal to zero, so we can safely keep interpreting instructions one by one.</p>
+<h2 id="dynamic-linking">Dynamic Linking<a href="index.html#dynamic-linking" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>We restore the <code>self</code> pointer kept in <code>x8</code> back into <code>x0</code>. It will be passed as the first argument to the <code>imp___stubs__object_getIndexedIvars</code> function. After the function returns its result is kept in <code>x0</code>, but since this register will be used heavily, it is moved into the <code>x20</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14ec4</span>       <span class="n">mov</span>        <span class="n">x0</span><span class="p">,</span> <span class="n">x8</span>
+<span class="mh">0x14ec8</span>       <span class="n">bl</span>         <span class="n">imp___stubs__object_getIndexedIvars</span>
+<span class="mh">0x14ecc</span>       <span class="n">mov</span>        <span class="n">x20</span><span class="p">,</span> <span class="n">x0</span>
+</code></pre></div><p>One might wonder why we&rsquo;re calling the <code>imp___stubs__object_getIndexedIvars</code> function instead of <code>object_getIndexedIvars</code>. It all boils down to dynamic linking. At the point of compilation the compiler merely knows that when the program is run, there will be an <code>object_getIndexedIvars</code> function available in the system. It creates a very short stub function that fetches a memory address and jumps to it.</p>
+<p>On the first run this memory address points to a helper function that will run the dyld machinery to figure out where the function is and then the memory address gets overwritten to point to the correct location of <code>object_getIndexedIvars</code>. This process is called lazy binding and provides very fast booting (since the application doesn&rsquo;t have to link anything that hasn&rsquo;t been yet needed) at the cost of very slight call overhead.</p>
+<h2 id="the-hash">The Hash<a href="index.html#the-hash" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>Another round of program counter relative memory fetching. This time the <code>hash</code> selector lands in <code>x1</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14ed0</span>       <span class="n">adrp</span>       <span class="n">x8</span><span class="p">,</span> <span class="c1">#0x1ad000</span>
+<span class="mh">0x14ed4</span>       <span class="n">add</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x8</span><span class="p">,</span> <span class="c1">#0x768</span>
+<span class="mh">0x14ed8</span>       <span class="n">ldr</span>        <span class="n">x1</span><span class="p">,</span> <span class="n">[x8]</span>
+</code></pre></div><p>We&rsquo;re moving back the <code>key</code> pointer from <code>x19</code> into <code>x0</code> and with <code>hash</code> selector in <code>x1</code> we&rsquo;re calling everyone&rsquo;s favorite <code>objc_msgSend</code> (through a stub), then we move the <code>hash</code>&rsquo;s return value from <code>x0</code> to <code>x8</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14edc</span>       <span class="n">mov</span>        <span class="n">x0</span><span class="p">,</span> <span class="n">x19</span>
+<span class="mh">0x14ee0</span>       <span class="n">bl</span>         <span class="n">imp___stubs__objc_msgSend</span>
+<span class="mh">0x14ee4</span>       <span class="n">mov</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x0</span>
+</code></pre></div><p>Using pseudo C we might summarize those few instructions with:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-obj-c" data-lang="obj-c"><span class="n">x8</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="n">hash</span><span class="p">];</span>
+</code></pre></div><p>We conveniently put <code>nil</code> into the <code>x0</code> register:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14ee8</span>       <span class="n">movz</span>       <span class="n">x0</span><span class="p">,</span> <span class="c1">#0x0</span>
+</code></pre></div><p>I&rsquo;m not entirely sure why it&rsquo;s needed, but we clear all but last 8 bits of <code>w21</code> (which contains the value of <code>_szidx</code>) by binary ANDing it with <code>0xff</code>. Then we compare the value with <code>0x3f</code>. In case the values are equal, we jump to the function epilog, returning a <code>nil</code> value stored previously in <code>x0</code> register:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14eec</span>       <span class="n">and</span>        <span class="n">w9</span><span class="p">,</span> <span class="n">w21</span><span class="p">,</span> <span class="c1">#0xff</span>
+<span class="mh">0x14ef0</span>       <span class="n">cmp</span>        <span class="n">w9</span><span class="p">,</span> <span class="c1">#0x3f</span>
+<span class="mh">0x14ef4</span>       <span class="n">b.eq</span>       <span class="mh">0x14f80</span>
+</code></pre></div><p>Very soon we&rsquo;ll use <code>x23</code> register as a loop counter, so it makes sense to zero it out:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14ef8</span>       <span class="n">movz</span>       <span class="n">x23</span><span class="p">,</span> <span class="c1">#0x0</span>
+</code></pre></div><p>A quick fetch of some address into <code>x9</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14efc</span>       <span class="n">adrp</span>       <span class="n">x9</span><span class="p">,</span> <span class="c1">#0x156000</span>
+<span class="mh">0x14f00</span>       <span class="n">add</span>        <span class="n">x9</span><span class="p">,</span> <span class="n">x9</span><span class="p">,</span> <span class="c1">#0xf38</span>
+</code></pre></div><p>What&rsquo;s at <code>0x156f38?</code> Hopper comes to help:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="n">___NSDictionarySizes</span><span class="o">:</span>
+<span class="m">0000000000156</span><span class="n">f38</span>         <span class="n">db</span>  <span class="mh">0x00</span> <span class="p">;</span>
+<span class="m">0000000000156</span><span class="n">f39</span>         <span class="n">db</span>  <span class="mh">0x00</span> <span class="p">;</span>
+<span class="kc">...</span>
+</code></pre></div><p>I&rsquo;ve explained what <code>__NSDictionarySizes</code> contains in the main article, but for the purpose of assembly analysis suffice it to say, it&rsquo;s an <em>array</em> of some values.</p>
+<p>With <code>_szidx</code> still in <code>w21</code>, we left-shift it by 3, which is the same as multiplying by 8 which is the size of <code>NSUInteger</code> on 64-bit architectures. Finally we fetch the contents of memory at that location into <code>x22</code> register:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14f04</span>       <span class="n">add</span>        <span class="n">x9</span><span class="p">,</span> <span class="n">x9</span><span class="p">,</span> <span class="n">w21</span><span class="p">,</span> <span class="n">uxtb</span> <span class="c1">#3</span>
+<span class="mh">0x14f08</span>       <span class="n">ldr</span>        <span class="n">x22</span><span class="p">,</span> <span class="n">[x9]</span>
+</code></pre></div><p>While the fetching arithmetics looks quite complicated, the C equivalent is super simple:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-obj-c" data-lang="obj-c"><span class="n">x22</span> <span class="o">=</span> <span class="n">__NSDictionarySizes</span><span class="p">[</span><span class="n">_szidx</span><span class="p">];</span>
+</code></pre></div><h2 id="division">Division<a href="index.html#division" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>Here comes the fun part! With return value of <code>hash</code> in <code>x8</code> and some kind of size in <code>x22</code> we divide the former by the latter, storing the result in <code>x9</code>. Then we use <strong>m</strong>ultiply-<strong>sub</strong>tract instruction which in this case subtracts <code>x9 * x22</code> from <code>x8</code> storing the result in <code>x24</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14f0c</span>       <span class="n">udiv</span>       <span class="n">x9</span><span class="p">,</span> <span class="n">x8</span><span class="p">,</span> <span class="n">x22</span>
+<span class="mh">0x14f10</span>       <span class="n">msub</span>       <span class="n">x24</span><span class="p">,</span> <span class="n">x9</span><span class="p">,</span> <span class="n">x22</span><span class="p">,</span> <span class="n">x8</span>
+</code></pre></div><p>What just happened? Here&rsquo;s the C pseudocode:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">x9</span> <span class="o">=</span> <span class="n">x8</span> <span class="o">/</span> <span class="n">x22</span><span class="p">;</span>
+<span class="n">x24</span> <span class="o">=</span> <span class="n">x8</span> <span class="o">-</span> <span class="n">x9</span> <span class="o">*</span> <span class="n">x22</span><span class="p">;</span>
+</code></pre></div><p>Treating the code algebraically one might argue that the value of <code>x24</code> is simply <code>0</code>, since values of <code>x22</code> in both nominator and denominator cancel each other out. However, the <code>udiv</code> instruction does <em>integer</em> division, discarding the remainder. It turns out, there is an operator in C that does the very same calculation in a more compact way:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">x24</span> <span class="o">=</span> <span class="n">x8</span> <span class="o">%</span> <span class="n">x22</span><span class="p">;</span>
+</code></pre></div><p>That&rsquo;s it. We&rsquo;re just doing a modulo calculation in a form of <code>hash % size</code>. As you might suspect, we&rsquo;re checking which slot does the hash fall into. We can expect <code>x22</code> to contain some kind of limit of the storage size.</p>
+<h2 id="the-most-important-selector">The Most Important Selector<a href="index.html#the-most-important-selector" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>We&rsquo;re just one step shy of fetching value for a key, all that&rsquo;s missing is the <code>isEqual:</code> selector that the next three instructions fetch into <code>x21</code> register:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14f14</span>       <span class="n">adrp</span>       <span class="n">x8</span><span class="p">,</span> <span class="c1">#0x1ad000</span>
+<span class="mh">0x14f18</span>       <span class="n">add</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x8</span><span class="p">,</span> <span class="c1">#0x770</span>
+<span class="mh">0x14f1c</span>       <span class="n">ldr</span>        <span class="n">x21</span><span class="p">,</span> <span class="n">[x8]</span>
+</code></pre></div><h2 id="the-loop">The Loop<a href="index.html#the-loop" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>At this point we have the address of indexed ivars in <code>x20</code> register and the modulo calculation result in <code>x24</code> from now on called index. We&rsquo;re going to shift it to the left by <em>four</em> bits. The three bit shift is responsible for making the index equal to 64-bit pointer size (8 bytes), but the one addition shift multiplies the index by two. The fetch result is stored in <code>x0</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14f20</span>       <span class="n">add</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x20</span><span class="p">,</span> <span class="n">x24</span><span class="p">,</span> <span class="n">lsl</span> <span class="c1">#4</span>
+<span class="mh">0x14f24</span>       <span class="n">ldr</span>        <span class="n">x0</span><span class="p">,</span> <span class="n">[x8]</span>
+</code></pre></div><p>Here&rsquo;s the conditional comparison magic of ARM64. At first we <strong>c</strong>o<strong>mp</strong>are if the previously fetched value is equal to <code>0</code>. The <strong>c</strong>onditional <strong>c</strong>o<strong>mp</strong>are instruction works as follow: if the result of the previous operation was <strong>n</strong>ot <strong>e</strong>qual, then the NZCV flags (<strong>n</strong>egative, <strong>z</strong>ero, <strong>c</strong>arry, o<strong>v</strong>erflow) will contain the comparison result of <code>x0</code> and <code>x19</code>, otherwise the NZCV flags will be equal to 0x4 which is 0100 in binary. If you look at the pattern you might notice that only the <strong>Z</strong>ero flag will be set. The <code>b.eq</code> instruction actually checks the <code>Z</code> flag jumping to the <code>0x14f68</code> address only if it&rsquo;s set to 1:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14f28</span>       <span class="n">cmp</span>        <span class="n">x0</span><span class="p">,</span> <span class="c1">#0x0</span>
+<span class="mh">0x14f2c</span>       <span class="n">ccmp</span>       <span class="n">x0</span><span class="p">,</span> <span class="n">x19</span><span class="p">,</span> <span class="c1">#0x4, ne</span>
+<span class="mh">0x14f30</span>       <span class="n">b.eq</span>       <span class="mh">0x14f68</span>
+</code></pre></div><p>Let&rsquo;s go through this once again. The <code>b.eq</code> will jump if <code>Z</code> flag is set. The <code>Z</code> flag will be set either when <code>x0</code> is equal to <code>0</code> (<code>cmp</code> instruction also sets <code>Z</code> to 1 when true) <em>or</em> when <code>x0</code> is equal to <code>key</code> stored in <code>x19</code>. Here&rsquo;s the equivalent C pseudocode:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="k">if</span> <span class="p">(</span><span class="n">x0</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">x0</span> <span class="o">==</span> <span class="n">key</span><span class="p">)</span>
+    <span class="k">goto</span> <span class="mh">0x14f68</span><span class="p">;</span> 
+</code></pre></div><p>In other words, if the value fetched somewhere from within index ivars is <code>nil</code>, <em>or</em> it is equal to key, then we&rsquo;re done. This is super important, it means that we&rsquo;ve actually fetched the stored key and we&rsquo;re comparing it with the key passed into <code>objectForKey:</code> call.</p>
+<p>We&rsquo;re going to go into <code>0x14f68</code> shortly, but for now we can assume that the fetched key is not <code>nil</code> and is not equal (as in pointer equality) to the query key, so let&rsquo;s keep going. We&rsquo;re getting ready for another Objective-C method call. With fetched <code>key</code> in <code>x0</code> (will map to <code>self</code>), <code>isEqual:</code> selector in <code>x21</code> (will map to <code>_cmd</code>) and query key in <code>x19</code> (will map to <code>object</code> argument), it&rsquo;s just the matter of preparing <code>x1</code> and <code>x2</code> registers and executing the call:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14f34</span>       <span class="n">mov</span>        <span class="n">x1</span><span class="p">,</span> <span class="n">x21</span>
+<span class="mh">0x14f38</span>       <span class="n">mov</span>        <span class="n">x2</span><span class="p">,</span> <span class="n">x19</span>
+<span class="mh">0x14f3c</span>       <span class="n">bl</span>         <span class="n">imp___stubs__objc_msgSend</span>
+</code></pre></div><p>In other words we&rsquo;re doing:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-obj-c" data-lang="obj-c"><span class="n">x0</span> <span class="o">=</span> <span class="p">[</span><span class="n">fetchedKey</span> <span class="nl">isEqualTo</span><span class="p">:</span><span class="n">queryKey</span><span class="p">];</span>
+</code></pre></div><p>If the method call returns YES (the 0<sup>th</sup> bit is <strong>n</strong>ot <strong>z</strong>ero), we&rsquo;re jumping into the <code>0x14f68</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14f40</span>       <span class="n">tbnz</span>       <span class="n">w0</span><span class="p">,</span> <span class="c1">#0x0, 0x14f68</span>
+</code></pre></div><p>Here&rsquo;s where we are at this point: we&rsquo;ve fetched a non-nil key, that is not equal to query key in terms of both pointer and <code>isEqual:</code> comparison.</p>
+<p>We clear out <code>x0</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14f44</span>       <span class="n">movz</span>       <span class="n">x0</span><span class="p">,</span> <span class="c1">#0x0</span>
+</code></pre></div><p>We add one to <code>x24</code> (which keeps the modulo operation result) at store it into <code>x8</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14f48</span>       <span class="n">add</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x24</span><span class="p">,</span> <span class="c1">#0x1</span>
+</code></pre></div><p>We do a bounds check. If <code>x8</code> is lower than the size limit kept in <code>x22</code> then we store <code>0</code> (kept in <code>xzr</code> zero register) into <code>x9</code>, otherwise we feed it with <code>x22</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14f4c</span>       <span class="n">cmp</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x22</span>
+<span class="mh">0x14f50</span>       <span class="n">csel</span>       <span class="n">x9</span><span class="p">,</span> <span class="n">xzr</span><span class="p">,</span> <span class="n">x22</span><span class="p">,</span> <span class="n">lo</span>
+<span class="mh">0x14f54</span>       <span class="n">sub</span>        <span class="n">x24</span><span class="p">,</span> <span class="n">x8</span><span class="p">,</span> <span class="n">x9</span>
+</code></pre></div><p>The equivalent C code is less complicated:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="n">x9</span> <span class="o">=</span> <span class="n">x8</span> <span class="o">&lt;</span> <span class="n">x22</span> <span class="o">?</span> <span class="mi">0</span> <span class="o">:</span> <span class="n">x22</span><span class="p">;</span>
+<span class="n">x24</span> <span class="o">=</span> <span class="n">x8</span> <span class="o">-</span> <span class="n">x9</span><span class="p">;</span>
+</code></pre></div><p>This is a very simple iteration that advances the index one by one, but when we hit the end it&rsquo;s wrapped around back to the beginning.</p>
+<p>At <code>0x14ef8</code> we cleared the loop counter <code>x23</code> and now it finally gets used. We increment it and compare to the limit in <code>x22</code>. If we haven&rsquo;t yet crossed the iteration limit we jump back to the beginning of the loop:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14f58</span>       <span class="n">add</span>        <span class="n">x23</span><span class="p">,</span> <span class="n">x23</span><span class="p">,</span> <span class="c1">#0x1</span>
+<span class="mh">0x14f5c</span>       <span class="n">cmp</span>        <span class="n">x23</span><span class="p">,</span> <span class="n">x22</span>
+<span class="mh">0x14f60</span>       <span class="n">b.lo</span>       <span class="mh">0x14f20</span>
+</code></pre></div><p>This check prevents the dictionary from iterating over its contents endlessly.</p>
+<h2 id="getting-past-the-loop">Getting Past the Loop<a href="index.html#getting-past-the-loop" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>The only way we got to this point is when we&rsquo;ve iterated over all the keys stored in the indexed ivars, every key was non-nil and no key was equal to query key. We haven&rsquo;t find what we&rsquo;ve been looking for and at this point with <code>0</code> still in <code>x0</code> register we can jump to the function prolog, returning the <code>nil</code> from the function:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14f64</span>       <span class="n">b</span>        <span class="mh">0x14f80</span>
+</code></pre></div><p>Here comes the long awaited <code>0x14f68</code> part. As a reminder, at this point the <code>x24</code> register contains the index, that when multiplied by two, can be used to fetch the key that is either <code>nil</code> or is <em>equal</em> to the query key.</p>
+<p>Next comes the very convenient <code>x0</code> clearing, we&rsquo;ll see why it&rsquo;s handy in a second:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14f68</span>       <span class="n">movz</span>       <span class="n">x0</span><span class="p">,</span> <span class="c1">#0x0</span>
+</code></pre></div><p>We shift the fetch index to the left and store the result in <code>x8</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14f6c</span>       <span class="n">lsl</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x24</span><span class="p">,</span> <span class="c1">#0x1</span>
+</code></pre></div><p>Then we compare this to 1-bit-left-shifted value of <code>x22</code> register (<code>x22</code> contains the storage limit). If the doubled fetch index is larger than doubled limit then we jump to the epilog at <code>0x14f80</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14f70</span>       <span class="n">cmp</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x22</span><span class="p">,</span> <span class="n">lsl</span> <span class="c1">#1</span>
+<span class="mh">0x14f74</span>       <span class="n">b.hs</span>       <span class="mh">0x14f80</span>
+</code></pre></div><p>This is why we needed the <code>x0</code> clearing at <code>0x14f68</code>. If we succeed the test, i.e. when the fetch index is out of bounds, then we jump to the epilog at <code>0x14f80</code>, and we will safely return <code>nil</code> from the function.</p>
+<p>Assuming we are within the bounds we can finally digest the last two crucial instructions.</p>
+<h2 id="the-object-fetch">The Object Fetch<a href="index.html#the-object-fetch" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>We&rsquo;re doing a bitwise OR operation on the fetch index in <code>x8</code>, but since <code>x8</code> has been recently shifted to the left (multiplied by two) then this is no different than adding one to <code>x8</code>. With address of indexed ivars in <code>x20</code> we add it to the 3-bits-left shifted <code>x8</code> (pointer size shift) and then we dereference the entire thing into <code>x0</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14f78</span>       <span class="n">orr</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x8</span><span class="p">,</span> <span class="c1">#0x1</span>
+<span class="mh">0x14f7c</span>       <span class="n">ldr</span>        <span class="n">x0</span><span class="p">,</span> <span class="n">[x20</span><span class="p">,</span> <span class="n">x8</span><span class="p">,</span> <span class="n">lsl</span> <span class="c1">#3]</span>
+</code></pre></div><p>We&rsquo;ve just fetched the object corresponding to the query key into <code>x0</code>.</p>
+<h2 id="epilog">Epilog<a href="index.html#epilog" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>We&rsquo;re done at this point. With the return value safely stored in <code>x0</code> we can clean up the stack and return:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14f80</span>       <span class="n">ldp</span>        <span class="n">x24</span><span class="p">,</span> <span class="n">x23</span><span class="p">,</span> <span class="n">[sp]</span><span class="p">,</span> <span class="c1">#0x10</span>
+<span class="mh">0x14f84</span>       <span class="n">ldp</span>        <span class="n">x22</span><span class="p">,</span> <span class="n">x21</span><span class="p">,</span> <span class="n">[sp]</span><span class="p">,</span> <span class="c1">#0x10</span>
+<span class="mh">0x14f88</span>       <span class="n">ldp</span>        <span class="n">x20</span><span class="p">,</span> <span class="n">x19</span><span class="p">,</span> <span class="n">[sp]</span><span class="p">,</span> <span class="c1">#0x10</span>
+<span class="mh">0x14f8c</span>       <span class="n">ldp</span>        <span class="n">x29</span><span class="p">,</span> <span class="n">x30</span><span class="p">,</span> <span class="n">[sp]</span><span class="p">,</span> <span class="c1">#0x10</span>
+<span class="mh">0x14f90</span>       <span class="n">ret</span>      
+</code></pre></div>
+    </div>
+</div>
+      </div>
+    </div>
+    <div id="footer">
+        Copyright &copy; 2022 Bartosz Ciechanowski
+    </div>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,129 @@
+
+.ice_yellow {
+  color: rgb(214, 178, 57);
+}
+
+.ice_red {
+  color: rgb(247, 65, 57);
+}
+
+.ice_blue {
+  color: rgb(91, 173, 220);
+}
+
+.ice_green {
+  color: rgb(102, 182, 74);
+}
+
+.ice_oil {
+  color: #e2ad57;
+}
+
+.ice_green .slider_left_gutter,
+.ice_green .slider_right_gutter,
+.ice_green .slider_knob {
+        background:rgb(102, 182, 74);
+    }
+
+.ice_yellow .slider_left_gutter,
+.ice_yellow .slider_right_gutter,
+.ice_yellow .slider_knob {
+        background:rgb(224, 186, 60);
+    }
+
+.ice_red .slider_left_gutter,
+.ice_red .slider_right_gutter,
+.ice_red .slider_knob {
+        background:rgb(247, 65, 57);
+    }
+
+.ice_blue .slider_left_gutter,
+.ice_blue .slider_right_gutter,
+.ice_blue .slider_knob {
+        background:rgb(91, 173, 220);
+    }
+
+.ice_gray {
+  color: #888;
+}
+
+
+
+.ice_dark_gray {
+  color: #444;
+}
+
+
+.ice_red_dashed {
+  background-image: linear-gradient(to right, rgba(247, 65, 57,1) 60%, rgba(247, 65, 57,0) 0%);
+  background-position: 0px 1.15em;
+  background-size: 8px 2px;
+  background-repeat: repeat-x;
+  color: rgb(247, 65, 57);
+  }
+  
+  
+
+.drawer_container {
+  max-width: 450px;
+}
+
+.drawer_container:after {
+  padding-top: 100%;
+}
+
+#ice_valve_retainer:after {
+  padding-top: 70%;
+}
+
+#ice_crankshaft2:after {
+  padding-top: 50%;
+}
+
+#ice_main_bearings {
+  max-width: 300px;
+}
+
+#ice_hydrodynamic {
+  max-width: 400px;
+}
+
+#ice_piston,
+#ice_piston_rings,
+#ice_oil_ring {
+  max-width: 375px;
+}
+
+#ice_simple_crank:after,
+#ice_cannon:after,
+#ice_camshaft:after {
+  padding-top: 75%;
+}
+
+#ice_simple_crank_cannon:after,
+#ice_crankshaft:after,
+#ice_crankshaft_pistons:after {
+  padding-top: 85%;
+}
+
+#ice_pressure,
+#ice_pressure_torque,
+#ice_inertia_torque,
+#ice_total_torque,
+#ice_total4_torque,
+#ice_ang_vel,
+#ice_ang_vel_red,
+#ice_piston_velocity {
+  max-width: 700px;
+}
+
+#ice_pressure:after,
+#ice_pressure_torque:after,
+#ice_inertia_torque:after,
+#ice_total_torque:after,
+#ice_total4_torque:after,
+#ice_ang_vel:after,
+#ice_ang_vel_red:after,
+#ice_piston_velocity:after {
+  padding-top: 50%;
+}

@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="318" height="328" viewBox="0 0 318 328">
+  <defs>
+    <linearGradient id="alpha_compositing-c" x1="50%" x2="50%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#F7F7F7"/>
+      <stop offset="8.982%" stop-color="#DDD"/>
+      <stop offset="92.544%" stop-color="#CCC"/>
+      <stop offset="100%" stop-color="#929191"/>
+    </linearGradient>
+    <rect id="alpha_compositing-b" width="110" height="30" x="199" y="149" rx="6"/>
+    <filter id="alpha_compositing-a" width="112.7%" height="146.7%" x="-6.4%" y="-16.7%" filterUnits="objectBoundingBox">
+      <feOffset dy="2" in="SourceAlpha" result="shadowOffsetOuter1"/>
+      <feGaussianBlur in="shadowOffsetOuter1" result="shadowBlurOuter1" stdDeviation="2"/>
+      <feComposite in="shadowBlurOuter1" in2="SourceAlpha" operator="out" result="shadowBlurOuter1"/>
+      <feColorMatrix in="shadowBlurOuter1" values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.303676792 0"/>
+    </filter>
+    <rect id="alpha_compositing-e" width="110" height="30" x="9" y="79" rx="6"/>
+    <filter id="alpha_compositing-d" width="112.7%" height="146.7%" x="-6.4%" y="-16.7%" filterUnits="objectBoundingBox">
+      <feOffset dy="2" in="SourceAlpha" result="shadowOffsetOuter1"/>
+      <feGaussianBlur in="shadowOffsetOuter1" result="shadowBlurOuter1" stdDeviation="2"/>
+      <feColorMatrix in="shadowBlurOuter1" values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.303676792 0"/>
+    </filter>
+  </defs>
+  <g fill="none" fill-rule="evenodd">
+    <g fill="#EEE" transform="translate(0 280)">
+      <rect width="16" height="16"/>
+      <rect width="16" height="16" x="32"/>
+      <rect width="16" height="16" x="64"/>
+      <rect width="16" height="16" x="96"/>
+      <rect width="16" height="16" x="16" y="17"/>
+      <rect width="16" height="16" x="48" y="17"/>
+      <rect width="16" height="16" x="80" y="17"/>
+      <rect width="16" height="16" x="112" y="17"/>
+      <rect width="16" height="16" y="32"/>
+      <rect width="16" height="16" x="32" y="32"/>
+      <rect width="16" height="16" x="64" y="32"/>
+      <rect width="16" height="16" x="96" y="32"/>
+    </g>
+    <g fill="#EEE" transform="translate(0 210)">
+      <rect width="16" height="16"/>
+      <rect width="16" height="16" x="32"/>
+      <rect width="16" height="16" x="64"/>
+      <rect width="16" height="16" x="96"/>
+      <rect width="16" height="16" x="16" y="17"/>
+      <rect width="16" height="16" x="48" y="17"/>
+      <rect width="16" height="16" x="80" y="17"/>
+      <rect width="16" height="16" x="112" y="17"/>
+      <rect width="16" height="16" y="32"/>
+      <rect width="16" height="16" x="32" y="32"/>
+      <rect width="16" height="16" x="64" y="32"/>
+      <rect width="16" height="16" x="96" y="32"/>
+    </g>
+    <g fill="#EEE" transform="translate(0 140)">
+      <rect width="16" height="16"/>
+      <rect width="16" height="16" x="32"/>
+      <rect width="16" height="16" x="64"/>
+      <rect width="16" height="16" x="96"/>
+      <rect width="16" height="16" x="16" y="17"/>
+      <rect width="16" height="16" x="48" y="17"/>
+      <rect width="16" height="16" x="80" y="17"/>
+      <rect width="16" height="16" x="112" y="17"/>
+      <rect width="16" height="16" y="32"/>
+      <rect width="16" height="16" x="32" y="32"/>
+      <rect width="16" height="16" x="64" y="32"/>
+      <rect width="16" height="16" x="96" y="32"/>
+    </g>
+    <g fill="#EEE" transform="translate(0 70)">
+      <rect width="16" height="16"/>
+      <rect width="16" height="16" x="32"/>
+      <rect width="16" height="16" x="64"/>
+      <rect width="16" height="16" x="96"/>
+      <rect width="16" height="16" x="16" y="17"/>
+      <rect width="16" height="16" x="48" y="17"/>
+      <rect width="16" height="16" x="80" y="17"/>
+      <rect width="16" height="16" x="112" y="17"/>
+      <rect width="16" height="16" y="32"/>
+      <rect width="16" height="16" x="32" y="32"/>
+      <rect width="16" height="16" x="64" y="32"/>
+      <rect width="16" height="16" x="96" y="32"/>
+    </g>
+    <rect width="127" height="47" x="190.5" y="140.5" fill="#F0F0F0" stroke="#979797"/>
+    <use fill="#000" filter="url(#alpha_compositing-a)" xlink:href="#alpha_compositing-b"/>
+    <rect width="109" height="29" x="199.5" y="149.5" fill="url(#alpha_compositing-c)" stroke="#757575" stroke-linejoin="square" rx="6"/>
+    <text fill="#333" font-family="HelveticaNeue-Medium, Helvetica Neue" font-size="18" font-weight="400">
+      <tspan x="225.155" y="170">Cancel</tspan>
+    </text>
+    <use fill="#000" filter="url(#alpha_compositing-d)" xlink:href="#alpha_compositing-e"/>
+    <rect width="110" height="30" x="9" y="149" fill="url(#alpha_compositing-c)" rx="6"/>
+    <rect width="109" height="29" x="9.5" y="219.5" stroke="#757575" rx="6"/>
+    <text fill="#333" font-family="HelveticaNeue-Medium, Helvetica Neue" font-size="18" font-weight="400">
+      <tspan x="35.155" y="309">Cancel</tspan>
+    </text>
+    <g fill="#333" transform="translate(59 54)">
+      <rect width="2" height="10" x="4"/>
+      <rect width="10" height="2" y="4"/>
+    </g>
+    <rect width="10" height="2" x="154" y="165" fill="#333"/>
+    <rect width="10" height="2" x="154" y="161" fill="#333"/>
+    <rect width="127" height="47" x=".5" y="70.5" stroke="#979797"/>
+    <g fill="#333" transform="translate(59 124)">
+      <rect width="2" height="10" x="4"/>
+      <rect width="10" height="2" y="4"/>
+    </g>
+    <rect width="127" height="47" x=".5" y="140.5" stroke="#979797"/>
+    <g fill="#333" transform="translate(59 194)">
+      <rect width="2" height="10" x="4"/>
+      <rect width="10" height="2" y="4"/>
+    </g>
+    <rect width="127" height="47" x=".5" y="210.5" stroke="#979797"/>
+    <g fill="#333" transform="translate(59 264)">
+      <rect width="2" height="10" x="4"/>
+      <rect width="10" height="2" y="4"/>
+    </g>
+    <rect width="127" height="47" x=".5" y="280.5" stroke="#979797"/>
+    <rect width="127" height="47" x=".5" y=".5" fill="#F0F0F0" stroke="#979797"/>
+  </g>
+</svg>

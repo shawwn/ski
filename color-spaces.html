@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2052BB">
+<meta name="author" content="Bartosz Ciechanowski">
+<meta name="format-detection" content="telephone=no">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-25335284-3"></script>
+
+
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-25335284-3');
+</script>
+  <meta property="og:title" content="Color Spaces – Bartosz Ciechanowski" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ciechanow.ski/color-spaces/" />
+<meta property="og:description" content="Interactive article explaining color spaces and how they&#39;re used to express color." />
+<meta property="og:locale" content="en_US">
+    <meta name="keywords" content="color,space,gamut,gamma,srgb,p3,cie,xyz,trc">
+  <link href="css/base.css" rel="stylesheet" type="text/css"/>
+<link href="https://fonts.googleapis.com/css?family=Lato:700&display=swap" rel="stylesheet" type="text/css" async>
+<link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,400i,500&display=swap" rel="stylesheet" async>
+  <title>Color Spaces – Bartosz Ciechanowski</title>
+  <link rel="icon" href="favicon.ico">
+  <link href="css/color_spaces.css" rel="stylesheet" type="text/css" />
+  <script defer src="js/base.js"></script>
+  <script defer src="js/color_spaces.js"></script>
+</head>
+
+<body>
+  <div id="main_container">
+    <div id="body">
+      <div id="banner">
+    <div id="banner_wrapper">
+        <div id="banner_content">
+            <div id="site_title">
+                <a href="index.html">Bartosz Ciechanowski</a>
+            </div>
+            <div id="navigation">
+                <a href="index.html">Blog</a>
+                <a href="archives.html">Archives</a>
+            </div>
+            <div id="social">
+                <a class="patreon" href="https://www.patreon.com/ciechanowski" title="Patreon"><div class="patreonLogo">Patreon</div></a>
+                <a class="twitter" href="https://twitter.com/bciechanowski" title="Twitter"><div class="twitterLogo">Twitter</div></a>
+                <a class="instagram" href="https://www.instagram.com/bartoszciechanowski/" title="Instagram"><div class="igLogo">Instagram</div></a>
+                <a class="email" href="mailto:bartosz@ciechanow.ski" title="e-mail"><div class="emailLogo">e-mail</div></a>
+                <a class="rss" href="atom.xml" title="rss"><div class="rssLogo">rss</div></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+      <div id="content">
+        
+<div class="article">
+    <div class="post_date">February 15, 2019</div>
+    <h1 class="post_title"><a href="color-spaces.html">Color Spaces</a></h1>
+    <div class="padding_wrapper"><p>For the longest time we didn&rsquo;t have to pay a lot of attention to the way we talk about color. The modern display technologies capable of showing more vivid shades have, for better or for worse, changed the rules of the game. Once esoteric ideas like a gamut or a color space are becoming increasingly important.</p>
+<p>A color can be described in many different ways. We could use words, list amounts of <a href="https://en.wikipedia.org/wiki/CMYK_color_model">CMYK</a> printer inks, enumerate <a href="https://en.wikipedia.org/wiki/HSL_and_HSV#Disadvantages">quite flawed</a> HSL and HSV values, or even quantify <a href="https://en.wikipedia.org/wiki/LMS_color_space">the responses of cells</a> in a human retina. Those notions are useful in some contexts, but I&rsquo;m not going to focus on any of them.</p>
+<p>This article is dedicated entirely to RGB values from RGB color spaces. It may seem fairly restrictive, but considering the domination of displays as the medium for color presentation, it is a pragmatic approach and it ultimately won&rsquo;t prevent us from describing everything we can see.</p>
+<p>A dry definition of a color space is not a good way to kick things off. Instead, we&rsquo;ll start by playing with one of the most common tools used to specify colors.</p>
+<h1 id="color-pickers">Color Pickers<a href="color-spaces.html#color-pickers" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>You&rsquo;ve probably seen an RGB color picker before, it usually looks like this:</p>
+<div class="color_matcher_container" id="color_plain_srgb_slider_container"></div>
+<p>By dragging all the sliders to the right you can create a <a href="color-spaces.html#" onclick="match_base_white();return false;">white</a> color. Lots of red and green with little blue produces shades of <a href="color-spaces.html#" onclick="match_base_yellow();return false;">yellow</a>. That color picker is not the only way to specify colors. Try using the one below:</p>
+<div class="color_matcher_container" id="color_plain_crazy_slider_container"></div>
+<p>The gist of the behavior of that new picker is the same – the red slider controls the red component, the green slider affects the green component, and the blue slider acts on the blue component. Both sets of sliders have the minimum value of 0 and the maximum value of 255. However, the shades and intensities they create are quite different. We can compare some of the colors for the same slider positions side by side. In each plate the top half shows the color from the first picker and the bottom half contains the color from the second picker:</p>
+<div class="color_plates_container" id="color_plates_crazy_container"></div>
+<p>The only color that looks the same is a pure black, none of the other colors match despite the same values of red, green, and blue. You may be wondering which halves of the plates are wrong, but the truth is that they&rsquo;re both correct, they just come from different RGB color spaces.</p>
+<p>I&rsquo;ll soon explain what causes those differences and we&rsquo;ll eventually see what defines a color space, but for now the important lesson is that on their own the numeric values of the red, green, and blue components have <em>no meaning</em>. A color space is what assigns the meaning to those numeric values.</p>
+<p>What I&rsquo;ve shown you above is an extreme example in which almost everything about the two color spaces is different. Over the course of the next few paragraphs we will be looking at simpler examples which will help us get a feel for what different aspects of color spaces mean. Before we discuss those aspects we should make a quick detour to revisit how the components of an RGB color are described.</p>
+<h1 id="normalized-range">Normalized Range<a href="color-spaces.html#normalized-range" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>When dealing with RGB colors you&rsquo;ll often see them specified in a 0 to 255 range:</p>
+<div class="color_equation">
+255, 230, 26
+</div>
+<p>Or in an equivalent hexadecimal form:</p>
+<div class="color_equation">
+ff, e6, 1a
+</div>
+<p>While using the range of 0 to 255 is convenient, especially for specifying colors on the web, it ties the description of color to a specific 8-bit depth. What we actually want to express is the <em>percentage</em> of the maximum intensity a red, green, or blue component can represent.</p>
+<p>In our discourse I&rsquo;ll use a so called <em>normalized</em> range where the minimum value is still 0.0, but the maximum value is 1.0. Calculating normalized values from 0 to 255 range is easy – just divide the source numbers by 255.0:</p>
+<div class="color_equation">
+1.000, 0.902, 0.102
+</div>
+<p>This form may feel less familiar, but it lets us talk about the values without having to care what kind of discrete encoding scheme they&rsquo;ll eventually use.</p>
+<h1 id="intensity-mismatch">Intensity Mismatch<a href="color-spaces.html#intensity-mismatch" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Let&rsquo;s continue playing with the color pickers by upgrading them to show two colors at the same time. In the top half we&rsquo;ll see the color obtained from the RGB values interpreted by one color space, while the bottom half shows the color obtained from <em>the same</em> RGB values, but interpreted by another color space:</p>
+<div class="color_matcher_container" id="color_plain_linear_quadratic_slider_container"></div>
+<p>While playing with the sliders you may have noticed something peculiar – if the sliders are at their minimum or maximum the colors look the same, otherwise they don&rsquo;t. Here&rsquo;s a comparison of some of the colors for different slider values:</p>
+<div class="color_plates_container" id="color_plates_plain_linear_quadratic_container"></div>
+<p>A color space can specify how the numeric values of the red, green, and blue components map to intensity of the corresponding light source. In other words, the position of a slider may not be equal to intensity of the light the slider controls. The color space from the bottom half uses a simple linear encoding:</p>
+<div class="color_equation">
+(intensity value) = (encoded value)
+</div>
+<p>The light shining at 64% of its maximum intensity will be encoded as the number 0.64. The top color space uses an encoding with a fixed 2.0 exponent:</p>
+<div class="color_equation">
+(intensity value) = (encoded value)<sup>2.0</sup>
+</div>
+<p>The light shining at 64% of its maximum intensity will be encoded as 0.8.</p>
+<p>This may seem all like a pointless transformation, but there is a good reason for doing all this nonlinear mapping. The human eye is not a simple detector of the power of the incoming light – its response is nonlinear. A two-fold increase in emitted number of photons per second will <em>not</em> be perceived as twice as bright light.</p>
+<p>If we were to encode the colors using <a href="exposing-floating-point/index.html">floating point numbers</a> the need for a nonlinear encoding function would be diminished. However, the numeric values of color are often encoded using the familiar 8 bits per component, e.g. in the most common configurations of <a href="https://en.wikipedia.org/wiki/JPEG">JPEG</a> and <a href="https://en.wikipedia.org/wiki/Portable_Network_Graphics">PNG</a> files. Using a nonlinear <em>tone response curve</em>, or TRC for short, lets us maintain more or less <em>perceptual</em> uniformity and use the chunky, quantized range to keep the detail in the darker parts.</p>
+<p>Here are the first 14 representable values in 8 bit encoding of linearly increasing amount of light. You can probably tell that the brightness difference we perceive between the first two panes is much larger than between the last two panes:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="images/color_8_bit_linear.svg"
+         alt="First 14 representable linear shades of gray in 8 bit encoding" width="490" height="130"
+    /> 
+    </div><span>
+            <p>First 14 representable linear shades of gray in 8 bit encoding</p>
+        </span>
+</div>
+
+<p>The extremely common <a href="https://en.wikipedia.org/wiki/SRGB">sRGB</a> color space employs a nonlinear TRC to make a better use of the human visual perception. Here are the first 14 representable values in an 8 bit encoding of output sRGB values. You may need to ramp up your display brightness to see them, or maybe even <span id="color_black_background"><a href="color-spaces.html#" onclick="color_show_black();return false;">make the background black</a></span><span id="color_normal_background" class="hidden"><a href="color-spaces.html#" onclick="color_show_white();return false;">make the background bright</a></span>:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="images/color_8_bit_srgb.svg"
+         alt="First 14 representable sRGB shades of gray in an 8 bit encoding" width="490" height="130"
+    /> 
+    </div><span>
+            <p>First 14 representable sRGB shades of gray in an 8 bit encoding</p>
+        </span>
+</div>
+
+<p>Notice the hollow circles under all but the first and the last colors. None of those 12 shades of gray would be representable in an 8 bit format if we were to use straightforward linear encoding. You&rsquo;d actually need a range of 0 to 4095 (12 bits per component) to represent the same very dark shades of sRGB gray without using any tone response curves.</p>
+<p>The situation at the other end of the spectrum is more difficult to visualize since the images on this website use sRGB color space, but we can at least show that the white shades in linear color space shown in the upper part of the picture get darker more slowly than corresponding white shades in sRGB at the bottom:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="images/color_8_bit_white.svg"
+         alt="Last 14 representable linear (top) and sRGB (bottom) shades of gray in an 8 bit encoding" width="440" height="170"
+    /> 
+    </div><span>
+            <p>Last 14 representable linear (top) and sRGB (bottom) shades of gray in an 8 bit encoding</p>
+        </span>
+</div>
+
+<p>Linear encoding has the same precision of light intensity everywhere, which accounting for our nonlinear perception ends up having very quickly increasing brightness at the dark end and very slowly decreasing darkness at the bright end.</p>
+<p>Different color spaces use different TRCs. Some, like <a href="https://en.wikipedia.org/wiki/DCI-P3">DCI P3</a>, use a simple power function with a fixed exponent. Others, like <a href="https://en.wikipedia.org/wiki/ProPhoto_RGB_color_space">ProPhoto</a> employ a piecewise combination of a linear segment with a power segment. The magnitude of the exponent differs between color spaces – there is no unanimous opinion on what constitutes the best encoding. Finally, some color spaces don&rsquo;t use any special encoding and just represent the component values in linear fashion.</p>
+<p>While TRCs are very useful for <em>encoding</em> the intensities for storage, the crucial thing to remember is that mathematical operations on light only make sense when done on <em>linear</em> values, because they represent the actual intensities of light. It&rsquo;s actually fairly easy to visualize in a gradual mix between a pure red and a pure green:</p>
+<div class="color_plates_container" id="color_plates_red_green_container"></div>
+<p>Notice how in the top halves, which use nonlinear encoding, the colors get darker in the middle, while in the bottom, linear halves the progression looks more balanced.</p>
+<p>What we&rsquo;ve discussed in this section is the first component of a typical RGB display color space. We can now say that one of the defining properties of a color space is:</p>
+<div class="color_equation">
+A set of tone response curves for its red, green, and blue components.
+</div>
+<p>The encoding is an essential, but nonetheless, technical part of a color space. The specification of the actual colors is what we usually care about the most.</p>
+<h1 id="primary-differences">Primary Differences<a href="color-spaces.html#primary-differences" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Let&rsquo;s look at a different example of two color spaces in a color picker. To make things simpler, both halves operate with linear intensities:</p>
+<div class="color_matcher_container" id="color_linear_srgb_funky_slider_container"></div>
+<p>Notice that grayscale colors now match perfectly, however, the colors in the bottom half are clearly more subdued for the same numeric value:</p>
+<div class="color_plates_container" id="color_plates_linear_funky_container"></div>
+<p>I&rsquo;ll symbolize the red, green, and blue values from the top half with a small bar on top of the letters: <span class="nobreak"><span class="color_yr">R</span><span class="color_yg">G</span><span class="color_yb">B</span></span>. For the values from the bottom half I&rsquo;ll use a bar at the bottom: <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span>.</p>
+<p>You may be wondering if, despite a rather different behavior, it is possible to make the colors match. In other words, knowing the <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> values we&rsquo;d like to express the same color using <span class="nobreak"><span class="color_yr">R</span><span class="color_yg">G</span><span class="color_yb">B</span></span> values.</p>
+<p>The notion may seem contrived, but the underlying ideas are important for understanding how the same color can be described by many different triplets of values. To see the scenario in action we can fix the bottom half of the picker and let the sliders control only the top color:</p>
+<div class="color_matcher_container" id="color_linear_srgb_funky_yellow_slider_container"></div>
+<p>After some trial and error you may get pretty close, or perhaps even achieve <a href="color-spaces.html#" onclick="match_fixed_color();return false;">the exact match</a>. Unless you&rsquo;re quite skilled, the task probably wasn&rsquo;t trivial and trying to do the same manual work for every possible color would be a daunting endeavor.</p>
+<p>A consistent reproduction of color is crucial for realizing any design – we wouldn&rsquo;t want a carefully selected shade of pastel beige to look like a ripe orange when seen on some other device. We&rsquo;re in a dire need of a better approach for trying to make the colors look the same despite a different meaning of the values of the RGB components.</p>
+<h1 id="primaries-matched">Primaries Matched<a href="color-spaces.html#primaries-matched" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Reproducing arbitrary colors between different color spaces is difficult, but we can try to simplify things a little by just trying to match the pure red, green, and blue colors and seeing where it gets us. Let&rsquo;s start by matching the red from the bottom plate:</p>
+<div class="color_matcher_container" id="color_linear_srgb_funky_red_slider_container"></div>
+<p>Making the border between the two halves disappear may take some tweaking, but eventually we can agree on values <a href="color-spaces.html#" onclick="match_red();return false;">that fit perfectly</a>. It&rsquo;s a step in the right direction – since we&rsquo;re dealing with linear values we can now express how much a single unit of <span class="color_mr">R</span> will contribute to <span class="nobreak"><span class="color_yr">R</span><span class="color_yg">G</span><span class="color_yb">B</span></span> components. For instance, to recreate the <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> color of <span class="nobreak"><span class="color_comp_r">0.6</span><span class="color_comp_g">0.0</span><span class="color_comp_b">0.0</span></span> we&rsquo;d need to use:</p>
+<div class="color_equation">
+0.6 &times; 0.712 = 0.427 units of <span class="color_yr">R</span><br>
+0.6 &times; 0.100 = 0.060 units of <span class="color_yg">G</span><br>
+0.6 &times; 0.024 = 0.014 units of <span class="color_yb">B</span>
+</div>
+<p>We can put these results into equations. When a color from the <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> space has no green and no blue, but some amount of red, we could use the following formulas to see the same color in the top plate:</p>
+<div class="color_equation">
+<span class="color_yr">R</span> = 0.712&times;<span class="color_mr">R</span><br>
+<span class="color_yg">G</span> = 0.100&times;<span class="color_mr">R</span><br>
+<span class="color_yb">B</span> = 0.024&times;<span class="color_mr">R</span>
+</div>
+<p>We can repeat the experiment for pure <span class="color_mg">G</span>:</p>
+<div class="color_matcher_container" id="color_linear_srgb_funky_green_slider_container"></div>
+<p>Having decided on the <a href="color-spaces.html#" onclick="match_green();return false;">the perfect match</a>, we can write down the impact of <span class="color_mg">G</span> on <span class="nobreak"><span class="color_yr">R</span><span class="color_yg">G</span><span class="color_yb">B</span></span> components:</p>
+<div class="color_equation">
+<span class="color_yr">R</span> = 0.221&times;<span class="color_mg">G</span><br>
+<span class="color_yg">G</span> = 0.690&times;<span class="color_mg">G</span><br>
+<span class="color_yb">B</span> = 0.000&times;<span class="color_mg">G</span><br>
+</div>
+<p>All that&rsquo;s left is to repeat the experiments for pure <span class="color_mb">B</span>. If you&rsquo;re still not tired of dragging the sliders you can do it yourself, or just <a href="color-spaces.html#" onclick="match_blue();return false;">let me do it</a>:</p>
+<div class="color_matcher_container" id="color_linear_srgb_funky_blue_slider_container"></div>
+<p>Once again, the results can be written down as:</p>
+<div class="color_equation">
+<span class="color_yr">R</span> = 0.067&times;<span class="color_mb">B</span><br>
+<span class="color_yg">G</span> = 0.210&times;<span class="color_mb">B</span><br>
+<span class="color_yb">B</span> = 0.976&times;<span class="color_mb">B</span>
+</div>
+<p>The provided equations apply only when the <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> half shows just some amount of red, <em>or</em> just some amount of green, <em>or</em> just some amount of blue. Being limited to having non-zero values in only one component won&rsquo;t get us far. To create a more diverse set of colors we need to have a way of finding out how <em>mixes</em> of basic components in <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> affect values in <span class="nobreak"><span class="color_yr">R</span><span class="color_yg">G</span><span class="color_yb">B</span></span>.</p>
+<h1 id="mixing-things-up">Mixing Things Up<a href="color-spaces.html#mixing-things-up" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Thankfully, <a href="https://en.wikipedia.org/wiki/Grassmann%27s_laws_(color_science)">Grassmann&rsquo;s laws</a> come to our rescue. Those empirical rules tell us that if two colored lights match, then after addition of another set of matching light sources their overlap, or their sum, will also match:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="images/color_grassman@2x.png"
+         alt="The sum of two matching sets of colored lights also matches" width="540" height="425"
+    /> 
+    </div><span>
+            <p>The sum of two matching sets of colored lights also matches</p>
+        </span>
+</div>
+
+<p>As a result we can do the three matchings for <span class="color_mr">R</span>, <span class="color_mg">G</span>, and <span class="color_mb">B</span> separately, then just combine the results into one set. For instance, to obtain the final <span class="color_yr">R</span> value from <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> all we need to do is to sum the contribution of <span class="color_mr">R</span> to <span class="color_yr">R</span>, the contribution of <span class="color_mg">G</span> to <span class="color_yr">R</span>, and the contribution of <span class="color_mb">B</span> to <span class="color_yr">R</span>. Repeating the trick for the other two components yields the following set of equations:</p>
+<div class="color_equation">
+<span class="color_yr">R</span> = 0.712&times;<span class="color_mr">R</span> + 0.221&times;<span class="color_mg">G</span> + 0.067&times;<span class="color_mb">B</span><br>
+<span class="color_yg">G</span> = 0.100&times;<span class="color_mr">R</span> + 0.690&times;<span class="color_mg">G</span> + 0.210&times;<span class="color_mb">B</span><br>
+<span class="color_yb">B</span> = 0.024&times;<span class="color_mr">R</span> + 0.000&times;<span class="color_mg">G</span> + 0.976&times;<span class="color_mb">B</span><br>
+</div>
+<p>What we just did was a matching of <a href="https://en.wikipedia.org/wiki/Primary_color">primary</a> red, green, and blue colors from one color space to another. With the equations in hand we can finally recreate the math behind the matching beige from the first example. By plugging in the original <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> values of <span class="nobreak"><span class="color_comp_r">0.9</span><span class="color_comp_g">0.5</span><span class="color_comp_b">0.2</span></span> we can calculate the value of the exact match:</p>
+<div class="color_equation">
+<span class="color_yr">R</span> = 0.712&times;<span class="color_mr color_no_after">0.9</span> + 0.221&times;<span class="color_mg color_no_after">0.5</span> + 0.067&times;<span class="color_mb color_no_after">0.2</span> = 0.765<br>
+<span class="color_yg">G</span> = 0.100&times;<span class="color_mr color_no_after">0.9</span> + 0.690&times;<span class="color_mg color_no_after">0.5</span> + 0.210&times;<span class="color_mb color_no_after">0.2</span> = 0.477<br>
+<span class="color_yb">B</span> = 0.024&times;<span class="color_mr color_no_after">0.9</span> + 0.000&times;<span class="color_mg color_no_after">0.5</span> + 0.976&times;<span class="color_mb color_no_after">0.2</span> = 0.217<br>
+</div>
+<h1 id="seeing-the-matrix">Seeing the Matrix<a href="color-spaces.html#seeing-the-matrix" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>If you look closely at the three equations governing the conversion from <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> to <span class="nobreak"><span class="color_yr">R</span><span class="color_yg">G</span><span class="color_yb">B</span></span> you may notice the coefficients form a 3×3 grid:</p>
+<div class="color_matrix">
+<span class="color_matrix_cell">0.712</span><span class="color_matrix_cell">0.221</span><span class="color_matrix_cell">0.067</span><br>
+<span class="color_matrix_cell">0.100</span><span class="color_matrix_cell">0.690</span><span class="color_matrix_cell">0.210</span><br>
+<span class="color_matrix_cell">0.024</span><span class="color_matrix_cell">0.000</span><span class="color_matrix_cell">0.976</span><br>
+</div>
+<p>It&rsquo;s actually a 3×3 matrix that defines the conversion from <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> to <span class="nobreak"><span class="color_yr">R</span><span class="color_yg">G</span><span class="color_yb">B</span></span>. If you&rsquo;re familiar with matrices and vectors, you might have already realized that the transformation we did was a plain old matrix times vector multiplication.</p>
+<p>On its own the matrix isn&rsquo;t particularly interesting, but the transformation it does can be visualized in 3D. In the following interactive diagram the outer cube defines the <span class="nobreak"><span class="color_yr">R</span><span class="color_yg">G</span><span class="color_yb">B</span></span> space, while the inner, skewed cube (<a href="https://en.wikipedia.org/wiki/Parallelepiped">parallelepiped</a>) defines the <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> space. You can drag the cubes around to see them from different angles and control the <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> color indicator using the sliders:</p>
+<div class="color_plot_container" id="color_plot_narrow_container"></div>
+<div class="color_matcher_container" id="color_rgb_cube_slider_container"></div>
+<p>As an experiment I encourage you to <a href="color-spaces.html#" onclick="match_cube();return false;">set</a> red and green components to 0 and just play with the blue slider. You should be able to see that movement along the pure blue color in <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> space requires some shift in red and green in <span class="nobreak"><span class="color_yr">R</span><span class="color_yg">G</span><span class="color_yb">B</span></span>.</p>
+<p>Notice that <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> parallelepiped fits completely inside <span class="nobreak"><span class="color_yr">R</span><span class="color_yg">G</span><span class="color_yb">B</span></span> cube which means that one can recreate every single <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> color using <span class="nobreak"><span class="color_yr">R</span><span class="color_yg">G</span><span class="color_yb">B</span></span> space. The inverse, however, is not true.</p>
+<h1 id="there-and-back-again">There and Back Again<a href="color-spaces.html#there-and-back-again" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>In the example below the background of the top half is set to a pure <span class="color_yr">R</span> at maximum intensity. You may try really hard, but there is no combination of values in <span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span> that can cause the seam between the two halves to disappear:</p>
+<div class="color_matcher_container" id="color_linear_srgb_funky_red_inverse_slider_container"></div>
+<p>If we ignore the issue for a minute and treat the problem algebraically we can solve the system of 3 equations looking for pure <span class="color_yr">R</span> at the output:</p>
+<div class="color_equation">
+<span class="color_yr color_no_after">1.0</span> = 0.712&times;<span class="color_mr">R</span> + 0.221&times;<span class="color_mg">G</span> + 0.067&times;<span class="color_mb">B</span><br>
+<span class="color_yg color_no_after">0.0</span> = 0.100&times;<span class="color_mr">R</span> + 0.690&times;<span class="color_mg">G</span> + 0.210&times;<span class="color_mb">B</span><br>
+<span class="color_yb color_no_after">0.0</span> = 0.024&times;<span class="color_mr">R</span> + 0.000&times;<span class="color_mg">G</span> + 0.976&times;<span class="color_mb">B</span><br>
+</div>
+<p>The details of the evaluation are boring, so let&rsquo;s just present the solution as is:</p>
+<div class="color_equation">
+<span class="color_mr">R</span> = &plus;1.470<br>
+<span class="color_mg">G</span> = &minus;0.201<br>
+<span class="color_mb">B</span> = &minus;0.036
+</div>
+<p>All three values are outside of 0.0 to 1.0 range – a clear indication of the unreachability of that color in <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> space!</p>
+<p>Values larger than 1.0 have a very straightforward explanation: 1.0 of <span class="color_yr">R</span> is beyond the range of intensity of <span class="color_mr">R</span>, you could say that <span class="color_mr">R</span> is not strong enough. Some less intense values of <span class="color_yr">R</span> <em>can</em> contribute to <span class="color_mr">R</span> within limit. For example, 0.5 of <span class="color_yr">R</span> requires 0.5 × 1.470 = 0.735 of <span class="color_mr">R</span>.</p>
+<p>Negative values are slightly trickier because they are imaginary, but we can still reason about them quite easily.</p>
+<h1 id="negative-values">Negative Values<a href="color-spaces.html#negative-values" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Let&rsquo;s try to think about an experiment in which we&rsquo;re tasked with matching a light on the right side with a combination of a red, green, and blue light on the left side:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="images/color_negative_0@2x.png"
+         alt="Mixing lights to obtain the color on the right" width="310" height="180"
+    /> 
+    </div><span>
+            <p>Mixing lights to obtain the color on the right</p>
+        </span>
+</div>
+
+<p>After some tuning we may realize that even with no green and no blue light the colors still don&rsquo;t match and the left patch of light continues to look a bit orangey indicating that it has too much green in it:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="images/color_negative_1@2x.png"
+         alt="The left patch is still too green" width="310" height="180"
+    /> 
+    </div><span>
+            <p>The left patch is still too green</p>
+        </span>
+</div>
+
+<p>We can&rsquo;t decrease the green light on the left side anymore, so we have to become more creative. We could say that the left side is too green, <em>or</em> we could say that the right side is not green enough! Since all we care about is making the colors match we could try adding some of the green light to the <em>other</em> side:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="images/color_negative_2@2x.png"
+         alt="Adding green light to the target side" width="310" height="180"
+    /> 
+    </div><span>
+            <p>Adding green light to the target side</p>
+        </span>
+</div>
+
+<p>Now the right side is too green, but if we adjust the added amount we can eventually make the colors look the same:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="images/color_negative_3@2x.png"
+         alt="A match with just the right amount of green" width="310" height="180"
+    /> 
+    </div><span>
+            <p>A match with just the right amount of green</p>
+        </span>
+</div>
+
+<p>Let&rsquo;s try to write down what we&rsquo;ve achieved in an equation. We have a maximum amount of red and no green or blue on the left side, while on the right side we have the target color with some green light added to it:</p>
+<div class="color_equation">
+1.0&times;<span class="color_mr color_no_after">R</span> + 0.0&times;<span class="color_mg color_no_after">G</span> + 0.0&times;<span class="color_mb color_no_after">B</span> = (target) + 0.2&times;<span class="color_mg color_no_after">G</span>
+</div>
+<p>This feels a little mischievous – we wanted to match the pure target color without any additions. Let&rsquo;s try to rearrange the equation by moving the added green light from the right to the left side:</p>
+<div class="color_equation">
+1.0&times;<span class="color_mr color_no_after">R</span> &minus; 0.2&times;<span class="color_mg color_no_after">G</span> + 0.0&times;<span class="color_mb color_no_after">B</span> = (target)
+</div>
+<p>That equivalent equation tells us that getting the exact match with the starting target color requires using a <em>negative</em> amount of the green light on the left side. Naturally, this is something we can&rsquo;t do in a physical world. Mathematically, however, a match of the very saturated red from the right side really requires removing some green light from the left side.</p>
+<p>If you&rsquo;re still not convinced consider what would happen if we somehow were able to create −0.2×<span class="color_mg color_no_after">G</span> on the left side. I can&rsquo;t show you a picture of that imaginary situation, but I can show you what would happen if we then added 0.2×<span class="color_mg color_no_after">G</span> to <em>both</em> sides:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="images/color_negative_3@2x.png" width="310" height="180"
+    /> 
+    </div>
+</div>
+
+<p>This is exactly the same image as before since both scenarios are equivalent. Recall from Grassmann&rsquo;s laws that adding the same amount of light to both sides maintains the color match, so indeed the imaginary −0.2×<span class="color_mg color_no_after">G</span> on the left side must have made it look like the original unmodified saturated red from the right side.</p>
+<p>This may all be somehow unsatisfying, however, when you step away from the physical restrictions and think about lights as just numbers, it all, quite literally, adds up.</p>
+<h1 id="the-matrix-seeing">The Matrix Seeing<a href="color-spaces.html#the-matrix-seeing" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>If we go back to our quest for obtaining <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> values from <span class="nobreak"><span class="color_yr">R</span><span class="color_yg">G</span><span class="color_yb">B</span></span> colors we can repeat the &ldquo;system of equations&rdquo; trick for the other two components and combine the results using Grassmann&rsquo;s laws to end up with the full set of equations:</p>
+<div class="color_equation">
+<span class="color_mr">R</span> = &plus;1.470&times;<span class="color_yr">R</span> &minus; 0.470&times;<span class="color_yg">G</span> + 0.000&times;<span class="color_yb">B</span><br>
+<span class="color_mg">G</span> = &minus;0.201&times;<span class="color_yr">R</span> &plus; 1.513&times;<span class="color_yg">G</span> &minus; 0.311&times;<span class="color_yb">B</span><br>
+<span class="color_mb">B</span> = &minus;0.036&times;<span class="color_yr">R</span> + 0.011&times;<span class="color_yg">G</span> + 1.025&times;<span class="color_yb">B</span><br>
+</div>
+<p>Once again, the set of coefficients can be presented in a 3×3 matrix:</p>
+<div class="color_matrix">
+<span class="color_matrix_cell">+1.470</span><span class="color_matrix_cell">&minus;0.470</span><span class="color_matrix_cell">+0.000</span><br>
+<span class="color_matrix_cell">&minus;0.201</span><span class="color_matrix_cell">+1.513</span><span class="color_matrix_cell">&minus;0.311</span><br>
+<span class="color_matrix_cell">&minus;0.036</span><span class="color_matrix_cell">+0.011</span><span class="color_matrix_cell">+1.025</span><br>
+</div>
+<p>If you&rsquo;ve solved systems of linear equations before, you may have realized that this is just an <a href="https://www.wolframalpha.com/input/?i=inverse+%5B%5B0.712,0.221,0.067%5D,%5B0.100,0.690,0.210%5D,%5B0.024,0.000,0.976%5D%5D">inverse matrix</a> of the original <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> to <span class="nobreak"><span class="color_yr">R</span><span class="color_yg">G</span><span class="color_yb">B</span></span> transformation. This is a very useful property. When establishing the conversion from one linear color space to another we just need to figure out the coefficients of the matrix in one direction – the matrix in the other direction is just its inverse.</p>
+<p>One more time we can visualize the transformation the matrix performs. This time <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> is the perfect cube, while <span class="nobreak"><span class="color_yr">R</span><span class="color_yg">G</span><span class="color_yb">B</span></span> is the outer skewed cube:</p>
+<div class="color_plot_container" id="color_plot_wide_container"></div>
+<p>You can easily see how much bigger the <span class="nobreak"><span class="color_yr">R</span><span class="color_yg">G</span><span class="color_yb">B</span></span> space is and indeed it lets us express some colors that <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> can&rsquo;t.</p>
+<h1 id="breaking-the-boundaries">Breaking the Boundaries<a href="color-spaces.html#breaking-the-boundaries" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>So far whenever a numeric value in a color space was outside of 0.0 to 1.0 range we&rsquo;d just clip it to the representable limits. Let&rsquo;s try to see what happens when we remove that restriction. We can modify the sliders to allow −1.0 to 2.0 range and try to match the pure <span class="color_yr">R</span> again:</p>
+<div class="color_matcher_container" id="color_linear_srgb_funky_red_xr_inverse_slider_container"></div>
+<p>With that approach we can actually <a href="color-spaces.html#" onclick="match_red_xr();return false;">represent</a> the pure <span class="color_yr">R</span> using <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> color space. Since the numbers don&rsquo;t care, the entire thing works and is often called <em>unbounded</em> or <em>extended</em> range.</p>
+<p>To actually see <span class="nobreak"><span class="color_yr">R</span><span class="color_yg">G</span><span class="color_yb">B</span></span> colors represented using extended range <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> colors the display has to be capable of showing <span class="nobreak"><span class="color_yr">R</span><span class="color_yg">G</span><span class="color_yb">B</span></span> colors in the first place, otherwise they would get physically clamped by the display itself. To put it differently, the transformation of values from a color space with extended range to the native color space of the display should end up with the values in a standard range.</p>
+<p>While unbounded values are very flexible, there are two important caveats one should consider when dealing with them. First of all, since the range of values is unlimited, it is possible to create colors that truly have no physical meaning, e.g. <span class="nobreak"><span class="color_comp_r">−1.0</span><span class="color_comp_g">−1.0</span><span class="color_comp_b">−1.0</span></span>.</p>
+<p>Additionally, storing the values in a type with a limited range may not be possible. If we decide to use 8 bits per component and encode the 0.0 to 1.0 range into 0 to 255 range then we won&rsquo;t be able to represent the values outside of normalized range since they simply won&rsquo;t fit.</p>
+<h1 id="one-space-to-rule-them-all">One Space to Rule Them All<a href="color-spaces.html#one-space-to-rule-them-all" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>All the color transformations we performed are somewhat contrived – the two color spaces we analyzed are defined in relation to each other and have no immutable attachment to the physical world. Their reds, greens, and blues are whatever we ended up seeing on the screen. We have no way of knowing how the colors would look on another device.</p>
+<p>If we had a master color space that was derived from physical quantities we could solve the problem by finding a transformation from any color space to that common connection space. Luckily, in 1931 that very color space has been specified by <a href="https://en.wikipedia.org/wiki/International_Commission_on_Illumination">CIE</a> and resulted in what is known as <a href="https://en.wikipedia.org/wiki/CIE_1931_color_space">CIE 1931 XYZ color space</a>. Before we discuss how the space was defined we need to take a quick look at physics and the human visual system.</p>
+<h1 id="and-there-was-light">And There Was Light<a href="color-spaces.html#and-there-was-light" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>To ground the discussion of color perception in the real world we have to establish it in terms of light – the part of <a href="https://en.wikipedia.org/wiki/Electromagnetic_radiation">electromagnetic radiation</a> that is visible to the human eye. The <a href="https://en.wikipedia.org/wiki/Visible_spectrum">visible spectrum</a> can only be approximated on a typical display, but its colors at specific wavelengths look roughly like this:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="images/color_spectrum.svg"
+         alt="Visible spectrum with wavelengths shown in nanometers" width="640" height="110"
+    /> 
+    </div><span>
+            <p>Visible spectrum with wavelengths shown in nanometers</p>
+        </span>
+</div>
+
+<p>Colors corresponding to a single wavelength are called <a href="https://en.wikipedia.org/wiki/Spectral_color">spectral colors</a>. For example, a light with wavelength of 570 nm would produce a pure spectral yellow. Notice that boundaries between the colors are soft, so there is no single &ldquo;spectral red&rdquo;, but a wavelength is all we need to describe a spectral color accurately.</p>
+<p>Human eyes are not simple wavelength detectors and the perception of the same color can be created in many different ways. A yellow color can be created using light with wavelength around 570 nm, <em>or</em> as a mixture of a green and a red light.</p>
+<p>Since a human retina has three different types of photoreceptive <a href="https://en.wikipedia.org/wiki/Cone_cell">cones</a>, any color sensation can be matched using three fixed colors with varying intensities. It doesn&rsquo;t mean that <em>all</em> colors can be recreated using just additive mixes of three colors. As we&rsquo;ve discussed, sometimes one or two of those colors have negative weights and have to be added to the target color instead.</p>
+<p>Algebraically, however, we don&rsquo;t need more than three primary colors to represent everything humans can perceive (with some very rare <a href="https://theneurosphere.com/2015/12/17/the-mystery-of-tetrachromacy-if-12-of-women-have-four-cone-types-in-their-eyes-why-do-so-few-of-them-actually-see-more-colours/">exceptions</a>). This property of the human visual system is called <a href="https://en.wikipedia.org/wiki/Trichromacy">trichromacy</a> and is exploited by various display technologies to present a very broad spectrum of colors using just three RGB primaries.</p>
+<h1 id="the-color-matching-experiments">The Color Matching Experiments<a href="color-spaces.html#the-color-matching-experiments" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>At the beginning of the 20<sup>th</sup> century David Wright and John Guild independently conducted experiments with human observers in which the test subjects tried to match the spectral colors in 10 nm increments with a combination of red, green, and blue light sources. The experiments were fairly similar to what&rsquo;ve been doing with the sliders trying to match the target color as a combination of some other three colors.</p>
+<p>The results of the experiments were standardized as rgb color matching functions that can be presented on a graph:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="images/color_matching.svg"
+         alt="CIE rgb color matching functions" width="640" height="290"
+    /> 
+    </div><span>
+            <p>CIE rgb color matching functions</p>
+        </span>
+</div>
+
+<p>Notice the presence of negative values. Not all spectral colors could be achieved by a combination of selected RGB values and yet again a negative value means that the color was added to the target value.</p>
+<p>The CIE standardized the reference <span class="color_cier">R</span> of the experiments as monochromatic light with wavelength of 700.0 nm, the reference <span class="color_cieg">G</span> as 546.1 nm, and the reference <span class="color_cieb">B</span> as 435.8 nm, with specific ratio of relative intensities between them. This is a critical step in our discussion of color – we&rsquo;re finally grounded to some physically measurable properties.</p>
+<p>Let&rsquo;s look at the yellow wavelength of 570 nm. Reading from the color matching plot we can tell that the color match required 0.16768 units of <span class="color_cier">R</span>, 0.17087 units of <span class="color_cieg">G</span> and −0.00135 units of <span class="color_cieb">B</span>. A set of three RGB coordinates just begs for a three dimensional presentation. If we read the color matching value for every wavelength we obtain the following plot:</p>
+<div class="color_plot_container" id="color_plot_cie_rgb_gamut_container"></div>
+<p>You may wonder why the spectrum curve doesn&rsquo;t go through the pure red, green, or blue endpoints of the CIE RGB cube, but it&rsquo;s simply the result of normalization and scaling applied to the color matching functions by the committee. Within reasonable limits a light source can be constructed to be as powerful as needed, so what constitutes a &ldquo;1.0&rdquo; is always defined somehow arbitrarily.</p>
+<h1 id="xyz-space">XYZ Space<a href="color-spaces.html#xyz-space" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>CIE RGB color space is rooted to concrete physical properties of monochromatic lights and we could use it to define any color sensation. However, the committee strived to create a derived space that would have a few <a href="https://en.wikipedia.org/wiki/CIE_1931_color_space#Construction_of_the_CIE_XYZ_color_space_from_the_Wright%E2%80%93Guild_data">useful properties</a>, two of which are worth noting:</p>
+<ul>
+<li>No negative coordinates of spectral colors</li>
+<li>Separation of <a href="https://en.wikipedia.org/wiki/Chromaticity">chromaticity</a> (hue and colorfulness) from <a href="https://en.wikipedia.org/wiki/Luminance">luminance</a> (visual perception of brightness)</li>
+</ul>
+<p>After some deliberation the following set of equations was created:</p>
+<div class="color_equation">
+<span>X</span> = 2.769&times;<span class="color_cier">R</span> + 1.752&times;<span class="color_cieg">G</span> + 1.130&times;<span class="color_cieb">B</span><br>
+<span>Y</span> = 1.000&times;<span class="color_cier">R</span> + 4.591&times;<span class="color_cieg">G</span> + 0.061&times;<span class="color_cieb">B</span><br>
+<span>Z</span> = 0.000&times;<span class="color_cier">R</span> + 0.057&times;<span class="color_cieg">G</span> + 5.594&times;<span class="color_cieb">B</span><br>
+</div>
+<p>The factors may seem arbitrary, and in some sense they are, but this is simply yet another mapping of values from one space to another, similar to what we did with <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> to <span class="nobreak"><span class="color_yr">R</span><span class="color_yg">G</span><span class="color_yb">B</span></span> transformation. The Y component was chosen as the luminance component, while X and Z define the chromaticity.</p>
+<p>We can visualize the CIE XYZ space inside the CIE RGB space:</p>
+<div class="color_plot_container" id="color_plot_cie_xyz_gamut_container"></div>
+<p>You can see how the XYZ space is designed around the spectrum curve to make sure it fits in the positive octant. Its smaller size is not really a concern, the scaling makes things more convenient to work with by making sure the perceptually brightest wavelength of 555 nm has a Y value of 1. As a final step we can just show the XYZ space and the spectral colors on their own:</p>
+<div class="color_plot_container" id="color_plot_cie_xyz1_gamut_container"></div>
+<p>Since the CIE XYZ space is derived from CIE RGB it is also grounded in measurable physical quantities. The XYZ color space is the base color space used for all conversions of matrix-based RGB display color spaces. The mapping between any two color spaces is done through a common CIE XYZ intermediate. This simplifies the color transformations since we don&rsquo;t need to know how to convert colors between any two arbitrary color spaces, we just need to be able to convert both of them to the XYZ space.</p>
+<h1 id="xy-chromaticity-diagram">xy Chromaticity Diagram<a href="color-spaces.html#xy-chromaticity-diagram" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Three dimensional diagrams are fun to play with, but they&rsquo;re often not particularly practical – a 2D plot is often easier to work with and reason about. Since the Y component of the XYZ space is devoid of any colorfulness and hue, we&rsquo;re left with only two components that affect the chromaticity of a color. We can perform three operations intended to reduce the dimensionality of the space:</p>
+<div class="color_equation">
+x = X / (X + Y + Z)<br>
+y = Y / (X + Y + Z)<br>
+z = Z / (X + Y + Z)
+</div>
+<p>The distinction between a lower and an upper case is important here – X is not the same as x. These seemingly arbitrary equations have a simple visual explanation – it&rsquo;s a projection onto a triangle spanned between XYZ coordinates of <span class="nobreak"><span class="color_comp_xyz">1.0</span><span class="color_comp_xyz">0.0</span><span class="color_comp_xyz">0.0</span></span>, <span class="nobreak"><span class="color_comp_xyz">0.0</span><span class="color_comp_xyz">1.0</span><span class="color_comp_xyz">0.0</span></span>, and <span class="nobreak"><span class="color_comp_xyz">0.0</span><span class="color_comp_xyz">0.0</span><span class="color_comp_xyz">1.0</span></span>:</p>
+<div class="color_plot_container" id="color_plot_cie_xyy_gamut_container"></div>
+<p>Notice that x, y, and z add up to 1, so we can drop the last component since it&rsquo;s redundant – we can always recreate it by subtracting x and y from 1. Rejection of z is equivalent to a flat projection onto xy plane:</p>
+<div class="color_plot_container" id="color_plot_cie_xyy1_gamut_container"></div>
+<p>If we repeat that step for <em>every</em> combination of spectral colors we can finally present the 2D plot known as CIE xy chromaticity diagram in its full glory. You may have seen this horseshoe shape before:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="images/color_chroma.svg"
+         alt="CIE xy chromaticity diagram" width="600" height="600"
+    /> 
+    </div><span>
+            <p>CIE xy chromaticity diagram</p>
+        </span>
+</div>
+
+<p>No RGB display technology is capable of presenting all the colors that humans can see, so many of the ones shown in the picture are actually the result of clamping to the representable range of the sRGB color space.</p>
+<p>The colors on the inside of the plot are just some combinations of the spectral colors and the colors outside of the plot <a href="https://en.wikipedia.org/wiki/Impossible_color#Imaginary_colors">don&rsquo;t exist</a>. Notice the straight diagonal line connecting the end points of the red and blue area. While every point on the outline of the horseshoe shape has a corresponding spectral wavelength, the colors on that <a href="https://en.wikipedia.org/wiki/Line_of_purples">line of purples</a> do not – there is no wavelength of light that looks like magenta. The purples are simply how the human brain interprets the mixes of red and blue light and ultimately they are no different than any other shade. Perception of <em>every</em> color happens in our heads.</p>
+<p>It&rsquo;s important to mention that the xy chromaticity diagram is not perceptually uniform. In some areas of the plot one has to move relatively far away from a chosen color to notice the difference in chromaticity, while in some other areas the distance to change is <a href="https://en.wikipedia.org/wiki/MacAdam_ellipse">much smaller</a>. Over time CIE developed more uniform <a href="https://en.wikipedia.org/wiki/CIELUV#/media/File:CIE_1976_UCS.png">chromaticity diagrams</a>, but since the xy diagram is easily obtained from the XYZ space it continues to be used in discussion of RGB color spaces.</p>
+<h1 id="gamut">Gamut<a href="color-spaces.html#gamut" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>The chromaticity diagram is useful in visualizing the <a href="https://en.wikipedia.org/wiki/Gamut">gamut</a> of a color space – the extent of colors that a color space can represent. It&rsquo;s necessary to note that a gamut is a three dimensional construct, so a 2D projection onto an image, somehow contrarily, does <em>not</em> present a full picture. It&rsquo;s nonetheless a useful tool employed in comparison of color spaces.</p>
+<p>We can finally present the chromaticities of primaries of both <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> and <span class="nobreak"><span class="color_yr">R</span><span class="color_yg">G</span><span class="color_yb">B</span></span> color spaces in a single graph:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="images/color_gamuts.svg"
+         alt="Comparison of primaries" width="400" height="450"
+    /> 
+    </div><span>
+            <p>Comparison of primaries</p>
+        </span>
+</div>
+
+<p>I&rsquo;ll discuss the meaning of the little cross in the middle soon, but the important fact is that a triangle depicts all representable chromaticities of a color space. Notice how <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> triangle is smaller than <span class="nobreak"><span class="color_yr">R</span><span class="color_yg">G</span><span class="color_yb">B</span></span> triangle showing us yet again that the latter can represent more colors.</p>
+<p>This diagram summarizes a long journey we took to define the second component that defines every RGB color space:</p>
+<div class="color_equation">
+Location of its red, green, and blue primaries on CIE xy chromaticity diagram.
+</div>
+<p>In the simulation below you can drag the slider to see how the extent of the chromaticity triangle corresponds to the representable colors. The base values of an image from sRGB color space are converted to a space with a reduced gamut, clamped to 0.0 to 1.0 range, then finally converted back to sRGB for display. You can <span class="click_word">click</span><span class="tap_word">tap</span> the image to change it:</p>
+<div class="color_canvas_aspect_container">
+<div class="canvas_container">
+<canvas id="color_gamut_canvas">Your browser doesn't support WebGL which is required for this demo.</canvas>
+<div id="color_gamut_plot_canvas_background"></div>
+<canvas id="color_gamut_plot_canvas"></canvas>
+</div>
+</div>
+<div id="color_gamut_canvas_slider_container"></div>
+<p>In some cases the color clamping is pretty severe, but for the image with snowy mountains the change is minimal. An almost black and white picture has little chromaticity and therefore a reduced gamut has almost no effect on it.</p>
+<h1 id="white-point">White Point<a href="color-spaces.html#white-point" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>The last aspect of color spaces we will discuss is related to the little cross in the middle of <span class="nobreak"><span class="color_mr">R</span><span class="color_mg">G</span><span class="color_mb">B</span></span> and
+<span class="nobreak"><span class="color_yr">R</span><span class="color_yg">G</span><span class="color_yb">B</span></span> gamut visualization. Similarly to how different color spaces can assign different colors to their pure red defined as <span class="nobreak"><span class="color_comp_r">1.0</span><span class="color_comp_g">0.0</span><span class="color_comp_b">0.0</span></span>, the <a href="https://en.wikipedia.org/wiki/White_point">white point</a> of a color space defines its color of white – the represented color when all three components are ones <span class="nobreak"><span class="color_comp_r">1.0</span><span class="color_comp_g">1.0</span><span class="color_comp_b">1.0</span></span>.</p>
+<p>In the color picker below both halves have the same RGB primaries, but different white points. See what happens when you <a href="color-spaces.html#" onclick="match_white_point_white();return false;">drag all the sliders to the right</a>:</p>
+<div class="color_matcher_container" id="color_plain_white_slider_container"></div>
+<p>The color space form the bottom half defines its white as a slightly different color than the top color space.</p>
+<p>A 3D visualization shows two interesting properties. Firstly, the axes of the inner and the outer cubes are collinear, they&rsquo;re just scaled differently. Secondly, the &ldquo;far&rdquo; endpoints of the cubes no longer overlap since their whitepoints are different:</p>
+<div class="color_plot_container" id="color_plot_white_container"></div>
+<p>The white point is the last piece of the color space puzzle. We can now say that a color space is also defined by:</p>
+<div class="color_equation">
+A location of its white point on CIE xy chromaticity diagram.
+</div>
+<p>With xy coordinates of the red, green, and blue primaries, <em>and</em> the xy coordinates of the white point one can evaluate the RGB to XYZ transformation for a given color space. The details of this computation are not critical to our discussion and you can read about them in many places online, e.g. on <a href="http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html">Bruce Lindbloom&rsquo;s website</a>.</p>
+<p>While necessary for correct calculation of RGB to XYZ transformation, in practice it may be difficult to notice that two color spaces have different whitepoints. Most color conversion operations will undergo <a href="https://en.wikipedia.org/wiki/Chromatic_adaptation">chromatic adaptation</a> and the color of <span class="nobreak"><span class="color_comp_r">1.0</span><span class="color_comp_g">1.0</span><span class="color_comp_b">1.0</span></span> in the source color space will be mapped to <span class="nobreak"><span class="color_comp_r">1.0</span><span class="color_comp_g">1.0</span><span class="color_comp_b">1.0</span></span> in the destination color space.</p>
+<h1 id="srgb-color-space">sRGB Color Space<a href="color-spaces.html#srgb-color-space" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>We&rsquo;ll finish our discussion with a showcase of the sRGB color space, <a href="https://www.w3.org/Graphics/Color/sRGB.html">described by its authors</a> as &ldquo;A Standard Default Color Space for the Internet&rdquo;. If you ever were specifying just &ldquo;RGB&rdquo; colors it&rsquo;s extremely likely that the components were assumed to come from the sRGB color space. In fact, it&rsquo;s the color space used in the very <a href="color-spaces.html#color-pickers">first color picker</a> in this article.</p>
+<p>While the sRGB <a href="https://webstore.iec.ch/publication/6169">specification</a> isn&rsquo;t free, <a href="https://en.wikipedia.org/wiki/SRGB">Wikipedia</a> and <a href="http://www.color.org/chardata/rgb/srgb.xalter">International Color Consortium</a> provide all the information we need to describe it.</p>
+<h2 id="tone-response-curve">Tone Response Curve<a href="color-spaces.html#tone-response-curve" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>Let&rsquo;s look at the plot of the tone response curve of the sRGB color space. The light intensity value is on the vertical axis and it&rsquo;s symbolized with a sun icon. The encoded value is on the horizontal axis and it&rsquo;s symbolized with a binary code:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="images/color_srgb_trc.svg"
+         alt="Tone response curve of sRGB" width="420" height="410"
+    /> 
+    </div><span>
+            <p>Tone response curve of sRGB</p>
+        </span>
+</div>
+
+<p>While the curve may look like a single power function, in the range of 0 to 0.04045 it actually is a linear segment:</p>
+<div class="color_equation">
+(intensity&nbsp;value) = (encoded&nbsp;value)/12.92<br>
+</div>
+<p>When encoded value is larger than 0.04045 the intensity value is indeed defined by a slightly nudged power function with exponent of 2.4:</p>
+<div class="color_equation">
+(intensity&nbsp;value) = (((encoded&nbsp;value) + 0.055)/1.055)<sup>2.4</sup>
+</div>
+<p>The transition between the two parts is continuous and I marked its location on the plot with a little bump.</p>
+<p>The curve was designed to roughly correspond to the response curve of CRT displays thus to some extent minimizing the need for any color management. That convenience had the unfortunate consequence of creating a widespread confusion by binding the two separate ideas into one.</p>
+<p>In general case the purpose of tone response curves is to make the best use of available space when storing the color information in formats with limited bit depth. The non-linear response of an electron gun in a CRT display is a separate and only loosely related concept.</p>
+<h2 id="chromaticity-and-white-point-coordinates">Chromaticity and White Point Coordinates<a href="color-spaces.html#chromaticity-and-white-point-coordinates" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>Chromaticity coordinates of red, green, blue, and white are just 4 pairs of x and y values and we can put them in a table:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Red</th>
+<th>Green</th>
+<th>Blue</th>
+<th>White</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>x</strong></td>
+<td>0.6400</td>
+<td>0.3000</td>
+<td>0.1500</td>
+<td>0.3127</td>
+</tr>
+<tr>
+<td><strong>y</strong></td>
+<td>0.3300</td>
+<td>0.6000</td>
+<td>0.0600</td>
+<td>0.3290</td>
+</tr>
+</tbody>
+</table>
+<p>You&rsquo;ll probably agree that this form is not particularly exciting, things look much nicer on the xy chromaticity diagram:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="images/color_gamut_srgb.svg"
+         alt="Chromaticity and white point coordinates of sRGB" width="400" height="450"
+    /> 
+    </div><span>
+            <p>Chromaticity and white point coordinates of sRGB</p>
+        </span>
+</div>
+
+<p>On a technical note it&rsquo;s worth mentioning that the primaries share the same location as <a href="https://en.wikipedia.org/wiki/Rec._709">Rec. 709</a> – the standard for HDTV. Additionally, the white point location corresponds to <a href="https://en.wikipedia.org/wiki/Illuminant_D65">Standard Illuminant D65</a> – a representation of the average daylight.</p>
+<p>While sRGB isn&rsquo;t capable of representing some of the more vivid shades and clearly doesn&rsquo;t contain all the colors humans can see, it has served its purpose as a standard color space of 8-bit graphics remarkably well.</p>
+<h1 id="further-reading">Further Reading<a href="color-spaces.html#further-reading" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>The web is filled with interesting gems related to color. For a very good dissection of many of the major components on a pathway between hex colors and what we end up perceiving with our eyes I suggest reading Jamie Wong&rsquo;s <a href="http://jamie-wong.com/post/color/">&ldquo;Color: From Hexcodes to Eyeballs&rdquo;</a>. I especially like his very approachable explanation of spectral distributions.</p>
+<p>Bruce MacEvoy&rsquo;s <a href="https://www.handprint.com/LS/CVS/color.html">set of pages</a> on color vision is an amazing resource about various aspects of color. I highly recommend the <a href="https://www.handprint.com/HP/WCL/color1.html">first post</a> in the series in which the author describes the fascinating details of biophysics of the human visual system.</p>
+<p>Elle Stone authored an extensive <a href="https://ninedegreesbelow.com/photography/articles.html">collection of great articles</a> on color spaces, calibration, and image editing. For a different take on what we&rsquo;ve touched upon in this article you should see <a href="https://ninedegreesbelow.com/photography/xyz-rgb.html">&ldquo;Completely Painless Programmer&rsquo;s Guide to XYZ, RGB, ICC, xyY, and TRCs&rdquo;</a>.</p>
+<p>If you think you&rsquo;d enjoy a deep dive into the optimization process of creating a minimal sRGB ICC profile, Clinton Ingram has got you covered in his <a href="https://photosauce.net/blog/post/making-a-minimal-srgb-icc-profile-part-1-trim-the-fat-abuse-the-spec">four part series</a>. His pragmatic approach to the problem provides a very entertaining read.</p>
+<p>Finally, as a resource in a more traditional form, I recommend the book <a href="https://www.amazon.com/Color-Imaging-Fundamentals-Erik-Reinhard/dp/1568813449">&ldquo;Color Imaging: Fundamentals and Applications&rdquo;</a>. It covers a vast selection of topics related to color and its reproduction, all in a very readable form.</p>
+<h1 id="final-words">Final Words<a href="color-spaces.html#final-words" class="hanchor" ariaLabel="Anchor"><img src="images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Many of the concepts we&rsquo;ve discussed were developed decades ago, but despite the age even the old ideas continue to be incredibly useful and the science behind them is expanded to this day.</p>
+<p>Color is one of those areas with seemingly infinite depth of complexity. I hopefully showed you that some of that complexity isn&rsquo;t actually as scary as it looks, you just need to shine a light on it.</p>
+
+    </div>
+</div>
+      </div>
+    </div>
+    <div id="footer">
+        Copyright &copy; 2022 Bartosz Ciechanowski
+    </div>
+  </div>
+</body>
+
+</html>

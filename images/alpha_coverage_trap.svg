@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="524" height="104" viewBox="0 0 524 104">
+  <defs>
+    <rect id="alpha_coverage_trap-a" width="100" height="100"/>
+    <rect id="alpha_coverage_trap-c" width="100" height="100"/>
+    <rect id="alpha_coverage_trap-e" width="100" height="100"/>
+    <rect id="alpha_coverage_trap-g" width="100" height="100"/>
+  </defs>
+  <g fill="none" fill-rule="evenodd">
+    <polygon fill="#5190EE" points="2 52 102 86.5 102 2 2 2"/>
+    <polygon fill="#5190EE" points="176 102 242 61.5 242 2 176 2"/>
+    <polygon fill="#5190EE" points="338.5 2 382 86.5 382 2"/>
+    <polygon fill="#5190EE" points="422 48 522 48 522 2 506.5 2 422 46.5"/>
+    <rect width="34" height="100" x="142" y="2" fill="#F7D44B"/>
+    <rect width="100" height="54" x="422" y="48" fill="#F7D44B"/>
+    <g transform="translate(2 2)">
+      <mask id="alpha_coverage_trap-b" fill="#fff">
+        <use xlink:href="#alpha_coverage_trap-a"/>
+      </mask>
+      <use stroke="#888" xlink:href="#alpha_coverage_trap-a"/>
+      <path stroke="#444" stroke-linecap="round" stroke-width="3" d="M0,50 L100,84.5" mask="url(#alpha_coverage_trap-b)"/>
+    </g>
+    <g transform="translate(142 2)">
+      <mask id="alpha_coverage_trap-d" fill="#fff">
+        <use xlink:href="#alpha_coverage_trap-c"/>
+      </mask>
+      <use stroke="#888" xlink:href="#alpha_coverage_trap-c"/>
+      <path stroke="#444" stroke-linecap="round" stroke-width="3" d="M35.5,100 L100,59.5" mask="url(#alpha_coverage_trap-d)"/>
+    </g>
+    <g transform="translate(282 2)">
+      <mask id="alpha_coverage_trap-f" fill="#fff">
+        <use xlink:href="#alpha_coverage_trap-e"/>
+      </mask>
+      <use stroke="#888" xlink:href="#alpha_coverage_trap-e"/>
+      <path stroke="#444" stroke-linecap="square" stroke-width="3" d="M56.5,0 L100,84.5" mask="url(#alpha_coverage_trap-f)"/>
+    </g>
+    <g transform="translate(422 2)">
+      <mask id="alpha_coverage_trap-h" fill="#fff">
+        <use xlink:href="#alpha_coverage_trap-g"/>
+      </mask>
+      <use stroke="#888" xlink:href="#alpha_coverage_trap-g"/>
+      <path stroke="#444" stroke-linecap="square" stroke-width="3" d="M84.5,0 L0,44.5" mask="url(#alpha_coverage_trap-h)"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2052BB">
+<meta name="author" content="Bartosz Ciechanowski">
+<meta name="format-detection" content="telephone=no">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-25335284-3"></script>
+
+
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-25335284-3');
+</script>
+  <meta property="og:title" content="Cameras and Lenses – Bartosz Ciechanowski" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ciechanow.ski/cameras-and-lenses/" />
+<meta property="og:description" content="Interactive article explaining how cameras and lenses work." />
+<meta property="og:image" content="https://ciechanow.ski/images/og/lenses.jpg" />
+<meta name="twitter:title" content="Cameras and Lenses – Bartosz Ciechanowski" />
+<meta name="twitter:site" content="@BCiechanowski" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://ciechanow.ski/images/og/lenses.jpg" />
+<meta property="og:locale" content="en_US">
+    <meta name="keywords" content="lens,refraction,camera,focus,focal,apeture,f,number">
+  <link href="../css/base.css" rel="stylesheet" type="text/css"/>
+<link href="https://fonts.googleapis.com/css?family=Lato:700&display=swap" rel="stylesheet" type="text/css" async>
+<link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,400i,500&display=swap" rel="stylesheet" async>
+  <title>Cameras and Lenses – Bartosz Ciechanowski</title>
+  <link rel="icon" href="../favicon.ico">
+  <link href="../css/lenses.css" rel="stylesheet" type="text/css" />
+  <script defer src="../js/base.js"></script>
+  <script defer src="../js/lenses.js"></script>
+</head>
+
+<body>
+  <div id="main_container">
+    <div id="body">
+      <div id="banner">
+    <div id="banner_wrapper">
+        <div id="banner_content">
+            <div id="site_title">
+                <a href="../index.html">Bartosz Ciechanowski</a>
+            </div>
+            <div id="navigation">
+                <a href="../index.html">Blog</a>
+                <a href="../archives.html">Archives</a>
+            </div>
+            <div id="social">
+                <a class="patreon" href="https://www.patreon.com/ciechanowski" title="Patreon"><div class="patreonLogo">Patreon</div></a>
+                <a class="twitter" href="https://twitter.com/bciechanowski" title="Twitter"><div class="twitterLogo">Twitter</div></a>
+                <a class="instagram" href="https://www.instagram.com/bartoszciechanowski/" title="Instagram"><div class="igLogo">Instagram</div></a>
+                <a class="email" href="mailto:bartosz@ciechanow.ski" title="e-mail"><div class="emailLogo">e-mail</div></a>
+                <a class="rss" href="../atom.xml" title="rss"><div class="rssLogo">rss</div></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+      <div id="content">
+        
+<div class="article">
+    <div class="post_date">December 7, 2020</div>
+    <h1 class="post_title"><a href="index.html">Cameras and Lenses</a></h1><p>Pictures have always been a meaningful part of the human experience. From the first cave drawings, to sketches and paintings, to modern photography, we&rsquo;ve mastered the art of recording what we see.</p>
+<p>Cameras and the lenses inside them may seem a little mystifying. In this blog post I&rsquo;d like to explain not only how they work, but also how adjusting a few tunable parameters can produce fairly different results:</p>
+<div class="padding_wrapper"><div class="drawer_container double_drawer" id="lens_hero"></div></div>
+<div class="lens_yellow" id="lens_hero_sl2"></div>
+<div class="lens_blue" id="lens_hero_sl1"></div>
+<div class="lens_black" id="lens_hero_sl0"></div>
+<p>Over the course of this article we&rsquo;ll build a simple camera from first principles. Our first steps will be very modest – we&rsquo;ll simply try to take any picture. To do that we need to have a sensor capable of detecting and measuring light that shines onto it.</p>
+<h1 id="recording-light">Recording Light<a href="index.html#recording-light" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Before the dawn of the digital era, photographs were taken on a piece of film covered in crystals of <a href="https://en.wikipedia.org/wiki/Silver_halide">silver halide</a>. Those compounds are light-sensitive and when exposed to light they form a speck of metallic silver that can later be developed with further chemical processes.</p>
+<p>For better or for worse, I&rsquo;m not going to discuss analog devices – these days most cameras are digital. Before we continue the discussion relating to light we&rsquo;ll use the classic trick of turning the illumination off. Don&rsquo;t worry though, we&rsquo;re not going to stay in darkness for too long.</p>
+<br>
+<br>
+<br>
+<div class="dark_light_bg_grad_top"></div>
+<div class="dark_light_bg" >
+    <div class="bg_content">
+        
+<br>
+<br>
+<br>
+<p>The <a href="https://en.wikipedia.org/wiki/Image_sensor">image sensor</a> of a digital camera consists of a grid of photodetectors. A photodetector converts photons into electric current that can be measured – the more photons hitting the detector the higher the signal.</p>
+<p>In the demonstration below you can observe how photons fall onto the arrangement of detectors represented by small squares. After some processing, the value read by each detector is converted to the brightness of the resulting image pixels which you can see on the right side. I&rsquo;m also symbolically showing which <em>photosite</em> was hit with a short highlight. The slider below controls the flow of time:</p>
+<div class="padding_wrapper"><div class="drawer_container double_drawer" id="lens_detector"></div></div>
+<div  class="long_slider" id="lens_detector_sl0"></div>
+<p>The longer the time of collection of photons the more of them are hitting the detectors and the brighter the resulting pixels in the image. When we don&rsquo;t gather enough photons the image is <a href="index.html#" class="link_button" onclick="lens_under_exp();return false;">underexposed</a>, but if we allow the photon collection to run for too long the image will be <a href="index.html#" class="link_button" onclick="lens_over_exp();return false;">overexposed</a>.</p>
+<p>While the photons have the &ldquo;color&rdquo; of their <a href="../color-spaces.html#and-there-was-light">wavelength</a>, the photodetectors don&rsquo;t see that hue – they only measure the total intensity which results in a black and white image. To record the color information we need to separate the incoming photons into distinct groups. We can put tiny color filters on top of the detectors so that they will only accept, more or less, red, green, or blue light:</p>
+<div class="padding_wrapper"><div class="drawer_container square_drawer small_drawer move_cursor" id="lens_rgb_filter"></div></div>
+<div id="lens_rgb_filter_sl0"></div>
+<p>This <a href="https://en.wikipedia.org/wiki/Color_filter_array">color filter array</a> can be arranged in many different formations. One of the simplest is a <a href="https://en.wikipedia.org/wiki/Bayer_filter">Bayer filter</a> which uses one red, one blue, and <em>two</em> green filters arranged in a 2x2 grid:</p>
+<div class="padding_wrapper"><div class="drawer_container square_drawer small_drawer move_cursor" id="lens_bayer"></div></div>
+<p>A Bayer filter uses two green filters because light in green part of the spectrum heavily <a href="https://en.wikipedia.org/wiki/Luminosity_function">correlates</a> with perceived brightness. If we now repeat this pattern across the entire sensor we&rsquo;re able to collect color information. For the next demo we will also double the resolution to an astonishing 1 kilopixel arranged in a 32x32 grid:</p>
+<div class="padding_wrapper"><div class="drawer_container double_drawer" id="lens_detector_rgbg"></div></div>
+<div  class="long_slider" id="lens_detector_rgbg_sl0"></div>
+<p>Note that the individual sensors themselves still only see the intensity, and not the color, but knowing the arrangement of the filters we can recreate the colored intensity of each sensor, as shown on the right side of the simulation.</p>
+<p>The final step of obtaining a normal image is called <a href="https://en.wikipedia.org/wiki/Demosaicing"><em>demosaicing</em></a>. During demosaicing we want to reconstruct the full color information by filling in the gaps in the captured RGB values. One of the simplest way to do it is to just linearly interpolate the values between the existing neighbors. I&rsquo;m not going to focus on the details of many other available demosaicing algorithms and I&rsquo;ll just present the resulting image created by the process:</p>
+<div class="padding_wrapper"><div class="drawer_container double_drawer" id="lens_detector_rgb"></div></div>
+<div  class="long_slider" id="lens_detector_rgb_sl0"></div>
+<p>Notice that yet again the overall brightness of the image depends on the length of time for which we let the photons through. That duration is known as <a href="https://en.wikipedia.org/wiki/Shutter_speed"><em>shutter speed</em></a> or exposure time. For most of this presentation I will ignore the time component and we will simply assume that the shutter speed has been set <em>just right</em> so that the image is well exposed.</p>
+<p>The examples we&rsquo;ve discussed so far were very convenient – we were surrounded by complete darkness with the photons neatly hitting the pixels to form a coherent image. Unfortunately, we can&rsquo;t count on the photon paths to be as favorable in real environments, so let&rsquo;s see how the sensor performs in more realistic scenarios.</p>
+<br>
+<br>
+<br>
+
+    </div>
+</div>
+<div class="dark_light_bg_grad_bottom"></div>
+<br>
+<br>
+<br>
+<p>Over the course of this article we will be taking pictures of this simple scene. The almost white background of this website is also a part of the scenery – it represents a bright overcast sky. You can drag around the demo to see it from other directions:</p>
+<div class="padding_wrapper"><div class="drawer_container square_drawer small_drawer move_cursor" id="lens_scene"></div></div>
+<p>Let&rsquo;s try to see what sort of picture would be taken by a sensor that is placed near the objects without any enclosure. I&rsquo;ll also significantly increase the sensor&rsquo;s resolution to make the pixels of the final image align with the pixels of your display. In the demonstration below the left side represents a view of the scene with the small greenish sensor present, while the right one shows the taken picture:</p>
+<div class="padding_wrapper"><div class="drawer_container double_drawer" id="lens_bare_film"></div></div>
+<p>This is not a mistake. As you can see, the obtained image doesn&rsquo;t really resemble anything. To understand why this happens let&rsquo;s first look at the light radiated from the scene.</p>
+<p>If you had a chance to explore how <a href="../lights-and-shadows/index.html#reflections">surfaces reflect light</a>, you may recall that most matte surfaces scatter the incoming light in every direction. While I&rsquo;m only showing a few examples, <em>every</em> point on every surface of this scene reflects the photons it receives from the whiteish background light source all around itself:</p>
+<div class="padding_wrapper"><div class="drawer_container square_drawer small_drawer move_cursor" id="lens_scene_rays"></div></div>
+<p>The red sphere ends up radiating red light, the green sphere radiates green light, and the gray checkerboard floor reflects white light of lesser intensity. Most importantly, however, the light emitted from the background is <em>also</em> visible to the sensor.</p>
+<p>The problem with our current approach to taking pictures is that every pixel of the sensor is exposed to the <em>entire</em> environment. Light radiated from every point of the scene and the white background hits every point of the sensor. In the simulation below you can witness how light from different directions hits one point on the surface of the sensor:</p>
+<div class="padding_wrapper"><div class="drawer_container square_drawer small_drawer move_cursor" id="lens_sensor_rays"></div></div>
+<p>Clearly, to obtain a discernible image we have to limit the range of directions that affect a given pixel on the sensor. With that in mind, let&rsquo;s put the sensor in a box that has a small hole in it. The first slider controls the <span class="lens_black">diameter</span> of the hole, while the second one controls the <span class="lens_yellow">distance</span> between the opening and the sensor:</p>
+<div class="padding_wrapper"><div class="drawer_container square_drawer small_drawer move_cursor" id="lens_box"></div></div>
+<div class="lens_black" id="lens_box_sl0"></div>
+<div class="lens_yellow" id="lens_box_sl1"></div>
+<p>While not shown here, the inner sides of the walls are all black so that no light is reflected inside the box. I also put the sensor on the back wall so that the light from the hole shines onto it. We&rsquo;ve just built a <a href="https://en.wikipedia.org/wiki/Pinhole_camera"><em>pinhole camera</em></a>, let&rsquo;s see how it performs. Observe what happens to the taken image as we tweak the <span class="lens_black">diameter</span> of the hole with the first slider, or change the <span class="lens_yellow">distance</span> between the opening and the sensor with the second one:</p>
+<div class="padding_wrapper"><div class="drawer_container double_drawer" id="lens_film"></div></div>
+<div class="lens_black" id="lens_film_sl0"></div>
+<div class="lens_yellow" id="lens_film_sl1"></div>
+<p>There are so many interesting things happening here! The most pronounced effect is that the image is inverted. To understand why this happens let&rsquo;s look at the schematic view of the scene that shows the light rays radiated from the objects, going through the hole, and hitting the sensor:</p>
+<div class="padding_wrapper"><div class="drawer_container double_drawer move_cursor" id="lens_film_invert"></div></div>
+<p>As you can see the rays cross over in the hole and the formed image is a horizontal and a vertical reflection of the actual scene. Those two flips end up forming a 180° rotation. Since rotated images aren&rsquo;t convenient to look at, all cameras automatically rotate the image for presentation and for the rest of this article I will do so as well.</p>
+<p>When we change the <span class="lens_yellow">distance</span> between the hole and the sensor the viewing angle changes drastically. If we trace the rays falling on the corner pixels of the sensor we can see that they define the extent of the visible section of the scene:</p>
+<div class="padding_wrapper"><div class="drawer_container double_drawer" id="lens_frustum"></div></div>
+<div class="lens_yellow" id="lens_frustum_sl0"></div>
+<p>Rays of light coming from outside of that shape still go through the pinhole, but they land outside of the sensor and aren&rsquo;t recorded. As the hole moves further away from the sensor, the angle, and thus the <a href="https://en.wikipedia.org/wiki/Field_of_view">field of view</a> visible to the sensor gets smaller. We can see this in a top-down view of the camera:</p>
+<div class="padding_wrapper"><div class="drawer_container double_drawer" id="lens_field"></div></div>
+<div class="lens_yellow" id="lens_field_sl0"></div>
+<p>Coincidentally, this diagram also helps us explain two other effects. Firstly, in the photograph the red sphere looks almost as big as the green one, even though the scene view shows the latter is much larger. However, both spheres end up occupying roughly <a href="index.html#" class="link_button" onclick="lens_field_0();return false;">the same span</a> on the sensor and their size in the picture is similar. It&rsquo;s also worth noting that the spheres seem to grow when the field of view gets narrower because their light covers larger part of the sensor.</p>
+<p>Secondly, notice that different pixels of the sensor have different distance and relative orientation to the hole. The pixels right in the center of the sensor see the pinhole straight on, but pixels positioned at an angle to the main axis see a distorted pinhole that is further away. The ellipse in the bottom right corner of the demonstration below shows how a pixel positioned at the blue point sees the pinhole:</p>
+<div class="padding_wrapper"><div class="drawer_container square_drawer small_drawer move_cursor" id="lens_hole_pixel_view"></div></div>
+<div class="lens_blue" id="lens_hole_pixel_view_sl0"></div>
+<p>This change in the visible area of the hole causes the darkening we see in the corners of the photograph. The value of the <em>cosine</em> of the angle I&rsquo;ve marked with a <span class="lens_yellow">yellow color</span> is quite important as it contributes to the reduction of visible light in four different ways:</p>
+<ul>
+<li>Two cosine factors from the increased distance to the hole, it&rsquo;s essentially the <a href="../lights-and-shadows/index.html#inverse_square">inverse square law</a></li>
+<li>A cosine factor from the side squeeze of the circular hole seen at an angle</li>
+<li>A cosine factor from the relative <a href="../lights-and-shadows/index.html#cosine_factor">tilt of the receptor</a></li>
+</ul>
+<p>These four factors conspire together to reduce the illumination by a factor of <strong>cos<sup>4</sup>(α)</strong> in what is known as <em>cosine-fourth-power law</em>, also described as <a href="https://en.wikipedia.org/wiki/Vignetting#Natural_vignetting">natural vignetting</a>.</p>
+<p>Since we know the relative geometry of the camera and the opening we can correct for this effect by simply dividing by the falloff factor and from this point on I will make sure that the images don&rsquo;t have darkened corners.</p>
+<p>The final effect we can observe is that when the hole gets smaller the image gets sharper. Let&rsquo;s see how the light radiated from two points of the scene ends up going through the camera depending on the <span class="lens_black">diameter</span> of the pinhole:</p>
+<div class="padding_wrapper"><div class="drawer_container square_drawer small_drawer move_cursor" id="lens_hole_solid_angle"></div></div>
+<div class="lens_black" id="lens_hole_solid_angle_sl0"></div>
+<p>We can already see that larger hole size ends up creating a bigger spread on the sensor. Let&rsquo;s see this situation up close on a simple grid of detecting cells. Notice what happens to the size of the final circle hitting the sensor as that <span class="lens_black">diameter</span> of the hole changes:</p>
+<div class="padding_wrapper"><div class="drawer_container lens_long_drawer medium_drawer move_cursor" id="lens_hole_sharpness"></div></div>
+<div class="lens_black" id="lens_hole_sharpness_sl0"></div>
+<p>When the hole is <a href="index.html#" class="link_button" onclick="lens_sharp_0();return false;">small enough</a> rays from the source only manage to hit one pixel on the sensor. However, at <a href="index.html#" class="link_button" onclick="lens_sharp_1();return false;">larger radii</a> the light spreads onto other pixels and a tiny point in the scene is no longer represented by a single pixel causing the image to no longer be sharp.</p>
+<p>It&rsquo;s worth pointing out that sharpness is ultimately arbitrary – it depends on the size at which the final image is seen, viewing conditions, and visual acuity of the observer. The same photograph that looks sharp on a postage stamp may in fact be very blurry when seen on a big display.</p>
+<p>By reducing the size of the cone of light we can make sure that the source light affects a limited number of pixels. Here, however, lays the problem. The sensor we&rsquo;ve been using so far has been an idealized detector capable of flawless adjustment of its sensitivity to the lighting conditions. If we instead were to fix the sensor sensitivity adjustment, the captured image would look more like this:</p>
+<div class="padding_wrapper"><div class="drawer_container double_drawer" id="lens_film_exposure"></div></div>
+<div class="lens_black" id="lens_film_exposure_sl0"></div>
+<div class="lens_yellow" id="lens_film_exposure_sl1"></div>
+<p>As the relative size of the hole visible to the pixels of the sensor gets smaller, be it due to reduced <span class="lens_black">diameter</span> or increased <span class="lens_yellow">distance</span>, fewer photons hit the surface and the image gets dimmer.</p>
+<p>To increase the number of photons we capture we could extend the duration of collection, but increasing the exposure time comes with its own problems – if the photographed object moves or the camera isn&rsquo;t held steady we risk introducing some <a href="https://en.wikipedia.org/wiki/Motion_blur">motion blur</a>.</p>
+<p>Alternatively, we could increase the <a href="https://en.wikipedia.org/wiki/Film_speed">sensitivity</a> of the sensor which is described using the ISO rating. However, boosting the ISO may introduce a higher level of <a href="https://en.wikipedia.org/wiki/Image_noise">noise</a>. Even with these problems solved an actual image obtained by smaller and smaller holes would actually start getting blurry again due to <a href="https://en.wikipedia.org/wiki/Diffraction">diffraction</a> effects of light.</p>
+<p>If you recall how diffuse surfaces reflect light you may also realize how incredibly inefficient a pinhole camera is. A single point on the surface of an object radiates light into its surrounding hemisphere, however, the pinhole captures only a tiny portion of that light.</p>
+<p>More importantly, however, a pinhole camera gives us minimal artistic control over <em>which</em> parts of the picture are blurry. In the demonstration below you can witness how changing which object is in focus heavily affects what is the primary target of attention of the photograph:</p>
+<div class="padding_wrapper"><div class="drawer_container double_drawer" id="lens_focus_demo"></div></div>
+<div id="lens_focus_demo_sl0"></div>
+<p>Let&rsquo;s try to build an optical device that would solve both of these problems: we want to find a way to harness a bigger part of the energy radiated by the objects and also control what is blurry and <em>how</em> blurry it is. For the objects in the scene that are supposed to be sharp we want to collect a big chunk of their light and make it converge to the smallest possible point. In essence, we&rsquo;re looking for an instrument that will do something like this:</p>
+<div class="padding_wrapper"><div class="drawer_container lens_very_long_drawer medium_drawer move_cursor" id="lens_device"></div></div>
+<p>We could then put the sensor at the focus point and obtain a sharp image. Naturally, the contraption we&rsquo;ll try to create has to be transparent so that the light can pass through it and get to the sensor, so let&rsquo;s begin the investigation by looking at a piece of glass.</p>
+<h1 id="glass">Glass<a href="index.html#glass" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>In the demonstration below I put a red stick behind a pane of glass. You can adjust the thickness of this pane with the <span class="lens_gray">gray slider</span> below:</p>
+<div class="padding_wrapper"><div class="drawer_container square_drawer small_drawer move_cursor" id="lens_glass"></div></div>
+<div id="lens_glass_sl0"></div>
+<p>When you look at the stick through the surface of a thick glass <a href="index.html#" class="link_button" onclick="lens_glass_0();return false;">straight on</a>, everything looks normal. However, as your viewing direction <a href="index.html#" class="link_button" onclick="lens_glass_1();return false;">changes</a> the stick seen through the glass seems out of place. The thicker the glass and the steeper the viewing angle the bigger the offset.</p>
+<p>Let&rsquo;s focus on one point on the surface of the stick and see how the rays of light radiated from its surface propagate through the subsection of the glass. The <span class="lens_red">red slider</span> controls the position of the source and the <span class="lens_gray">gray slider</span> controls the thickness.  You can drag the demo around to see it from different viewpoints:</p>
+<div class="padding_wrapper"><div class="drawer_container lens_very_long_drawer medium_drawer move_cursor" id="lens_glass_rays"></div></div>
+<div class="lens_red" id="lens_glass_rays_sl0"></div>
+<div id="lens_glass_rays_sl1"></div>
+<p>For some reason the rays passing through glass at an angle are <a href="index.html#" class="link_button" onclick="lens_glass_rays_0();return false;">deflected off their paths</a>. The change of direction happens whenever the ray enters or leaves the glass.</p>
+<p>To understand <em>why</em> the light changes direction we have to peek under the covers of <a href="https://en.wikipedia.org/wiki/Classical_electromagnetism">classical electromagnetism</a> and talk a bit more about waves.</p>
+<h1 id="waves">Waves<a href="index.html#waves" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>It&rsquo;s impossible to talk about wave propagation without involving the time component, so the simulations in this section are animated – you can play and pause them by <span class="click_word">clicking</span><span class="tap_word">tapping</span> on the button in their bottom left corner.</p>
+<p>By default all animations are <span id="global_animate_on">enabled, but if you find them distracting, or if you want to save power, you can <a href="index.html#" class="link_button" onclick="global_animate(false);return false;">globally pause</a> all the following demonstrations.</span><span id="global_animate_off" class="hidden">disabled, but if you&rsquo;d prefer to have things moving as you read you can <a href="index.html#"  class="link_button" onclick="global_animate(true);return false;">globally unpause</a> them and see all the waves oscillating.</span></p>
+<p>Let&rsquo;s begin by introducing the simplest sinusoidal wave:</p>
+<div class="padding_wrapper"><div class="drawer_container double_drawer" id="lens_sine"></div></div>
+<div class="lens_black" id="lens_sine_sl0"></div>
+<div id="lens_sine_sl1"></div>
+<p>A wave like this can be characterized by two components. <a href="https://en.wikipedia.org/wiki/Wavelength">Wavelength</a> <strong>λ</strong> is the distance over which the shape of the wave repeats. Period <strong>T</strong> defines how much time a full cycle takes.</p>
+<p><a href="https://en.wikipedia.org/wiki/Frequency">Frequency</a> <strong>f</strong>, is just a reciprocal of period and it&rsquo;s more commonly used – it defines how many waves per second have passed over some fixed point. Wavelength and frequency define <a href="https://en.wikipedia.org/wiki/Phase_velocity">phase velocity</a> <strong>v<sub>p</sub></strong> which describes how quickly a point on a wave, e.g. a peak, moves:</p>
+<div class="equation">
+<span class="equation_frac">v<sub>p</sup></span> = <span class="equation_frac">&lambda;</span> &middot; <span class="equation_frac">f</span> 
+</div>
+<p>The sinusoidal wave is the building block of a polarized electromagnetic plane wave. As the name implies electromagnetic radiation is an interplay of oscillations of electric field <strong>E</strong> and magnetic field <strong>B</strong>:</p>
+<div class="padding_wrapper"><div class="drawer_container double_drawer move_cursor" id="lens_em"></div></div>
+<p>In an electromagnetic wave the magnetic field is tied to the electric field so I&rsquo;m going to hide the former and just visualize the latter. Observe what happens to the electric component of the field as it passes through a block of glass. I need to note that dimensions of wavelengths are <em>not</em> to scale:</p>
+<div class="padding_wrapper"><div class="drawer_container move_cursor" id="lens_wave_glass"></div></div>
+<p>Notice that the wave remains continuous at the boundary and inside the glass the frequency of the passing wave remains constant, However, the wavelength and thus the phase velocity are reduced – you can see it clearly <a href="index.html#" class="link_button" onclick="lens_wave_glass_0();return false;">from the side</a>.</p>
+<p>The microscopic reason for the phase velocity change is <a href="https://en.wikipedia.org/wiki/Ewald%E2%80%93Oseen_extinction_theorem">quite complicated</a>, but it can be quantified using the <a href="https://en.wikipedia.org/wiki/Refractive_index"><em>index of refraction</em></a> <strong>n</strong>, which is the ratio of the speed of light <strong>c</strong> to the phase velocity <strong>v<sub>p</sub></strong> of lightwave in that medium:</p>
+<div class="equation">
+<span class="equation_frac">n</span> = <span class="equation_frac"><span>c</span>
+    <span class="equation_div_symbol">/</span>
+    <span class="lns_div_bottom">v<sub>p</sub></span>
+</span>
+</div>
+<p>The higher the index of refraction the <em>slower</em> light propagates through the medium. In the table below I&rsquo;ve presented a few different indices of refraction for some materials:</p>
+<table>
+<tr><td class="lens_list_item_material">vacuum</td><td class="lens_list_item_index">1.00</td></tr>
+<tr><td class="lens_list_item_material">air</td><td class="lens_list_item_index">1.0003</td></tr>
+<tr><td class="lens_list_item_material">water</td><td class="lens_list_item_index">1.33</td></tr>
+<tr><td class="lens_list_item_material">glass</td><td class="lens_list_item_index">1.53</td></tr>
+<tr><td class="lens_list_item_material">diamond</td><td class="lens_list_item_index">2.43</td></tr>
+</table>
+<p>Light traveling through air barely slows down, but in a diamond it&rsquo;s over twice as slow. Now that we understand how <span class="lens_black">index of refraction</span> affects the wavelength in the glass, let&rsquo;s see what happens when we change the <span class="lens_gray">direction</span> of the incoming wave:</p>
+<div class="padding_wrapper"><div class="drawer_container move_cursor" id="lens_wave_glass2"></div></div>
+<div class="lens_black" id="lens_wave_glass2_sl0"></div>
+<div id="lens_wave_glass2_sl1"></div>
+<p>The wave in the glass has a shorter wavelength, but it still has to match the positions of its peaks and valleys across the boundary. As such, the direction of propagation <a href="index.html#" class="link_button" onclick="lens_wave_glass_2();return false;">must change</a> to ensure that continuity.</p>
+<p>I need to note that the previous two demonstrations presented a two dimensional wave since that allowed me to show the sinusoidal component oscillating into the third dimension. In real world the lightwaves are three dimensional and I can&rsquo;t really visualize the sinusoidal component without using the fourth dimension which has <a href="../tesseract/index.html">its own set of complications</a>.</p>
+<p>The alternative way of presenting waves is to use <a href="https://en.wikipedia.org/wiki/Wavefront"><em>wavefronts</em></a>. Wavefronts connect the points of the same phase of the wave, e.g. all the peaks or valleys. In two dimensions wavefronts are represented by lines:</p>
+<div class="padding_wrapper"><div class="drawer_container square_drawer small_drawer move_cursor" id="lens_wave_2d"></div></div>
+<p>In three dimensions the wavefronts are represented by <em>surfaces</em>. In the demonstration below a single source emits a spherical wave, points of the same phase in the wave are represented by the moving shells:</p>
+<div class="padding_wrapper"><div class="drawer_container square_drawer small_drawer move_cursor" id="lens_wave_3d"></div></div>
+<p>By drawing lines that are perpendicular to the surface of the wavefront we create the familiar rays. In this interpretation rays simply show the local direction of wave propagation which can be seen in this example of a section of a spherical 3D wave:</p>
+<div class="padding_wrapper"><div class="drawer_container square_drawer small_drawer move_cursor" id="lens_wave_rays"></div></div>
+<p>I will continue to use the ray analogy to quantify the change in direction of light passing through materials. The relation between the angle of incidence <strong>θ<sub>1</sub></strong> and angle of refraction <strong>θ<sub>2</sub></strong> can be formalized with the equation known as <a href="https://en.wikipedia.org/wiki/Snell%27s_law">Snell&rsquo;s law</a>:</p>
+<div class="equation">
+<span class="lens_blue">n<sub>1</sub></span> &middot; sin(&theta;<sub>1</sub>) = <span class="lens_yellow">n<sub>2</sub></span> &middot; sin(&theta;<sub>2</sub>)
+</div>
+<p>It describes how a ray of light changes direction relative to the surface normal on the border between two different media. Let&rsquo;s see it in action:</p>
+<div class="padding_wrapper"><div class="drawer_container square_drawer small_drawer" id="lens_snell"></div></div>
+<div class="lens_black" id="lens_snell_sl0"></div>
+<div class="lens_blue" id="lens_snell_sl1"></div>
+<div class="lens_yellow" id="lens_snell_sl2"></div>
+<p>When traveling from a less to more refractive material the ray bends <a href="index.html#" class="link_button" onclick="lens_snell_0();return false;"><em>towards</em> the normal</a>, but when the ray exits the object with higher index of refraction it bends <a href="index.html#" class="link_button" onclick="lens_snell_1();return false;"><em>away</em> from the normal</a>.</p>
+<p>Notice that in <a href="index.html#" class="link_button" onclick="lens_snell_2();return false;">some configurations</a> the refracted ray completely disappears, however, this doesn&rsquo;t paint a full picture because we&rsquo;re currently completely ignoring reflections.</p>
+<p>All transparent objects reflect some amount of light. You may have noticed that reflection on a surface of a calm lake or even on the other side of the glass demonstration at the beginning of the <a href="index.html#glass">previous section</a>. The intensity of that reflection depends on the index of refraction of the material and the angle of the incident ray. Here&rsquo;s a more realistic demonstration of how light would get refracted <em>and</em> reflected between two media:</p>
+<div class="padding_wrapper"><div class="drawer_container square_drawer small_drawer" id="lens_snell2"></div></div>
+<div class="lens_black" id="lens_snell2_sl0"></div>
+<div class="lens_blue" id="lens_snell2_sl1"></div>
+<div class="lens_yellow" id="lens_snell2_sl2"></div>
+<p>The relation between <em>transmittance</em> and <em>reflectance</em> is determined by <a href="https://en.wikipedia.org/wiki/Fresnel_equations">Fresnel equations</a>. Observe that the curious case of missing light that we saw previously <a href="index.html#" class="link_button" onclick="lens_snell_3();return false;">no longer occurs</a> – that light is actually reflected. The transition from partial reflection and refraction to the complete reflection is continuous, but near the end it&rsquo;s very rapid and at some point the refraction <a href="index.html#" class="link_button" onclick="lens_snell_4();return false;">completely disappears</a> in the effect known as <a href="https://en.wikipedia.org/wiki/Total_internal_reflection">total internal reflection</a>.</p>
+<p>The <a href="https://en.wikipedia.org/wiki/Total_internal_reflection#Critical_angle"><em>critical angle</em></a> at which the total internal reflection starts to happen depends on the indices of refraction of the boundary materials. Since that coefficient is low for air, but very high for diamond a <a href="https://en.wikipedia.org/wiki/Brilliant_(diamond_cut)">proper cut</a> of the faces <a href="https://physics.stackexchange.com/questions/43361/why-do-diamonds-shine/43373#43373">makes diamonds</a> very shiny.</p>
+<p>While interesting on its own, reflection in glass isn&rsquo;t very relevant to our discussion and for the rest of this article we&rsquo;re not going to pay much attention to it. Instead, we&rsquo;ll simply assume that the materials we&rsquo;re using are covered with high quality <a href="https://en.wikipedia.org/wiki/Anti-reflective_coating">anti-reflective coating</a>.</p>
+<h1 id="manipulating-rays">Manipulating Rays<a href="index.html#manipulating-rays" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Let&rsquo;s go back to the example that started the discussion of light and glass. When both sides of a piece of glass are parallel, the ray is shifted, but it still travels in the same direction. Observe what happens to the ray when we change the relative angle of the surfaces of the glass.</p>
+<div class="padding_wrapper"><div class="drawer_container lens_very_long_drawer medium_drawer move_cursor" id="lens_parallel"></div></div>
+<div id="lens_parallel_sl0"></div>
+<p>When we make two surfaces of the glass <em>not</em> parallel we gain the ability to change the direction of the rays. Recall, that we&rsquo;re trying to make the rays hitting the optical device <em>converge</em> at a certain point. To do that we have to bend the rays in the upper part down and, conversely, bend the rays in the lower part up.</p>
+<p>Let&rsquo;s see what happens if we shape the glass to have different angles between its walls at different height. In the demonstration below you can control how many distinct segments a piece of glass is shaped to:</p>
+<div class="padding_wrapper">
+<div class="drawer_container lens_very_long_drawer medium_drawer move_cursor" id="lens_subdiv"></div>
+<div id="lens_subdiv_seg0"></div>
+</div>
+<p>As the number of segments <a href="index.html#" class="link_button" onclick="lens_subdiv_0();return false;">approaches infinity</a> we end up with a continuous surface without any edges. If we look at the crossover point <a href="index.html#" class="link_button" onclick="lens_subdiv_1();return false;">from the side</a> you may notice that we&rsquo;ve managed to converge the rays across one axis, but the top-down view <a href="index.html#" class="link_button" onclick="lens_subdiv_2();return false;">reveals</a> that we&rsquo;re not done yet. To focus all the rays we need to replicate that smooth shape across <em>all</em> possible directions – we need rotational symmetry:</p>
+<div class="padding_wrapper"><div class="drawer_container lens_very_long_drawer medium_drawer move_cursor" id="lens_rotational"></div></div>
+<p>We&rsquo;ve created a <em>convex</em> <a href="https://en.wikipedia.org/wiki/Thin_lens">thin lens</a>. This lens is idealized, in the later part of the article we&rsquo;ll discuss how real lenses aren&rsquo;t as perfect, but for now it will serve us very well. Let&rsquo;s see what happens to the focus point when we change the position of the <span class="lens_red">red</span> source:</p>
+<div class="padding_wrapper"><div class="drawer_container lens_long_drawer medium_drawer move_cursor" id="lens_rotational_focal"></div></div>
+<div class="lens_red" id="lens_rotational_focal_sl0"></div>
+<p>When the source is positioned <a href="index.html#" class="link_button" onclick="lens_inf();return false;">very far away</a> the incoming rays become parallel and after passing through lens they converge at a certain distance away from the center. That distance is known as <a href="https://en.wikipedia.org/wiki/Focal_length"><em>focal length</em></a>.</p>
+<p>The previous demonstration also shows two more general distances: <strong>s<sub>o</sub></strong> which is the distance between the <strong>o</strong>bject, or source, and the lens, as well as <strong>s<sub>i</sub></strong> which is the distance between the <strong>i</strong>mage and the lens. These two values and the focal length <strong>f</strong> are related by the <a href="https://en.wikipedia.org/wiki/Thin_lens#Image_formation"><em>thin lens equation</em></a>:</p>
+<div class="equation">
+<span class="equation_frac"><span>1</span>
+    <span class="equation_div_symbol">/</span>
+    <span class="lns_div_bottom">s<sub>o</sub></span>
+</span>
++
+<span class="equation_frac"><span>1</span>
+    <span class="equation_div_symbol">/</span>
+    <span class="lns_div_bottom">s<sub>i</sub></span>
+</span>
+=
+<span class="equation_frac"><span>1</span>
+    <span class="equation_div_symbol">/</span>
+    <span class="lns_div_bottom">f</span>
+</span>
+</div>
+<p>Focal length of a lens depends on both the <span class="lens_black">index of refraction</span> of the material from which the lens is made and its <span class="lens_blue">shape</span>:</p>
+<div class="padding_wrapper"><div class="drawer_container lens_long_drawer medium_drawer move_cursor" id="lens_focal_length"></div></div>
+<div class="lens_black" id="lens_focal_length_sl1"></div>
+<div class="lens_blue" id="lens_focal_length_sl0"></div>
+<p>Now that we understand how a simple convex lens works we&rsquo;re ready to mount it into the hole of our camera. We will still control the <span class="lens_yellow">distance</span>  between the sensor and the lens, but instead of controlling the diameter of the lens we&rsquo;ll instead control its <span class="lens_blue">focal length</span>:</p>
+<div class="padding_wrapper"><div class="drawer_container square_drawer small_drawer move_cursor" id="lens_box_lens"></div></div>
+<div class="lens_blue" id="lens_box_lens_sl0"></div>
+<div class="lens_yellow" id="lens_box_lens_sl1"></div>
+<p>When you look at the lens <a href="index.html#" class="link_button" onclick="lens_camera_lens();return false;">from the side</a> you may observe how the <span class="lens_blue">focal length</span> change is tied to the shape of the lens. Let&rsquo;s see how this new camera works in action:</p>
+<div class="padding_wrapper"><div class="drawer_container double_drawer" id="lens_basic"></div></div>
+<div class="lens_blue" id="lens_basic_sl0"></div>
+<div class="lens_yellow"  id="lens_basic_sl1"></div>
+<p>Once again, a lot of things are going on here! Firstly, let&rsquo;s try to understand how the image is formed in the first place. The demonstration below shows paths of rays from two separate points in the scene. After going through the lens they end up hitting the sensor:</p>
+<div class="padding_wrapper"><div class="drawer_container square_drawer small_drawer move_cursor" id="lens_lens_solid_angle"></div></div>
+<div class="lens_blue" id="lens_lens_solid_angle_sl0"></div>
+<div class="lens_yellow"  id="lens_lens_solid_angle_sl1"></div>
+<p>Naturally, this process happens for <em>every</em> single point in the scene which creates the final image. Similarly to a pinhole a convex lens creates an inverted picture – I&rsquo;m still correcting for this by showing you a rotated photograph.</p>
+<p>Secondly, notice that the distance between the lens and the sensor still controls the field of view. As a reminder, the focal length of a lens simply defines the distance from the lens at which the rays coming from infinity converge. To achieve a sharp image, the sensor has to be placed at the location where the rays focus and <em>that&rsquo;s</em> what&rsquo;s causing the field of view to change.</p>
+<p>In the demonstration below I&rsquo;ve visualized how rays from a very far object focus through a lens of adjustable <span class="lens_blue">focal length</span>, notice that to obtain a sharp image we must change the <span class="lens_yellow">distance</span> between the lens and the sensor which in turn causes the field of view to change:</p>
+<div class="padding_wrapper"><div class="drawer_container double_drawer" id="lens_field2"></div></div>
+<div class="lens_blue" id="lens_field2_sl1"></div>
+<div class="lens_yellow" id="lens_field2_sl0"></div>
+<p>If we want to change the object on which a camera with a lens of a fixed focal length is focused, we have to move the image plane closer or further away from the lens which affects the angle of view. This effect is called <a href="https://en.wikipedia.org/wiki/Breathing_(lens)">focus breathing</a>:</p>
+<div class="padding_wrapper"><div class="drawer_container double_drawer" id="lens_focus_demo2"></div></div>
+<div class="lens_yellow" id="lens_focus_demo2_sl0"></div>
+<p>A lens with a fixed focal length like the one above is often called a <em>prime</em> lens, while lenses with adjustable focal length are called <em>zoom</em> lenses. While the lenses in our eyes do dynamically adjust their focal lengths by changing their shape, rigid glass can&rsquo;t do that so zoom lenses use a system of multiple glass elements that change their relative position to achieve this effect.</p>
+<p>In the simulation above notice the difference in sharpness between the red and green spheres. To understand why this happens let&rsquo;s analyze the rays emitted from two points on the surface of the spheres. In the demonstration below the right side shows the light seen by the sensor <em>just</em> from the two marked points on the spheres:</p>
+<div class="padding_wrapper"><div class="drawer_container double_drawer" id="lens_lens_solid_angle2"></div></div>
+<div class="lens_yellow"  id="lens_lens_solid_angle2_sl0"></div>
+<p>The light from the point in focus converges to a point, while the light from an out-of-focus point spreads onto a circle. For larger objects the multitude of overlapping out-of-focus circles creates a smooth blur called
+<a href="https://en.wikipedia.org/wiki/Bokeh"><em>bokeh</em></a>. With tiny and bright light sources that circle itself is often visible, you may have seen effects like the one in the demonstration below in some photographs captured in darker environments:</p>
+<br>
+<br>
+<br>
+<div class="dark_light_bg_grad_top"></div>
+<div class="dark_light_bg" >
+    <div class="bg_content">
+        
+<br>
+<br>
+<br>
+<div class="padding_wrapper"><div class="drawer_container double_drawer" id="lens_bokeh"></div></div>
+<br>
+<div class="lens_yellow" id="lens_bokeh_sl0"></div>
+<br>
+
+    </div>
+</div>
+<div class="dark_light_bg_grad_bottom"></div>
+<br>
+<br>
+<p>Notice that the circular shape is visible for lights both in front of and behind the focused distance. As the object is positioned closer or further away from the lens the image plane &ldquo;slices&rdquo; the cone of light at different location:</p>
+<div class="padding_wrapper"><div class="drawer_container lens_very_long_drawer medium_drawer move_cursor" id="lens_cone_slice"></div></div>
+<div class="lens_red" id="lens_cone_slice_sl0"></div>
+<p>That circular spot is called a <a href="https://en.wikipedia.org/wiki/Circle_of_confusion"><em>circle of confusion</em></a>. While in many circumstances the blurriness of the background or the foreground looks very appealing, it would be very useful to control how much blur there is.</p>
+<p>Unfortunately, we don&rsquo;t have total freedom here – we still want the primary photographed object to remain in focus so its light has to converge to a point. We just want to change the size of the circle of out-of-focus objects without moving the central point. We can accomplish that by changing the <em>angle</em> of the cone of light:</p>
+<div class="padding_wrapper"><div class="drawer_container lens_very_long_drawer medium_drawer move_cursor" id="lens_cone_angle"></div></div>
+<div id="lens_cone_angle_sl0"></div>
+<p>There are two methods we can use to modify that angle. Firstly, we can change the focal length of the lens – you may recall that with longer focal lengths the cone of light also gets longer. However, changing the focal length and keeping the primary object in focus requires moving the image plane which in turn changes how the picture is framed.</p>
+<p>The alternative way of reducing the angle of the cone of light is to simply ignore some of the &ldquo;outer&rdquo; rays. We can achieve that by introducing a stop with a hole in the path of light:</p>
+<div class="padding_wrapper"><div class="drawer_container lens_very_long_drawer medium_drawer move_cursor" id="lens_cone_aperture"></div></div>
+<div class="lens_black" id="lens_cone_aperture_sl0"></div>
+<p>This hole is called an <a href="https://en.wikipedia.org/wiki/Aperture"><em>aperture</em></a>. In fact, even the hole in which the lens is mounted is an aperture of some sort, but what we&rsquo;re introducing is an <em>adjustable</em> aperture:</p>
+<div class="padding_wrapper"><div class="drawer_container square_drawer small_drawer move_cursor" id="lens_box_aperture"></div></div>
+<div class="lens_black" id="lens_box_aperture_sl0"></div>
+<div class="lens_yellow" id="lens_box_aperture_sl1"></div>
+<p>Let&rsquo;s try to see how an aperture affects the photographs taken with our camera:</p>
+<div class="padding_wrapper"><div class="drawer_container double_drawer" id="lens_focus_demo3"></div></div>
+<div class="lens_black" id="lens_focus_demo3_sl0"></div>
+<div class="lens_yellow" id="lens_focus_demo3_sl1"></div>
+<p>In real camera lenses an adjustable aperture is often constructed from a set of overlapping blades that constitute an <em>iris</em>. The movement of those blades changes the size of the aperture:</p>
+<div class="padding_wrapper"><div class="drawer_container square_drawer" id="lens_blades"></div></div>
+<div id="lens_blades_sl0"></div>
+<p>The shape of the aperture also defines the shape of bokeh. This is the reason why bokeh sometimes has a polygonal shape – it&rsquo;s simply the shape of the &ldquo;cone&rdquo; of light after passing through the blades of the aperture. Next time you watch a movie pay a close attention to the shape of out-of-focus highlights, they&rsquo;re often polygonal:</p>
+<div class="padding_wrapper"><div class="drawer_container lens_very_long_drawer medium_drawer move_cursor" id="lens_cone_hex"></div></div>
+<div id="lens_cone_hex_sl0"></div>
+<p>As the aperture diameter decreases, larger and larger areas of the photographed scene remain sharp. The term <a href="https://en.wikipedia.org/wiki/Depth_of_field"><em>depth of field</em></a> is used to define the length of the region over which the objects are acceptably sharp. When describing the depth of field we&rsquo;re trying to conceptually demark those two boundary planes and see how far apart they are from each other.</p>
+<p>Let&rsquo;s see the depth of field in action. The <span class="lens_black">black slider</span> controls the aperture, the <span class="lens_blue">blue slider</span> controls the focal length, and the <span class="lens_red">red slider</span> changes the position of the object relative to the camera. The <span style="color:#68C626"><strong>green dot</strong></span> shows the place of perfect focus, while the <span style="color:#3E53A7"><strong>dark blue dots</strong></span> show the limits, or the depth, of positions between which the image of the red light source will be reasonably sharp, as shown by a single outlined pixel on the sensor:</p>
+<div class="padding_wrapper"><div class="drawer_container lens_long_drawer medium_drawer move_cursor" id="lens_cone_dof"></div></div>
+<div class="lens_black" id="lens_cone_dof_sl0"></div>
+<div class="lens_blue" id="lens_cone_dof_sl1"></div>
+<div class="lens_red" id="lens_cone_dof_sl2"></div>
+<p>Notice that <a href="index.html#" class="link_button" onclick="lens_dof_0();return false;">the larger</a> the <span class="lens_black">diameter of aperture</span> and <a href="index.html#" class="link_button" onclick="lens_dof_1();return false;">the shorter</a> the <span class="lens_blue">focal length</span> the shorter the distance between the <span style="color:#3E53A7"><strong>dark blue dots</strong></span> and thus the <em>shallower</em> the depth of field becomes. If you recall our discussion of sharpness this demonstration should make it easier to understand why reducing the angle of the cone <em>increases</em> the depth of field.</p>
+<p>If you don&rsquo;t have perfect vision you may have noticed that squinting your eyes make you see things a little better. Your eyelids covering some part of your iris simply act as an aperture that decreases the angle of the cone of light falling into your eyes making things sightly less blurry on your retina.</p>
+<p>An interesting observation is that aperture defines the diameter of the base of the captured cone of light that is emitted from the object. Twice as large aperture diameter captures roughly <em>four</em> times more light due to increased <a href="../lights-and-shadows/index.html#solid-angles">solid angle</a>. In practice, the actual size of the aperture as seen from the point of view of the scene, or the <a href="https://en.wikipedia.org/wiki/Entrance_pupil"><em>entrance pupil</em></a>, depends on all the lenses in front of it as the shaped glass may scale the perceived size of the aperture.</p>
+<p>On the other hand, when a lens is focused correctly, the focal length defines how large a source object is in the picture. By doubling the focal length we double the width <em>and</em> the height of the object on the sensor thus increasing the area by the factor of four. The light from the source is more spread out and each individual pixel receives less light.</p>
+<p>The total amount of light hitting each pixel is proportional to the <em>ratio</em> between the focal length <strong>f</strong> and the diameter of the entrance pupil <strong>D</strong>. This ratio is known as the <a href="https://en.wikipedia.org/wiki/F-number"><em>f-number</em></a>:</p>
+<div class="equation">
+<span class="equation_frac">N</span> = <span class="equation_frac"><span>f</span>
+    <span class="equation_div_symbol">/</span>
+    <span class="lns_div_bottom">D</span>
+</span>
+</div>
+<p>A lens with a focal length of 50 mm and the entrance pupil of 25 mm would have <strong>N</strong> equal to 2 and the <em>f</em>-number would be known as <em>f</em>/2. Since the amount of light getting to each pixel of the sensor increases with the diameter of the aperture and decreases with the focal length, the <em>f</em>-number controls the brightness of the projected image.</p>
+<p>The <em>f</em>-number with which commercial lenses are marked usually defines the maximum aperture a lens can achieve and the smaller the <em>f</em>-number the more light the lens passes through. Bigger amount of incoming light allows reduction of exposure time, so the smaller the <em>f</em>-number the <a href="https://en.wikipedia.org/wiki/Lens_speed"><em>faster</em></a> the lens is. By reducing the size of the aperture we can modify the <em>f</em>-number with which a picture is taken.</p>
+<p>The <em>f</em>-numbers are often multiples of 1.4 which is an approximation of <span class="sqrt">2</span>. Scaling the diameter of an adjustable aperture by <span class="sqrt">2</span> scales its <em>area</em> by 2 which is a convenient factor to use. Increasing the <em>f</em>-number by a so-called <a href="https://en.wikipedia.org/wiki/F-number#Stops,_f-stop_conventions,_and_exposure"><em>stop</em></a> halves the amount of received light. The demonstration below shows the relatives sizes of the aperture through which light is being seen:</p>
+<br>
+<br>
+<br>
+<div class="dark_light_bg_grad_top"></div>
+<div class="dark_light_bg" >
+    <div class="bg_content">
+        
+<br>
+<br>
+<br>
+<div class="padding_wrapper"><div class="drawer_container square_drawer" id="lens_f"></div></div>
+<div id="lens_f_seg0"></div>
+<p>To maintain the overall brightness of the image when <a href="https://en.wikipedia.org/wiki/Stopping_down">stopping down</a> we&rsquo;d have to either increase the exposure time or the sensitivity of the sensor.</p>
+<br>
+<br>
+<br>
+
+    </div>
+</div>
+<div class="dark_light_bg_grad_bottom"></div>
+<br>
+<br>
+<br>
+<p>While aperture settings let us easily control the depth of field, that change comes at a cost. When the <em>f</em>-number increases and the aperture diameter gets smaller we effectively start approaching a pinhole camera with all its related complications.</p>
+<p>In the final part of this article we will discuss the entire spectrum of another class of problems that we&rsquo;ve been conveniently avoiding all this time.</p>
+<h1 id="aberrations">Aberrations<a href="index.html#aberrations" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>In our examples so far we&rsquo;ve been using a perfect idealized lens that did exactly what we want and in all the demonstrations I&rsquo;ve relied on a certain simplification known as the <a href="https://en.wikipedia.org/wiki/Paraxial_approximation">paraxial approximation</a>. However, the physical world is a bit more complicated.</p>
+<p>The most common types of lenses are <em>spherical</em> lenses – their curved surfaces are sections of spheres of different radii. These types of lenses are easier to manufacture, however, they actually don&rsquo;t perfectly converge the rays of incoming light. In the demonstration below you can observe how fuzzy the focus point is for various lens radii:</p>
+<div class="padding_wrapper"><div class="drawer_container lens_very_long_drawer medium_drawer move_cursor" id="lens_spherical"></div></div>
+<div id="lens_spherical_sl0"></div>
+<p>This imperfection is known as <a href="https://en.wikipedia.org/wiki/Spherical_aberration"><em>spherical aberration</em></a>. This specific flaw can be corrected with <a href="https://en.wikipedia.org/wiki/Aspheric_lens"><em>aspheric lenses</em></a>, but unfortunately there are other types of problems that may not be easily solved by a single lens. In general, for monochromatic light there are five primary types of aberrations: <a href="https://en.wikipedia.org/wiki/Spherical_aberration">spherical aberration</a>, <a href="https://en.wikipedia.org/wiki/Coma_(optics)">coma</a>, <a href="https://en.wikipedia.org/wiki/Astigmatism_(optical_systems)">astigmatism</a>, <a href="https://en.wikipedia.org/wiki/Petzval_field_curvature">field curvature</a>, and <a href="https://en.wikipedia.org/wiki/Distortion_(optics)">distortion</a>.</p>
+<p>We&rsquo;re still not out of the woods even if we manage to minimize these problems. In normal environments light is very <em>non</em>-monochromatic and nature sets another hurdle into optical system design. Let&rsquo;s quickly go back to the dark environment as we&rsquo;ll be discussing a single beam of white light.</p>
+<br>
+<br>
+<br>
+<div class="dark_light_bg_grad_top"></div>
+<div class="dark_light_bg" >
+    <div class="bg_content">
+        
+<br>
+<br>
+<br>
+<p>Observe what happens to that beam when it hits a piece of glass. You can make the sides non-parallel by using the slider:</p>
+<div class="padding_wrapper"><div class="drawer_container lens_long_drawer medium_drawer move_cursor" id="lens_prism"></div></div>
+<div id="lens_prism_sl0"></div>
+<p>What we perceive as white light is a combination of lights of different wavelengths. In fact, the index of refraction of materials <em>depends</em> on the wavelength of the light. This phenomena called <a href="https://en.wikipedia.org/wiki/Dispersion_(optics)"><em>dispersion</em></a> splits what seems to be a uniform beam of white light into a fan of color bands. The very same mechanism that we see here is also responsible for a rainbow.</p>
+<p>In a lens this causes different wavelengths of light to focus at different offsets – the effect known as <a href="https://en.wikipedia.org/wiki/Chromatic_aberration"><em>chromatic aberration</em></a>. We can easily visualize the <em>axial</em> chromatic aberration even on a lens with spherical aberration fixed. I&rsquo;ll only use red, green, and blue dispersed rays to make things less crowded, but remember that other colors of the spectrum are present in between. Using the slider you can control the amount of dispersion the lens material introduces:</p>
+<div class="padding_wrapper"><div class="drawer_container lens_very_long_drawer medium_drawer move_cursor" id="lens_chromatic"></div></div>
+<div id="lens_chromatic_sl0"></div>
+<p>Chromatic aberration may be corrected with an <a href="https://en.wikipedia.org/wiki/Achromatic_lens">achromatic lens</a>, usually in the form of a <a href="https://en.wikipedia.org/wiki/Doublet_(lens)">doublet</a> with two different types of glass fused together.</p>
+<br>
+
+    </div>
+</div>
+<div class="dark_light_bg_grad_bottom"></div>
+<br>
+<p>To minimize the impact of the aberrations, camera lenses use more than one optical element on their pathways. In this article I&rsquo;ve only shown you simple lens systems, but a high-end camera lens may consist of <a href="https://en.wikipedia.org/wiki/File:Objective_Zeiss_Cut.jpg">a lot of elements</a> that were carefully designed to balance the optical performance, weight, and cost.</p>
+<p>While we, in our world of computer simulations on this website, can maintain the illusion of simple and perfect systems devoid of aberrations, <a href="https://en.wikipedia.org/wiki/Vignetting">vignetting</a>, and <a href="https://en.wikipedia.org/wiki/Lens_flare">lens flares</a>, real cameras and lenses have to deal with all these problems to make the final pictures look good.</p>
+<h1 id="further-watching-and-reading">Further Watching and Reading<a href="index.html#further-watching-and-reading" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Over on YouTube <a href="https://www.youtube.com/channel/UCSFAYalJ2Q7Tm_WmLgetmeg">Filmmaker IQ channel</a> has a lot of great content related to lenses and movie making. Two videos especially fitting here are <a href="https://www.youtube.com/watch?v=1YIvvXxsR5Y">The History and Science of Lenses</a> and <a href="https://www.youtube.com/watch?v=lte9pa3RtUk">Focusing on Depth of Field and Lens Equivalents</a>.</p>
+<p><a href="https://www.youtube.com/watch?v=q1n2DR6H7mk">What Makes Cinema Lenses So Special!?</a> on <a href="https://www.youtube.com/channel/UCNJe8uQhM2G4jJFRWiM89Wg">Potato Jet channel</a> is a great interview with Art Adams from <a href="https://www.arri.com/en/">ARRI</a>. The video goes over many interesting details of high-end cinema lens design, for example, how the lenses <a href="https://youtu.be/q1n2DR6H7mk?t=370">compensate for focus breathing</a>, or how much attention is paid to the <a href="https://youtu.be/q1n2DR6H7mk?t=899">quality of bokeh</a>.</p>
+<p>For a deeper dive on bokeh itself Jakub Trávník&rsquo;s <a href="https://jtra.cz/stuff/essays/bokeh/index.html">On Bokeh</a> is a great article on the subject. The author explains how aberrations may cause bokeh of non uniform intensity and shows many photographs of real cameras and lenses.</p>
+<p>In this article I&rsquo;ve mostly been using <a href="https://en.wikipedia.org/wiki/Geometrical_optics">geometrical optics</a> with some soft touches of electromagnetism. For a more modern look at the nature of light and its interaction with matter I recommend Richard Feynman&rsquo;s <a href="https://en.wikipedia.org/wiki/QED:_The_Strange_Theory_of_Light_and_Matter">QED: The Strange Theory of Light and Matter</a>. The book is written in a very approachable style suited for general audience, but it still lets Feynman&rsquo;s wits and brilliance shine right through.</p>
+<h1 id="final-words">Final Words<a href="index.html#final-words" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>We’ve barely scratched the surface of optics and camera lens design, but even the most complex systems end up serving the same purpose: to tell light where to go. In some sense optical engineering is all about taming the nature of light.</p>
+<p>The simple act of pressing the shutter button in a camera app on a smartphone or on the body of a high-end DSLR is effortless, but it’s at this moment when, through carefully guided rays hitting an array of photodetectors, we immortalize reality by painting with light.</p>
+</div>
+      </div>
+    </div>
+    <div id="footer">
+        Copyright &copy; 2022 Bartosz Ciechanowski
+    </div>
+  </div>
+</body>
+
+</html>

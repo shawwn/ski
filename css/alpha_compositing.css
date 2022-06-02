@@ -1,0 +1,355 @@
+
+.alpha_equation, .alpha_equation_small {
+    font-size:1.42em;
+    font-weight: 500;
+    overflow-x: auto;
+    overflow-y: visible;
+    margin:-0.5em 0;
+    text-align: center;
+    padding: 1.5em 1em;
+    line-height: 1.8em;
+    }
+
+    .alpha_equation_small {
+        font-size: 1.3em;
+    }
+
+    .alpha_matrix {
+        text-align: center;
+        padding: 1.5em 1em;
+        font-size:1.42em;
+        line-height: 1.6em;
+    }
+    
+    .alpha_matrix_cell {
+        display: inline-block;
+        padding: 0em 0.5em;
+        font-weight: 500;
+        width: 3em;
+    }
+
+    .alpha_coverage_canvas_aspect_container {
+        width: 90%;
+        padding-bottom: 40%;
+        position: relative;
+        margin: 2em auto;
+    }
+    .alpha_pd_canvas_container {
+        width: 100%;
+        max-width: 560px;
+        position: relative;
+        margin: 2em auto;
+        /* background: blue; */
+        height: 314px;
+    }
+
+    .alpha_glass_container {
+        width: 90%;
+        padding-bottom: 51%;
+        position: relative;
+        margin: 1.3em auto;
+        /* background: blue; */
+    }
+
+    .alpha_lerp_pane {
+        border-radius: 5px;
+        border: #666 1px solid;
+        position: absolute;
+        line-height: 50px;
+        text-align: center;
+        color: #222;
+        font-size: 24px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -khtml-user-select: none;
+        -ms-user-select: none;
+    }
+
+
+    .alpha_coverage_canvas, .alpha_pd_canvas {
+        cursor: move;
+    }
+
+    .alpha_layer {
+        display: inline-block;
+        width: 1.3em;
+        height: 1.3em;
+        line-height: 1.3em;
+        position: relative;
+        text-align: center;
+        border-radius: 0.3em;
+        background: #333;
+        color: #fafafa;
+        font-weight: normal;
+        margin: 0 0.05em;
+    }
+
+    .alpha_equation .alpha_layer {
+        width: 1.2em;
+        height: 1.2em;
+        line-height: 1.2em;
+        font-size: 0.9em;
+    }
+
+    .alpha_operator {
+        position: relative;
+        margin: 0 0.1em;
+        padding: 0.05em 0.25em;
+        border-radius: 0.2em;
+        background:#ddd;
+        white-space:nowrap;
+    }
+    
+    .alpha_c0, .alpha_c1, .alpha_c2, .alpha_c3, .alpha_c4 {
+        position: relative;
+        margin: 0 0.1em;
+        padding: 0.05em 0.25em;
+        border-radius: 0.2em;
+    }
+
+    .alpha_c0 {
+        background: rgba(255, 0, 0, 0.3);
+    }
+    
+    .alpha_c1 {
+        background: rgba(0, 255, 0, 0.3);
+    }
+            
+    .alpha_c2 {
+        background: rgba(0, 0, 255, 0.3);
+    }
+
+    .alpha_c3 {
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    .alpha_c4 {
+        background: rgba(240, 200, 0, 0.4);
+    }
+
+
+    .alpha_r, .alpha_g, .alpha_b, .alpha_a {
+        position: relative;
+        margin: 0 0.1em;
+        padding: 0.05em 0.25em;
+        border-radius: 0.2em;
+    }
+
+
+    
+    
+    .alpha_r {
+        background: rgba(255, 0, 0, 0.3);
+    }
+    
+    .alpha_g {
+        background: rgba(0, 255, 0, 0.3);
+    }
+            
+    .alpha_b {
+        background: rgba(0, 0, 255, 0.3);
+    }
+
+    .alpha_a {
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    .alpha_r:after, .alpha_g:after, .alpha_b:after, .alpha_a:after  {
+        font-weight: normal;
+        font-family: "IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+        position: absolute;
+        font-size: 0.55em;
+        bottom: -2.2em;
+        text-align: center;
+        width: 100%;
+        left:0;
+        width: calc(30em);
+        left:calc(50% - 15em);
+    }
+    
+    .alpha_r:after  {
+        content: 'R';
+    }
+    
+    .alpha_g:after  {
+        content: 'G';
+    }
+    .alpha_b:after  {
+        content: 'B';
+    }
+
+    .alpha_a:after  {
+        content: 'A';
+    }
+
+
+    .alpha_pd_example_canvas {
+        cursor: pointer;
+    }
+
+    #alpha_pd_example_container {
+        margin-bottom: 0.5em;
+    }
+    
+    
+    .alpha_segmented_container {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    #alpha_text_bit_canvas_container, #alpha_gradient_bit_canvas_container {
+        width: 100%;
+        max-width:400px;
+        height: 400px;
+        /* background:red; */
+        margin: 0 auto;
+        display: block;
+        margin: 2em auto;
+    }
+ 
+    #alpha_lerper_container {
+        width: 100%;
+        max-width: 400px;
+        position: relative;
+        margin: 2em auto 2em auto;
+        height: 360px;
+    }
+
+    .alpha_sampler_canvas_container {
+        width: 100%;
+        position: relative;
+        margin: 1em auto 2em auto;
+        max-width: 560px;
+        height: 360px;
+    }
+    
+
+    #alpha_alpha_mul_canvas_container {
+        position: relative;
+        margin: 1em auto 2.5em auto;
+        height: 360px;
+        width: 100%;
+        max-width: 560px;
+    }
+
+    .alpha_slider_container   {
+        margin: 0 auto;
+        padding: 0;
+        width: 90%;
+        max-width: 380px;
+    }
+
+    .alpha_slider_container .alpha_mul_slider_left_gutter,
+    .alpha_slider_container .alpha_mul_slider_right_gutter,
+    .alpha_slider_container .alpha_mul_slider_knob {
+        background: #777;
+    }
+
+
+    .alpha_mul_slider_left_gutter, .alpha_mul_slider_right_gutter {
+        position: absolute;
+        height: 4px;
+        top: 18px;
+        border-radius: 2px;
+    }
+    
+    .alpha_mul_slider_knob {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        border-radius: 20px;
+        cursor: ew-resize;
+    }
+    
+    .alpha_mul_slider_left_gutter, .alpha_mul_slider_right_gutter {
+        top: -2px;
+    }
+    
+    .alpha_mul_slider_right_gutter {
+        opacity: 0.2;
+    }
+    
+    .alpha_mul_slider_knob, .alpha_mul_blie_slider_knob {
+        left:-20px;
+        top: -20px;
+    }
+    
+    #alpha_alpha_mul_red_container .alpha_mul_slider_left_gutter,
+    #alpha_alpha_mul_red_container .alpha_mul_slider_right_gutter,
+    #alpha_alpha_mul_red_container .alpha_mul_slider_knob {
+        background: #FF4343;
+    }
+
+    #alpha_alpha_mul_blue_container .alpha_mul_slider_left_gutter,
+    #alpha_alpha_mul_blue_container .alpha_mul_slider_right_gutter,
+    #alpha_alpha_mul_blue_container .alpha_mul_slider_knob {
+        background:#2968FF;
+    }
+
+    #alpha_pd_table_small {
+        display: none;
+    }
+
+    #alpha_pd_table_mid {
+        display: none;
+    }
+
+    @media only screen and (max-width: 800px) {
+
+
+        #alpha_pd_table_big {
+            display: none;
+        }
+        
+        #alpha_pd_table_mid {
+            display: table;
+        }
+    }
+
+    @media only screen and (max-width: 690px) {
+
+        #alpha_pd_table_mid {
+            display: none;
+        }
+
+    #alpha_pd_table_small {
+        display: table;
+    }
+}
+
+@media only screen and (max-width: 520px) {
+
+
+    .alpha_equation {
+        font-size:1.3em;
+        padding: 1.5em 0;
+        }
+
+}
+
+@media only screen and (max-width: 420px) {
+
+
+    #alpha_pd_table_small {
+        font-size: 0.95em;
+    }
+    .alpha_equation {
+        font-size:1.2em;
+        padding: 1.5em 0;
+        }
+
+}
+
+
+@media only screen and (max-width: 360px) {
+
+
+    #alpha_pd_table_small {
+        font-size: 0.8em;
+    }
+
+    .alpha_equation {
+        font-size:1.25em;
+        padding: 1.5em 0;
+        }
+}

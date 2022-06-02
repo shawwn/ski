@@ -1,0 +1,265 @@
+ 
+ .dark_light_bg {
+    background: black;
+    color:#ddd;
+
+    width: 100%;
+    max-width: 100%;
+
+
+    margin-top: 0;
+
+    padding:0;
+  }
+
+  /* .dark_light_bg .bg_content{
+    max-width: 100%;
+    padding: 0;
+} */
+
+.dark_light_bg  a:visited {
+    color: #658299;
+}
+
+.dark_light_bg  a.link_button {
+  color: #dfb870;
+}
+
+.lns_equation {
+    font-size:1.42em;
+    font-weight: 500;
+    overflow-x: auto;
+    overflow-y: visible;
+    margin:-0.5em 0;
+    text-align: center;
+    padding: 1.5em 1em;
+    line-height: 1.8em;
+    white-space:nowrap;
+    }
+
+    .lns_equation  span {
+        display: inline-block;
+    }
+
+    .lns_frac {
+        display: inline-block;
+        position: relative;
+        vertical-align: middle;
+        letter-spacing: 0.001em;
+        text-align: center;
+    }
+    .lns_frac > span {
+        display: block;
+        margin-top: -0.3em;
+    }
+    
+    .lns_frac span.lns_div_symbol {
+        font-size: 0; 
+        display: block;
+        height: 2px;
+        width: 100%;
+        background: #ddd;
+    } 
+
+    .drawer_container {
+        max-width: 450px;
+      }
+
+    .drawer_container:after {
+        padding-top: 100%;
+      }
+
+
+
+    #lns_radian_proj {
+        max-width: 550px;
+    }
+
+#lns_power {
+    max-width: 150px;
+}
+#lns_color_simple {
+  max-width: 150px;
+}
+
+#lns_power_plain {
+    max-width: 150px;
+}
+
+#lns_power_rays {
+    max-width: 350px;
+}
+
+#lns_car {
+    max-width: 650px;
+  }
+
+#lns_car:after {
+    padding-top: 70%;
+  }
+
+  #lns_radiance {
+    max-width: 300px;
+}
+
+#lns_radian {
+    max-width: 650px;
+  }
+
+
+#lns_radian:after {
+    padding-top: 40%;
+  }
+
+#lns_ambient_dots {
+    max-width: 450px;
+  }
+
+  #lns_ambient_hemi {
+    max-width: 450px;
+  }
+
+
+  #lns_radiance_area {
+    max-width: 650px;
+  }
+
+  #lns_radiance_area:after {
+    padding-top: 45%;
+  }
+
+
+  #lns_angle_small {
+    max-width: 650px;
+  }
+  
+  #lns_angle_small:after {
+    padding-top: 45%;
+  }
+  
+
+  #lns_steradian_sphere {
+    max-width: 350px;
+  }
+
+  #lns_steradian_sphere:after {
+    padding-top: 120%;
+  }
+
+  #lns_lambert_emitter {
+    max-width: 350px;
+  }
+
+  #lns_lambert_emitter_side:after {
+    padding-top: 55%;
+  }
+
+
+
+
+.lns_altitude .slider_left_gutter,
+.lns_altitude .slider_right_gutter,
+.lns_altitude .slider_knob {
+        background:#E9A923;
+    }
+
+.lns_size .slider_left_gutter,
+.lns_size .slider_right_gutter,
+.lns_size .slider_knob {
+        background:#eee;
+    }
+
+.lns_distance .slider_left_gutter,
+.lns_distance .slider_right_gutter,
+.lns_distance .slider_knob {
+        background:#235AB9;
+    }
+
+.lns_block .slider_left_gutter,
+.lns_block .slider_right_gutter,
+.lns_block .slider_knob {
+        background:#222;
+    }
+
+.lns_r .slider_left_gutter,
+.lns_r .slider_right_gutter,
+.lns_r .slider_knob {
+        background:#E71212;
+    }
+
+
+.lns_g .slider_left_gutter,
+.lns_g .slider_right_gutter,
+.lns_g .slider_knob {
+        background:#1BC720;
+    }
+
+.lns_b .slider_left_gutter,
+.lns_b .slider_right_gutter,
+.lns_b .slider_knob {
+        background:#0F35D9;
+    }
+
+.lns_blue {
+    color: #3260E5;
+}
+
+.lns_yellow {
+  color: #E9A923;
+}
+
+.lns_red {
+  color: rgb(230,57,48);
+}
+
+.lns_segmented {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+#lns_color_simple_segment_container{
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+#lns_color_segment_container{
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.lns_segmented .segmented_control_container {
+    background: #111;
+}
+
+.lns_segmented .segmented_control_on {
+    background: #272727;
+}
+
+
+.lns_segmented .segmented_control_off:hover {
+    background: #2c2c2c;
+}
+    
+#lns_ambient_hemi_container {
+
+  /* position: relative; */
+
+  width: 100%;
+  max-width: 100%;
+
+
+    margin-top: 0;
+    padding: 0;
+    margin-bottom: -1em;
+    overflow: hidden;
+}
+
+
+
+#lns_shadow2, #lns_rough_inv,#lns_lambert,#lns_lambert_inv, #lns_shadow,#lns_ambient_proj,#lns_ambient_occ, #lns_ambient_dots,#lns_ambient_hemi, #lns_bounce_steps, #lns_color,#lns_bounce, #lns_color_rgb, #lns_shadow_hemi, #lns_power_rays, #lns_power_surf,#lns_radiance,#lns_mirror_simple, #lns_rough, #lns_mirror, #lns_lambert_emitter,#lns_steradian_sphere,#lns_hemisphere_proj, #lns_hemisphere, #lns_area2, #lns_steradian2, #lns_cosine_flat, #lns_ray_flat, #lns_cosine_sphere, #lns_inv_square, #lns_area, #lns_steradian {
+  cursor: move;
+} 
+
+/* canvas {
+    border: 1px solid red;
+} */

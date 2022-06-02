@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="490" height="130" viewBox="0 0 490 130">
+  <g fill="none" fill-rule="evenodd">
+    <rect width="489" height="129" x=".5" y=".5" fill="#000"/>
+    <rect width="30" height="50" x="395" y="30" fill="#0C0C0C"/>
+    <rect width="30" height="50" x="365" y="30" fill="#0B0B0B"/>
+    <rect width="30" height="50" x="35" y="30" fill="#000"/>
+    <rect width="30" height="50" x="65" y="30" fill="#010101"/>
+    <rect width="30" height="50" x="95" y="30" fill="#020202"/>
+    <rect width="30" height="50" x="125" y="30" fill="#030303"/>
+    <rect width="30" height="50" x="155" y="30" fill="#040404"/>
+    <rect width="30" height="50" x="185" y="30" fill="#050505"/>
+    <rect width="30" height="50" x="215" y="30" fill="#060606"/>
+    <rect width="30" height="50" x="245" y="30" fill="#070707"/>
+    <rect width="30" height="50" x="275" y="30" fill="#080808"/>
+    <rect width="30" height="50" x="305" y="30" fill="#090909"/>
+    <rect width="30" height="50" x="335" y="30" fill="#0A0A0A"/>
+    <rect width="30" height="50" x="425" y="30" fill="#0D0D0D"/>
+    <circle cx="50" cy="105" r="3" fill="#DDD"/>
+    <circle cx="80" cy="105" r="3" stroke="#DDD"/>
+    <circle cx="110" cy="105" r="3" stroke="#DDD"/>
+    <circle cx="140" cy="105" r="3" stroke="#DDD"/>
+    <circle cx="170" cy="105" r="3" stroke="#DDD"/>
+    <circle cx="200" cy="105" r="3" stroke="#DDD"/>
+    <circle cx="230" cy="105" r="3" stroke="#DDD"/>
+    <circle cx="260" cy="105" r="3" stroke="#DDD"/>
+    <circle cx="290" cy="105" r="3" stroke="#DDD"/>
+    <circle cx="320" cy="105" r="3" stroke="#DDD"/>
+    <circle cx="350" cy="105" r="3" stroke="#DDD"/>
+    <circle cx="380" cy="105" r="3" stroke="#DDD"/>
+    <circle cx="410" cy="105" r="3" stroke="#DDD"/>
+    <circle cx="440" cy="105" r="3" fill="#DDD"/>
+  </g>
+</svg>

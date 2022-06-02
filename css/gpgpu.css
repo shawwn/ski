@@ -1,0 +1,33 @@
+div.chart {
+    margin: 0 auto;
+    margin-bottom: 30px;
+    width: 100%;
+    text-align: center
+}
+
+div.chart canvas {
+    width: 100% !important;
+    max-width: 800px;
+    height: auto !important;
+    display: inline
+}
+
+div.chart .chartCaption {
+    text-align: center
+}
+
+div.chart .chartCaption .GPUstyle {
+    background: #dde8ed;
+    color: #689cb6;
+    border: 1px solid #689cb6;
+    border-radius: 0.3em;
+    padding: 0 0.3em
+}
+
+div.chart .chartCaption .CPUstyle {
+    background: #f0f0f0;
+    color: #a0a0a0;
+    border: 1px solid #a0a0a0;
+    border-radius: 0.3em;
+    padding: 0 0.3em
+}

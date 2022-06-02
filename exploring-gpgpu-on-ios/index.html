@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2052BB">
+<meta name="author" content="Bartosz Ciechanowski">
+<meta name="format-detection" content="telephone=no">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-25335284-3"></script>
+
+
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-25335284-3');
+</script>
+  <meta property="og:title" content="Exploring GPGPU on iOS – Bartosz Ciechanowski" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ciechanow.ski/exploring-gpgpu-on-ios/" />
+<meta property="og:description" content="" />
+<meta property="og:locale" content="en_US">
+  <link href="../css/base.css" rel="stylesheet" type="text/css"/>
+<link href="https://fonts.googleapis.com/css?family=Lato:700&display=swap" rel="stylesheet" type="text/css" async>
+<link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,400i,500&display=swap" rel="stylesheet" async>
+  <title>Exploring GPGPU on iOS – Bartosz Ciechanowski</title>
+  <link rel="icon" href="../favicon.ico">
+  <link href="../css/syntax.css" rel="stylesheet" type="text/css" />
+  <link href="../css/gpgpu.css" rel="stylesheet" type="text/css" />
+  <script defer src="../js/base.js"></script>
+  <script defer src="../js/jquery.min.js"></script>
+  <script defer src="../js/Chart.min.js"></script>
+  <script defer src="../js/gpuCharts.js"></script>
+</head>
+
+<body>
+  <div id="main_container">
+    <div id="body">
+      <div id="banner">
+    <div id="banner_wrapper">
+        <div id="banner_content">
+            <div id="site_title">
+                <a href="../index.html">Bartosz Ciechanowski</a>
+            </div>
+            <div id="navigation">
+                <a href="../index.html">Blog</a>
+                <a href="../archives.html">Archives</a>
+            </div>
+            <div id="social">
+                <a class="patreon" href="https://www.patreon.com/ciechanowski" title="Patreon"><div class="patreonLogo">Patreon</div></a>
+                <a class="twitter" href="https://twitter.com/bciechanowski" title="Twitter"><div class="twitterLogo">Twitter</div></a>
+                <a class="instagram" href="https://www.instagram.com/bartoszciechanowski/" title="Instagram"><div class="igLogo">Instagram</div></a>
+                <a class="email" href="mailto:bartosz@ciechanow.ski" title="e-mail"><div class="emailLogo">e-mail</div></a>
+                <a class="rss" href="../atom.xml" title="rss"><div class="rssLogo">rss</div></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+      <div id="content">
+        
+<div class="article">
+    <div class="post_date">January 5, 2014</div>
+    <h1 class="post_title"><a href="index.html">Exploring GPGPU on iOS</a></h1>
+    <div class="padding_wrapper"><p><strong>Note:</strong> this article is obsolete as there are <a href="https://developer.apple.com/documentation/metal/basic_tasks_and_concepts/performing_calculations_on_a_gpu">better ways</a> of doing GPU computation on modern iOS devices. I&rsquo;m keeping it here as a historical reference.</p>
+<hr>
+<p>I&rsquo;ve always wanted to try some <a href="http://en.wikipedia.org/wiki/GPGPU">GPGPU</a> programming on iOS. The idea of harnessing the highly parallelized power just tickled my inner geek. Using GPU to run image processing is already <a href="https://github.com/BradLarson/GPUImage">a solved problem</a>. Unfortunately, fragment shader calculations do not support the notion of more general computation. With advent of A7 chip and OpenGL ES 3.0, I&rsquo;ve decided to tackle this problem and I&rsquo;ve managed to get some exceptionally good results. Granted, the method I rolled in has some limitations and performs well only in fairly computationally heavy situations, but when it works, it works like <em>magic</em>.</p>
+<p>As a companion to this article, I created a <a href="https://github.com/Ciechan/Exploring-GPGPU-on-iOS">GitHub repo</a> that contains the source code for many discussed concepts, as well as benchmarks that were run to measure the effectiveness of GPU computation.</p>
+<h1 id="why">Why?<a href="index.html#why" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Why on earth would one want to use GPU for calculations? The answer is obvious – blazingly fast speed. The following paragraphs consider three different use cases, each with increasing complexity. While the presented examples are somehow naïve, the intention is to highlight the typical patterns of applications that <em>might</em> benefit from GPU-powered calculations. Each example contains a CPU vs GPU comparison chart – a result of direct computation of the presented problem. The timings were measured on the iPad Air (5<sup>th</sup> generation iPad) with iOS 7.1 beta 2.</p>
+<h2 id="the-disappointing-linear-function">The Disappointing Linear Function<a href="index.html#the-disappointing-linear-function" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>Let&rsquo;s start with the most basic function there is – a linear function. There are countless of applications for linear functions, so let&rsquo;s pick one and see how well it performs:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="mf">3.4</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">10.2</span><span class="p">;</span>
+</code></pre></div><p>How should we compare the performance of GPU to CPU? While using time is the obvious choice, we shouldn&rsquo;t focus on raw milliseconds. Comparing run-time for small and large input sets, would render the former one useless, as they would be merely visible on the plot, pitifully overlapping horizontal axis. Instead, we should consider the <em>ratio</em> of CPU to GPU time. Making CPU performance normalized at 1.0, makes the GPU value easy to interpret – if the GPU performs twice as fast as the CPU, then the GPU&rsquo;s value is 2.0. Here&rsquo;s the comparison chart for GPU vs CPU for the computed linear function:</p>
+<div class="chart" id="riseChartContainer">
+<canvas id="riseChart" width="800" height="400"></canvas>
+<div class="chartCaption"><span class="GPUstyle">GPU</span> vs <span class="CPUstyle">CPU</span>  comparison</div>
+</div>
+<p>The horizontal axis of the chart represents the number of input <code>float</code> values and is in <em>logarithmic</em> scale.</p>
+<p>As you can see, GPU sucks in this case. Even for the very large input set (2<sup>24</sup> = over 16 million values), the GPU runs 0.31 times as &ldquo;fast&rdquo; as CPU i.e. it runs over 3 times <em>slower</em>. The only promising result is that the performance increases with input size. For sufficiently large data set, the GPU would overcome the CPU. Notice, however, that representing 2<sup>24</sup> <code>float</code> values already takes 64 MB of memory. Surely we&rsquo;d hit memory limits before reaching any beneficial performance level.</p>
+<h2 id="the-promising-complication">The Promising Complication<a href="index.html#the-promising-complication" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>Since linear function was so disappointing let&rsquo;s reach into some more complicated functions from our math repository. The exponential function transpires in many natural phenomena e.g. <a href="http://en.wikipedia.org/wiki/Exponential_decay">exponential decay</a>. Paired with basic trigonometry functions it forms a solution of many differential equations, like the ones that rule the <a href="http://en.wikipedia.org/wiki/Damping">damping</a>. Let&rsquo;s consider the following complicated mixture of exponent, sine, and cosine with some random coefficients:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">sin</span><span class="p">(</span><span class="mf">0.4</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">cos</span><span class="p">(</span><span class="o">-</span><span class="mf">1.7</span> <span class="o">*</span> <span class="n">x</span><span class="p">))</span> <span class="o">+</span> <span class="mf">3.7</span><span class="p">;</span>
+</code></pre></div><p>Here&rsquo;s the comparison chart for GPU vs CPU execution time:</p>
+<div class="chart" id="plotChartContainer">
+<canvas id="plotChart" width="800" height="400"></canvas>
+<div class="chartCaption"><span class="GPUstyle">GPU</span> vs <span class="CPUstyle">CPU</span>  comparison</div>
+</div>
+<p>First success! As soon as the input size crosses 2<sup>16</sup> (little over 65k values), the GPU is faster than the CPU. For very large data sets, the GPU is over 5 times faster.</p>
+<h2 id="the-amazing-iteration">The Amazing Iteration<a href="index.html#the-amazing-iteration" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>As exciting as the results of the previous example were, we can do even better. Let&rsquo;s consider an iterative computation. Imagine a simulation of huge number of bodies in a central gravitational field. Let&rsquo;s make a few assumptions:</p>
+<ul>
+<li>each body has the same mass</li>
+<li>each body has the same initial position, but different initial velocity</li>
+<li>we can ignore body-to-body interaction</li>
+<li>the problem is two dimensional</li>
+</ul>
+<p>The goal of the calculation is to answer the question: how far have the bodies flown in 10 seconds? In other words, what is the position of every single body after 10 seconds?</p>
+<p>Reaching back to fundamentals of physics this simple equation comes to mind:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="n">p</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">=</span> <span class="n">p0</span> <span class="o">+</span> <span class="n">v0</span> <span class="o">*</span> <span class="n">t</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">a0</span> <span class="o">*</span> <span class="n">t</span> <span class="o">*</span> <span class="n">t</span><span class="p">;</span>
+</code></pre></div><p>Unfortunately we can&rsquo;t merely plug the values in and get the result in one step, because the acceleration of body is not constant – it depends on the distance from field&rsquo;s center. A very simple solution is to run the calculation in an iterative fashion, just like most of the physics engines do.</p>
+<p>For a given position in space, we can get the body&rsquo;s acceleration by measuring the the value of gravitational force which is governed by <a href="http://en.wikipedia.org/wiki/Newton's_law_of_universal_gravitation">Newton&rsquo;s law of universal gravitation</a>. Since this is merely an example, we can ignore all the constant coefficients and just notice that the force is proportional to the distance squared and points at the center of the field.</p>
+<p>Let&rsquo;s focus on the gist of the iteration itself. Each step will evaluate the current acceleration value, and then update values of both position and velocity using a forward <a href="http://en.wikipedia.org/wiki/Euler_method">Euler method</a>. The body of the iterative loop goes as follow:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="kt">float</span> <span class="n">l</span> <span class="o">=</span> <span class="mf">1.0f</span><span class="o">/</span><span class="n">sqrtf</span><span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="o">*</span><span class="n">y</span><span class="p">);</span>
+<span class="kt">float</span> <span class="n">ax</span> <span class="o">=</span> <span class="o">-</span><span class="n">x</span><span class="o">*</span><span class="n">l</span><span class="o">*</span><span class="n">l</span><span class="o">*</span><span class="n">l</span><span class="p">;</span>
+<span class="kt">float</span> <span class="n">ay</span> <span class="o">=</span> <span class="o">-</span><span class="n">y</span><span class="o">*</span><span class="n">l</span><span class="o">*</span><span class="n">l</span><span class="o">*</span><span class="n">l</span><span class="p">;</span>
+
+<span class="n">x</span> <span class="o">+=</span> <span class="n">vx</span><span class="o">*</span><span class="n">dt</span><span class="p">;</span>
+<span class="n">y</span> <span class="o">+=</span> <span class="n">vy</span><span class="o">*</span><span class="n">dt</span><span class="p">;</span>
+
+<span class="n">vx</span> <span class="o">+=</span> <span class="n">ax</span><span class="o">*</span><span class="n">dt</span><span class="p">;</span>
+<span class="n">vy</span> <span class="o">+=</span> <span class="n">ay</span><span class="o">*</span><span class="n">dt</span><span class="p">;</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>Let&rsquo;s settle for a time step of 0.1 seconds. Running the loop 100 times will result in good approximation of body&rsquo;s position at t = 10s. Without further ado, here&rsquo;s the GPU vs CPU comparison for the computation:</p>
+<div class="chart" id="simChartContainer">
+<canvas id="simChart" width="800" height="400"></canvas>
+<div class="chartCaption"><span class="GPUstyle">GPU</span> vs <span class="CPUstyle">CPU</span>  comparison</div>
+</div>
+<p>That&rsquo;s right, the GPU was over 64 times faster. Sixty four. Times. Faster. While this example is somehow contrived (2D over 3D space, ignoring body to body collisions), the result is astonishing. In terms of absolute time, the CPU calculation took over 21 seconds, while the GPU took a <em>third</em> of a second to do the work. Even for as few as 4096 <code>float</code> input values (2048 two dimensional vectors), the GPU is almost twice as fast as the CPU.</p>
+<h1 id="how">How?<a href="index.html#how" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>From developer&rsquo;s perspective the typical GPU programming works as follow:</p>
+<ul>
+<li>submit some vertex geometry</li>
+<li>process it in vertex shader</li>
+<li>let the GPU figure out the triangles</li>
+<li>process each fragment in fragment shader</li>
+<li>present result on the screen</li>
+</ul>
+<p>While both vertex and fragment shader are customizable, so far only the fragment shader&rsquo;s output was accessible to the developer in form of the generated framebuffer.</p>
+<p>Long story short, using a new feature of OpenGL ES 3.0 called Transform Feedback, we <em>do</em> have an access to the output of the vertex shader.</p>
+<h2 id="transform-feedback">Transform Feedback<a href="index.html#transform-feedback" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>Here&rsquo;s the excerpt from <a href="http://www.opengl.org/wiki/Transform_Feedback">the definition</a> of Transform Feedback:</p>
+<blockquote>
+<p>Transform Feedback is the process of capturing Primitives generated by the Vertex Processing step(s), recording data from those primitives into Buffer Objects. This allows one to preserve the post-transform rendering state of an object and resubmit this data multiple times.</p>
+</blockquote>
+<p>The crucial part is &ldquo;preserve the post-transform rendering state&rdquo;. Basically, we let the GPU do the work on the vertex data and then we can access the computed output. Actually, it doesn&rsquo;t even have to be <em>vertex</em> data per se, the GPU will happily make operations on whatever <code>float</code> values we provide. This is the essence of my method.</p>
+<p>Setting up the Transform Feedback in OpenGL takes a dozen lines of code and I&rsquo;ve done this with help of <a href="http://prideout.net/blog/?p=67">this short article</a> and <a href="http://ogldev.atspace.co.uk/www/tutorial28/tutorial28.html">this much longer tutorial</a>. The setup can be split into two different steps.</p>
+<p>First of all, we should inform OpenGL which shader variables should be used to write output data into the memory buffer. This stage <em>must</em> happen before the shader gets linked. The following two lines of code present the setup, the crucial call being <a href="http://www.khronos.org/opengles/sdk/docs/man3/xhtml/glTransformFeedbackVaryings.xml">glTransformFeedbackVaryings</a>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">varyings</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#34;nameOfOutput1&#34;</span><span class="p">,</span> <span class="s">&#34;nameOfOutput2&#34;</span><span class="p">};</span>
+<span class="n">glTransformFeedbackVaryings</span><span class="p">(</span><span class="n">program</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">varyings</span><span class="p">)</span><span class="o">/</span><span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">varyings</span><span class="p">),</span> <span class="n">varyings</span><span class="p">,</span> <span class="n">GL_INTERLEAVED_ATTRIBS</span><span class="p">);</span>
+</code></pre></div><p>The second stage is very similar to a regular draw call setup, although enriched with some additional API calls:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">glUseProgram</span><span class="p">(</span><span class="n">program</span><span class="p">);</span>
+    
+<span class="n">glEnable</span><span class="p">(</span><span class="n">GL_RASTERIZER_DISCARD</span><span class="p">);</span> <span class="c1">// discard primitives before rasterization stage
+</span><span class="c1"></span>    
+<span class="n">glBindBuffer</span><span class="p">(</span><span class="n">GL_ARRAY_BUFFER</span><span class="p">,</span> <span class="n">readBuffer</span><span class="p">);</span>
+    
+<span class="cm">/* bind VAO or configure vertex attributes */</span>
+    
+<span class="n">glBindBufferBase</span><span class="p">(</span><span class="n">GL_TRANSFORM_FEEDBACK_BUFFER</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">writeBuffer</span><span class="p">);</span> <span class="c1">// the output should be written to writeBuffer
+</span><span class="c1"></span>    
+<span class="n">glBeginTransformFeedback</span><span class="p">(</span><span class="n">GL_POINTS</span><span class="p">);</span>
+<span class="n">glDrawArrays</span><span class="p">(</span><span class="n">GL_POINTS</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">count</span><span class="p">);</span>
+<span class="n">glEndTransformFeedback</span><span class="p">();</span>
+    
+<span class="n">glDisable</span><span class="p">(</span><span class="n">GL_RASTERIZER_DISCARD</span><span class="p">);</span>
+        
+<span class="n">glFinish</span><span class="p">();</span> <span class="c1">// force the calculations to happen NOW
+</span></code></pre></div><p>Note, that there are some differences between desktop and mobile OpenGL implementations. For instance, I couldn&rsquo;t compile my vertex shader on its own, I had to provide the dummy implementation of fragment shader as well (which apparently is not a requirement on desktop OpenGL).</p>
+<p>As a final step, remember to include <code>OpenGLES/ES3/gl.h</code> header.</p>
+<h2 id="writing-and-reading-to-buffers">Writing and Reading to Buffers<a href="index.html#writing-and-reading-to-buffers" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>Unlike traditional PCs, all iOS devices have Unified Memory Architecture. It doesn&rsquo;t matter whether you read or write from &ldquo;regular&rdquo; memory or OpenGL allocated buffer – it&rsquo;s all the same pool of on-device transistors.</p>
+<p>I&rsquo;ve done some crude tests and in fact, reading from &ldquo;OpenGL&rdquo; and &ldquo;regular&rdquo; memory takes the same amount of time and this is true for writing to memory as well.</p>
+<p>On the desktop PCs, the RAM→VRAM memory transfer usually takes nontrivial amount of time. On the iOS, however, not only can you generate your data directly into OpenGL accessible memory, but also you can read back from it as well, without any apparent penalty! This is fantastic feature of iOS as mobile GPGPU platform.</p>
+<p>Accessing data pointer for reading is super easy:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="n">glBindBuffer</span><span class="p">(</span><span class="n">GL_ARRAY_BUFFER</span><span class="p">,</span> <span class="n">sourceGPUBuffer</span><span class="p">);</span>
+<span class="kt">float</span> <span class="o">*</span><span class="n">memoryBuffer</span> <span class="o">=</span> <span class="n">glMapBufferRange</span><span class="p">(</span><span class="n">GL_ARRAY_BUFFER</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">bufferSize</span><span class="p">,</span> <span class="n">GL_MAP_READ_BIT</span><span class="p">);</span>
+    
+<span class="c1">//read from memoryBuffer
+</span><span class="c1"></span>    
+<span class="n">glUnmapBuffer</span><span class="p">(</span><span class="n">GL_ARRAY_BUFFER</span><span class="p">);</span>
+</code></pre></div><p>And so is accessing pointer for writing:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="n">glBindBuffer</span><span class="p">(</span><span class="n">GL_ARRAY_BUFFER</span><span class="p">,</span> <span class="n">targetGPUBuffer</span><span class="p">);</span>
+<span class="kt">float</span> <span class="o">*</span><span class="n">memoryBuffer</span> <span class="o">=</span> <span class="n">glMapBufferRange</span><span class="p">(</span><span class="n">GL_ARRAY_BUFFER</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">bufferSize</span><span class="p">,</span> <span class="n">GL_MAP_WRITE_BIT</span><span class="p">);</span>
+    
+<span class="c1">//write to memoryBuffer
+</span><span class="c1"></span>    
+<span class="n">glUnmapBuffer</span><span class="p">(</span><span class="n">GL_ARRAY_BUFFER</span><span class="p">);</span>
+</code></pre></div><p>Wrapping up data reading/writing logic in 3 additional lines of OpenGL boilerplate is surely worth the added benefits.</p>
+<h2 id="shader-calculations">Shader Calculations<a href="index.html#shader-calculations" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>OpenGL ES shaders are written in GLSL ES which is very much C-like with some sweet vector and matrix additions.</p>
+<h3 id="simple-vector-operations">Simple Vector Operations<a href="index.html#simple-vector-operations" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h3>
+<p>GLSL defines <code>vec4</code> type that is a four component vector (with x, y, z, and w components). While the  <a href="http://www.khronos.org/registry/gles/specs/3.0/GLSL_ES_Specification_3.00.3.pdf">language specification</a> is the definite guide on the matter, there are few simple operations that are worth glancing over.</p>
+<p>Let <code>a</code> and <code>b</code> be GLSL variables of <code>vec4</code> type. One can easily multiply all vector components by scalar:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-glsl" data-lang="glsl"><span class="k">float</span> <span class="n">c</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">;</span>
+<span class="k">vec4</span> <span class="n">r</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">c</span><span class="p">;</span> <span class="c1">// r.x = a.x * c, r.y = a.y * c...</span>
+</code></pre></div><p>One can also multiply two vectors component-wise:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-glsl" data-lang="glsl"><span class="k">vec4</span> <span class="n">r</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span><span class="p">;</span> <span class="c1">// r.x = a.x * b.x, r.y = a.y * b.y...</span>
+</code></pre></div><p>As well as feed entire vector into plethora of built-in functions:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-glsl" data-lang="glsl"><span class="k">vec4</span> <span class="n">r</span> <span class="o">=</span> <span class="n">exp</span><span class="p">(</span><span class="n">a</span><span class="p">);</span> <span class="c1">// r.x = exp(a.x), r.y = exp(a.y)...</span>
+</code></pre></div><p>I highly recommend <a href="http://www.khronos.org/files/opengles3-quick-reference-card.pdf">OpenGL ES 3.0 API Reference Card</a> which is a short primer on OpenGL API as well as GLSL cheat sheet. It contains a list of all built-in functions and it is generally recommended to use them instead of manually recoding even the trivial functionality. Built-ins may have direct hardware implementation and thus should be faster than their hand-written counterparts.</p>
+<h3 id="example-shader">Example Shader<a href="index.html#example-shader" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h3>
+<p>Here&rsquo;s the simplest shader written in GLSL ES 3.0 that doubles the input vector:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-glsl" data-lang="glsl"><span class="cp">#version 300 es</span>
+
+<span class="k">in</span>  <span class="k">vec4</span> <span class="n">inVec</span><span class="p">;</span>
+<span class="k">out</span> <span class="k">vec4</span> <span class="n">outVec</span><span class="p">;</span>
+
+<span class="k">vec4</span> <span class="n">f</span><span class="p">(</span><span class="k">vec4</span> <span class="n">x</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">x</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">void</span> <span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">outVec</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">inVec</span><span class="p">);</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>As you can see, it&rsquo;s very readable. We return a transformed input vector (marked as <code>in</code>) as an output vector (marked as <code>out</code>).</p>
+<h2 id="processing-power">Processing Power<a href="index.html#processing-power" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>Why do we bother doing four calculations at once in a <code>vec4</code> operations, instead of calculating single <code>float</code> values separately? Because crunching entire vectors is way faster. Some quick benchmarks showed using one <code>vec4</code> operation instead of four <code>float</code> ones is 3.5 times faster.</p>
+<p>What&rsquo;s even more surprising, we don&rsquo;t even have to return just one <code>vec4</code> in a single shader calculation. We can use up to 16 <code>in</code> vectors to feed data to the shader. This seemingly arbitrary number is a platform specific value of <code>MAX_VERTEX_ATTRIBS</code> constant and is set in stone for all A7 devices. For the output vectors we&rsquo;re limited by the <code>GL_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS</code> constant which for A7 is equal to 64. This means that we can define at most 16 <code>out</code> variables of <code>vec4</code> type (since each <code>vec4</code> has 4 components).</p>
+<p>With that knowledge we can extend our shader to take in more input and generate more output:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-glsl" data-lang="glsl"><span class="cp">#version 300 es</span>
+
+<span class="k">in</span> <span class="k">vec4</span> <span class="n">inVec1</span><span class="p">;</span>    
+<span class="k">in</span> <span class="k">vec4</span> <span class="n">inVec2</span><span class="p">;</span>    
+<span class="k">in</span> <span class="k">vec4</span> <span class="n">inVec3</span><span class="p">;</span>    
+<span class="k">in</span> <span class="k">vec4</span> <span class="n">inVec4</span><span class="p">;</span>
+
+<span class="k">out</span> <span class="k">vec4</span> <span class="n">outVec1</span><span class="p">;</span>
+<span class="k">out</span> <span class="k">vec4</span> <span class="n">outVec2</span><span class="p">;</span>
+<span class="k">out</span> <span class="k">vec4</span> <span class="n">outVec3</span><span class="p">;</span>
+<span class="k">out</span> <span class="k">vec4</span> <span class="n">outVec4</span><span class="p">;</span>
+
+<span class="k">vec4</span> <span class="n">f</span><span class="p">(</span><span class="k">vec4</span> <span class="n">x</span><span class="p">)</span>
+<span class="p">{</span>    
+    <span class="k">return</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">x</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">void</span> <span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">outVec1</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">inVec1</span><span class="p">);</span>
+    <span class="n">outVec2</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">inVec2</span><span class="p">);</span>
+    <span class="n">outVec3</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">inVec3</span><span class="p">);</span>
+    <span class="n">outVec4</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">inVec4</span><span class="p">);</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>By utilizing this method one achieves much faster execution. For instance going from 1 <code>in</code>/<code>out</code> vector pairs to 16 <code>in</code>/<code>out</code> vector pairs results in over 4 times performance increase (<em>The Disappointing Raise example</em>). In some cases however, the sweet spot is at 8 (<em>The Promising Plot</em>) or even 2 vector pairs (<em>The Amazing Simulation</em>), so this must be tuned manually on case by case basis.</p>
+<p>Obviously, writing that much code by hand and changing pieces of function calls all over the place is tedious, so my GitHub implementation generates the shader for a given number of vectors. The only responsibility of programmer is to provide a source for <code>vec4 f(vec4 x)</code> function.</p>
+<h2 id="multi-argument-functions">Multi-argument Functions<a href="index.html#multi-argument-functions" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>Throughout previous examples I&rsquo;ve used a simple function that takes one argument and returns one value. However, it&rsquo;s not that hard to write more complicated functions that take arbitrary (with some moderation) number of arguments.</p>
+<p>Let&rsquo;s consider a multi-argument function y = f(a, b, c) = a*b + c. In terms of math definitions this function is R³ → R. We don&rsquo;t want to calculate just a single <code>float</code> value (it&rsquo;s slow), so instead, we will calculate four values at once (an entire <code>vec4</code> of values). Therefore, a simple shader would have three <code>in</code> vectors and one <code>out</code> vector. Assuming <code>inVec1</code> contains a₀a₁a₂… values, <code>inVec2</code> contains b₀b₁b₂… values and so on, the shader code is trivial:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-glsl" data-lang="glsl"><span class="k">vec4</span> <span class="n">f</span><span class="p">(</span><span class="k">vec4</span> <span class="n">a</span><span class="p">,</span> <span class="k">vec4</span> <span class="n">b</span><span class="p">,</span> <span class="k">vec4</span> <span class="n">c</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span> <span class="o">+</span> <span class="n">c</span><span class="p">;</span> <span class="c1">// adding vectors here!</span>
+<span class="p">}</span>
+</code></pre></div><p>While another option is for the data is to be fetched from a single continuous buffer with a₀b₀c₀a₁b₁c₁a₂… ordering, notice that the shader would have to pick separate components from vector and perform calculations one by one, which is hardly optimal.</p>
+<h2 id="single-argument-multivalued-functions">Single Argument Multivalued Functions<a href="index.html#single-argument-multivalued-functions" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>Let&rsquo;s consider a multi-argument function (a, b) = f(x) = (cos(x), sin (x)), which means f is R → R². This function calculates location of point on a unit circle for a given angle x.</p>
+<p>We can&rsquo;t use a regular <code>vec4 f(vec4 x)</code> since we can&rsquo;t output two vectors from on function. Instead, we could make use of a <code>vec4 f(vec2 x)</code> function, that would transform two input values into four output values. Clearly, the number of <code>out</code> shader vectors would have to be twice as large as number of <code>in</code> vectors.</p>
+<h2 id="multi-argument-multivalued-functions">Multi-argument Multivalued Functions<a href="index.html#multi-argument-multivalued-functions" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>Finally, let&rsquo;s consider a function (r, s) = f(a, b). This function takes in a 2D vector and returns 2D vector (R² → R²). Considering previous cases one might argue this decays into calculating two values of regular y = f(x) function, however, this is hardly the case. For instance we can define a function that returns a perpendicular vector f(x, y) = (-y, x). We <em>couldn&rsquo;t</em> have done that in the plain old f(x) = y. On a side note, since we&rsquo;re doing calculations on <code>vec4</code> technically we could lookup the next component, but this technique is fairly limited, not to mention the extreme abuse of blindly reducing R² → R² to R → R.</p>
+<p>As usual, we want to return as much data as possible, so we&rsquo;re going to calculate two values of a function at once, packing them into one <code>vec4</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-glsl" data-lang="glsl"><span class="k">vec4</span> <span class="n">f</span><span class="p">(</span><span class="k">vec4</span> <span class="n">a</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="k">vec4</span><span class="p">(</span><span class="o">-</span><span class="n">a</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="n">a</span><span class="p">.</span><span class="n">w</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div><p>Speaking of crazy R² → R² to R → R reductions, consider function f(x, y) = (3.0 * x, 2.0 * y). In this case the calculation <em>does</em> decay into regular f(x) = y calculation:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-glsl" data-lang="glsl"><span class="k">vec4</span> <span class="n">f</span><span class="p">(</span><span class="k">vec4</span> <span class="n">a</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="k">vec4</span><span class="p">(</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">a</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p>Notice, that this is merely a technical twist since a shader doesn&rsquo;t care whether the function is R² → R² or R → R, it&rsquo;s just patiently crunching the numbers.</p>
+<h2 id="build-settings-and-caveats">Build Settings and Caveats<a href="index.html#build-settings-and-caveats" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>For my CPU vs GPU comparison I&rsquo;ve compiled all programs with following settings.</p>
+<ul>
+<li>Optimization Level — Fastest, Aggressive Optimizations [-Ofast]</li>
+<li>Vectorize Loops — Yes</li>
+<li>Relax IEEE Compliance — Yes</li>
+</ul>
+<p>The application was built using Xcode 5.1 (5B45j). I ran the tests on the iOS 7.1 beta2. Due to a <a href="https://devforums.apple.com/message/929561#929561">bug</a> (Apple Developer account required) in iOS 7.0.x, one can&rsquo;t apply user defined functions inside shaders used for Transform Feedback. Only <code>main()</code> and built-ins work.</p>
+<p>Unsurprisingly, manual &ldquo;inlining&rdquo; the body of <code>f</code> function into <code>main</code> <em>did</em> work. If you want to use Transform Feedback on iOS 7.0.x you can&rsquo;t use function calls, so you&rsquo;ll have to write a lot of code to make use of all 16 <code>in</code> vectors.</p>
+<p>The time measurements were taken by running each test 8 times and then taking the average.</p>
+<h1 id="when">When<a href="index.html#when" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Now that we&rsquo;ve seen how much performance the GPU offers and how to use it, let&rsquo;s discuss the factors that can influence the application of the method.</p>
+<h2 id="data-size-and-computation-complexity">Data Size and Computation Complexity<a href="index.html#data-size-and-computation-complexity" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>Basically, there are two requirements for the GPU powered computation to triumph: large data sets and non trivial calculations.</p>
+<p>The simple polynomial evaluation inside <a href="index.html#the-disappointing-linear-function">The Disappointing Linear Function</a> case is the best example of low-overhead calculations. This calculation is an example of <a href="http://en.wikipedia.org/wiki/Multiply%E2%80%93accumulate_operation">fused multiply-add</a> which usually can be executed with just a single instruction. Moreover, clang is smart enough to generate vectorized code – the A7 computes <em>four</em> fused multiply-adds at once. It&rsquo;s an additional performance boost explaining why the CPU is running circles around the GPU in this case.</p>
+<p>The more complex evaluation of <a href="index.html#the-promising-complication">The Promising Complication</a> case shows the benefits of parallelization. For large enough inputs, the simultaneous calculation performed by GPU starts winning.</p>
+<p>Finally, <a href="index.html#the-amazing-iteration">The Amazing Iteration</a> allows the GPU to show its potential. While the CPU has to calculate each case one by one, the GPU crunches multiple cases at once, leaving the CPU in the dust.</p>
+<p>The conclusion here is obvious. There is a huge overhead of firing up the OpenGL machinery, so once started it&rsquo;s better to keep it rolling. There is one more amazing benefit of running the calculations on the GPU. After firing the calculations, the CPU is free to do whatever it wants.</p>
+<h2 id="precision">Precision<a href="index.html#precision" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>It must be noted that values returned by GPU calculations <em>might</em> not be equal to the values returned by CPU. Are the GPU vs CPU errors large?</p>
+<h3 id="comparisons">Comparisons<a href="index.html#comparisons" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h3>
+<p><a href="http://randomascii.wordpress.com/about/">Bruce Dawson</a> wrote an amazing <a href="http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/">article series on floating point format</a>. In part 4 of thereof, he presented a genuinely cool way to compare floating point values. Basically, due the internal representation of floating point format, interpreting bits of <code>float</code> as <code>int</code>, incrementing that integer, and reinterpreting those new bits as <code>float</code> again, creates the next representable <code>float</code> number. To quote &ldquo;Dawson’s obvious-in-hindsight theorem&rdquo;:</p>
+<blockquote>
+<p>If the integer representations of two same-sign floats are subtracted then the absolute value of the result is equal to one plus the number of representable floats between them.</p>
+</blockquote>
+<p>For instance, if the integer difference between two <code>float</code> values is 4, it means that one could fit 3 other <code>float</code> values in between. Quoting Dawson just once more:</p>
+<blockquote>
+<p>The difference between the integer representations tells us how many Units in the Last Place the numbers differ by. This is usually shortened to ULP, as in “these two floats differ by two ULPs.”</p>
+</blockquote>
+<p>Just for the reference, I&rsquo;ve also calculated the value of relative <code>float</code> error, defined as:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">fabsf</span><span class="p">((</span><span class="n">cpu_value</span> <span class="o">-</span> <span class="n">gpu_value</span><span class="p">)</span><span class="o">/</span><span class="n">cpu_value</span><span class="p">);</span>
+</code></pre></div><p>For the evaluated examples, I will refer to the integer difference as ULP, and to the relative float value error as FLT.</p>
+<p>Unfortunately, both methods have some issues for comparing near-zero values, but in general they provide a good overview of what&rsquo;s going on.</p>
+<h4 id="the-disappointing-linear-function-1">The Disappointing Linear Function<a href="index.html#the-disappointing-linear-function-1" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain">ULP: avg: 0.0620527
+     max: 1
+     min: 0
+FLT: avg: 6.24647e-09
+     max: 1.19209e-07
+     min: 0
+</code></pre></div><p>The values calculated by GPU are as little as 1 ULP away from the CPU&rsquo;s result and the average being so low, shows that less than 7% of values were not exactly equal to the CPU computation.</p>
+<h4 id="the-promising-complication-1">The Promising Complication<a href="index.html#the-promising-complication-1" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain">ULP: avg: 0.527707
+     max: 3
+     min: 0
+    
+FLT: avg: 3.34232e-08
+     max: 2.49631e-07
+     min: 0
+</code></pre></div><p>The maximum ULP error jumped to 3 and the average ULP error increased as well. The relative error still provides a good indication that the value of error is insignificant.</p>
+<h5 id="the-amazing-iteration-1">The Amazing Iteration<a href="index.html#the-amazing-iteration-1" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h5>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain">ULP: avg: 46.6319
+     max: 100
+     min: 0
+
+FLT: avg: 3.49051e-06 
+     max: 8.61719e-06
+     min: 0
+</code></pre></div><p>The maximum value of 100 ULPs is a hint that each iteration accumulated some error. The relative error is still low at 3.49×10<sup>-4</sup>%.</p>
+<h3 id="reasons">Reasons<a href="index.html#reasons" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h3>
+<p>By default the precision of <code>float</code> (and, as direct result, of <code>vec2</code>, <code>vec3</code> and <code>vec4</code> as well) inside vertex shader is set to <code>highp</code> (GLSL ES 3.0 spec 4.5.4) which essentially is regular <a href="http://en.wikipedia.org/wiki/IEEE_floating_point">IEEE 754</a> <code>float</code>. Where do the differences in comparison to CPU results come from?</p>
+<p>My familiarity with secrets of floating point values is not that great (despite <em>starting</em> to read <a href="http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html">What Every Computer Scientist Should Know About Floating-Point Arithmetic</a> a couple of times). I have some hypotheses, but you should take them with a grain of salt.</p>
+<p>One of the reasons for these effects could be slightly different implementations of <code>exp</code>, <code>pow</code> and trigonometry functions. However, <em>The Disappointing Linear Function</em> doesn&rsquo;t use any built-ins and the small errors are still there. I suspect the most important reason is that the <a href="http://en.wikipedia.org/wiki/Floating_point#Rounding_modes">rounding mode</a> inside GLSL computation is not defined by the specification. This could explain why doing 100 iterations of an algorithm inside GPU results in at most 100 ULPs difference.</p>
+<h3 id="does-it-matter">Does it Matter?<a href="index.html#does-it-matter" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h3>
+<p>Obviously, if precision is mission critical you wouldn&rsquo;t use <code>float</code> anyway, jumping to <code>double</code> instead, thus skipping the GPU calculations entirely. Just for the record (and for the sake of linking to an interesting rant), <a href="http://lists.apple.com/archives/mac-games-dev/2007/Oct/msg00188.html">you shouldn&rsquo;t rely on the math library to perform <em>exact</em> calculations</a> anyway.</p>
+<p>For the more mundane tasks, the precision doesn&rsquo;t matter, unless you do thousands of iterations inside a shader. For games and simple simulations you shouldn&rsquo;t care at all.</p>
+<h1 id="final-words">Final Words<a href="index.html#final-words" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>I&rsquo;m extremely pleased with the results. It really shows that GPUs inside iOS devices are extremely powerful. I expected perhaps a 3-5x speed improvement, but the extremity of 64x is a shocker. In case of highly iterative calculations, you can reduce the wait time for the user from about a minute to little under one second. Even though the presented examples were somehow artificial, the benefits of huge performance gains and offloading the CPU are of utmost importance. Without a doubt, using Transform Feedback limits the effectiveness of the method to the brand new devices powered by A7 chip, but as time goes, this will become less of an issue.</p>
+<p>As for the further work, a lot can still be done. Now that iOS7 enables reading textures in vertex shader (although <a href="http://stackoverflow.com/a/6754705/558816">some claim</a> it was possible in previous releases as well), one could treat a float texture as a source of truly random (as in random <em>access</em>, not random value) memory resulting in much more advanced vertex shader computation techniques. However, this still doesn&rsquo;t solve the random write problem.</p>
+<p>On the other hand, one might also try going the fragment shader way, using float textures as input and half float textures as output, but it still does not provide full featured GPGPU capabilities.</p>
+<p>All those effort will become vein, when Apple provides access to the now <a href="https://github.com/EthanArbuckle/IOS-7-Headers/tree/master/PrivateFrameworks/OpenCL.framework">private</a> <a href="http://www.khronos.org/opencl/">OpenCL</a> framework. Until then, OpenGL abuse is the primary toy for us to play.</p>
+
+    </div>
+</div>
+      </div>
+    </div>
+    <div id="footer">
+        Copyright &copy; 2022 Bartosz Ciechanowski
+    </div>
+  </div>
+</body>
+
+</html>

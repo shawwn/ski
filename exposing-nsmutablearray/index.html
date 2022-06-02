@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2052BB">
+<meta name="author" content="Bartosz Ciechanowski">
+<meta name="format-detection" content="telephone=no">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-25335284-3"></script>
+
+
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-25335284-3');
+</script>
+  <meta property="og:title" content="Exposing NSMutableArray – Bartosz Ciechanowski" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ciechanow.ski/exposing-nsmutablearray/" />
+<meta property="og:description" content="" />
+<meta property="og:locale" content="en_US">
+  <link href="../css/base.css" rel="stylesheet" type="text/css"/>
+<link href="https://fonts.googleapis.com/css?family=Lato:700&display=swap" rel="stylesheet" type="text/css" async>
+<link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,400i,500&display=swap" rel="stylesheet" async>
+  <title>Exposing NSMutableArray – Bartosz Ciechanowski</title>
+  <link rel="icon" href="../favicon.ico">
+  <link href="../css/syntax.css" rel="stylesheet" type="text/css" />
+  <script defer src="../js/base.js"></script>
+</head>
+
+<body>
+  <div id="main_container">
+    <div id="body">
+      <div id="banner">
+    <div id="banner_wrapper">
+        <div id="banner_content">
+            <div id="site_title">
+                <a href="../index.html">Bartosz Ciechanowski</a>
+            </div>
+            <div id="navigation">
+                <a href="../index.html">Blog</a>
+                <a href="../archives.html">Archives</a>
+            </div>
+            <div id="social">
+                <a class="patreon" href="https://www.patreon.com/ciechanowski" title="Patreon"><div class="patreonLogo">Patreon</div></a>
+                <a class="twitter" href="https://twitter.com/bciechanowski" title="Twitter"><div class="twitterLogo">Twitter</div></a>
+                <a class="instagram" href="https://www.instagram.com/bartoszciechanowski/" title="Instagram"><div class="igLogo">Instagram</div></a>
+                <a class="email" href="mailto:bartosz@ciechanow.ski" title="e-mail"><div class="emailLogo">e-mail</div></a>
+                <a class="rss" href="../atom.xml" title="rss"><div class="rssLogo">rss</div></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+      <div id="content">
+        
+<div class="article">
+    <div class="post_date">March 5, 2014</div>
+    <h1 class="post_title"><a href="../blog/2014/03/05/exposing-nsmutablearray/index.html">Exposing NSMutableArray</a></h1>
+    <div class="padding_wrapper"><p>I&rsquo;ve always wondered how <code>NSMutableArray</code> works internally. Don&rsquo;t get me wrong, immutable arrays certainly provide enormous benefits: not only are they thread safe but also copying them is essentially free. It doesn&rsquo;t change the fact that they&rsquo;re quite dull – their contents can&rsquo;t be modified. I find the actual memory manipulation details fascinating and this is why this article focuses on mutable arrays.</p>
+<p>Since I more or less describe the complete process I used to investigate <code>NSMutableArray</code>, this post is fairly technical. There is an entire section discussing the ARM64 assembly, so if you find that boring then do not hesitate to skip it. Once we&rsquo;re through the low level details, I present the <em>non obvious</em>  characteristics of the class.</p>
+<p>Implementation details of <code>NSMutableArray</code> are private for a reason. They&rsquo;re subject to change at any time, both in terms of underlying subclasses and their ivar layouts, as well as underpinning algorithms and data structures. Regardless of those caveats, it&rsquo;s worth peeking under the hood of <code>NSMutableArray</code> and figuring out how it works and what can be expected of it. The following study is based on iOS 7.0 SDK.</p>
+<p>As usual, you can find the accompanying Xcode project <a href="https://github.com/Ciechan/NSMutableArrayExplorer">on my GitHub</a>.</p>
+<h1 id="the-problem-of-plain-old-c-arrays">The Problem of Plain Old C Arrays<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#the-problem-of-plain-old-c-arrays" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Every self-respecting programmer knows how C arrays work. It boils down to a continuous segment of memory that can be easily read from and written into. While arrays and pointers are not the same (see <a href="http://www.amazon.com/Expert-Programming-Peter-van-Linden/dp/0131774298">&ldquo;Expert C Programming&rdquo;</a> or <a href="http://eli.thegreenplace.net/2009/10/21/are-pointers-and-arrays-equivalent-in-c/">this article</a>), it&rsquo;s not much of an abuse to consider &ldquo;<code>malloc</code>-ed block of memory&rdquo; as an array.</p>
+<p>One of the most obvious drawbacks of using linear memory is that inserting an element at index 0 requires shifting all the other elements via means of <code>memmove</code>:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../images/arrayCInsert@2x.jpg"
+         alt="Inserting to C array at index 0"width="442px"height="285px"
+    /> 
+    </div><span>
+            <p>Inserting to C array at index 0</p>
+        </span>
+</div>
+
+<p>Similarly, removing the first element requires shifting action as well, assuming one wants to keep the same memory pointer as an address of the first element:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../images/arrayCRemove@2x.jpg"
+         alt="Removing from C array at index 0"width="442px"height="263px"
+    /> 
+    </div><span>
+            <p>Removing from C array at index 0</p>
+        </span>
+</div>
+
+<p>For very large arrays this quickly becomes a problem. Obviously, direct pointer access is not necessarily the highest level of abstraction in the world of arrays. While C-style arrays are often useful, the daily bread and butter of Obj-C programmers wanting a mutable, indexed container is <code>NSMutableArray</code>.</p>
+<h1 id="nsmutablearray">NSMutableArray<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#nsmutablearray" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<h2 id="diving-in">Diving in<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#diving-in" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>Even though Apple <a href="http://opensource.apple.com">publishes source code</a> for many libraries, Foundation and its <code>NSMutableArray</code> is not open sourced. However, there are some tools that make unrevealing its mysteries a little bit easier. We begin our journey at the highest possible level, reaching into the lower layers to get otherwise inaccessible details.</p>
+<h3 id="getting--dumping-class">Getting &amp; Dumping Class<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#getting--dumping-class" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h3>
+<p><code>NSMutableArray</code> is a class cluster – its concrete implementations are actually subclasses of <code>NSMutableArray</code> itself. Instances of which class does actually <code>+[NSMutableArray new]</code> return? With LLDB we don&rsquo;t even have to write any code to figure that out:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain">(lldb) po [[NSMutableArray new] class]
+__NSArrayM
+</code></pre></div><p>With class name in hand we reach for <a href="http://stevenygard.com/projects/class-dump/">class-dump</a>. This handy utility forges the class headers obtained by analyzing provided binaries. Using the following one-liner we can extract the ivar layout we&rsquo;re interested in:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">./class-dump --arch arm64 /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation <span class="p">|</span> pcregrep -M <span class="s2">&#34;^[@\w\s]*__NSArrayM[\s\w:{;*]*}&#34;</span>
+</code></pre></div><p>I suck at regular expressions so the one used above is probably not a masterpiece, but it provides fruitful results:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="k">@interface</span> <span class="nc">__NSArrayM</span> : <span class="nc">NSMutableArray</span>
+<span class="p">{</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="n">_used</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="nl">_doHardRetain</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="nl">_doWeakAccess</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="nl">_size</span><span class="p">:</span><span class="mi">62</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="nl">_hasObjects</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="nl">_hasStrongReferences</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="nl">_offset</span><span class="p">:</span><span class="mi">62</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="n">_mutations</span><span class="p">;</span>
+    <span class="kt">id</span> <span class="o">*</span><span class="n">_list</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p>The bitfields in the original output are typed with <code>unsigned int</code>, but obviously you can&rsquo;t fit 62 bits into a 32-bit integer – class-dump hasn&rsquo;t been patched yet to parse ARM64 libraries correctly. Despite those minor flaws, one can tell quite a lot about the class just by looking at its ivars.</p>
+<h3 id="disassembling-class">Disassembling Class<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#disassembling-class" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h3>
+<p>The most important tool in my investigation was <a href="http://www.hopperapp.com">Hopper</a>. I&rsquo;m in love with this disassembler. It&rsquo;s an essential tool for curious souls who have to know how everything works. One of the best features of Hopper is that it generates C-like pseudocode that very often is clear enough to grasp the gist of the implementation.</p>
+<p>The crucial method for understanding <code>__NSArrayM</code> is <code>- objectAtIndex:</code>. While Hopper does great job providing pseudocode for ARMv7, the feature doesn&rsquo;t work for ARM64 yet. I figured it would be an excellent exercise to do this manually, with some hints from its ARMv7 counterpart.</p>
+<h1 id="dissecting-the-method">Dissecting the Method<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#dissecting-the-method" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>With <a href="https://silver.arm.com/download/ARM_and_AMBA_Architecture/AR100-DA-70501-r0p0-00eac5/ARMv8_ISA_PRD03-GENC-010197-30-0.pdf">ARMv8 Instruction Set Overview</a> (registration required) in one hand and a bunch of educated guesses in another I <em>think</em> I&rsquo;ve deciphered the assembly correctly. However, you should not treat the following analysis as an ultimate source of wisdom. I&rsquo;m new at this.</p>
+<h2 id="passing-arguments">Passing Arguments<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#passing-arguments" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>As a start point let&rsquo;s note that every Obj-C method is actually a C function with two additional parameters. The first one is <code>self</code> which is a pointer to the object being receiver of the method call. The second one is <code>_cmd</code> which represents the current selector.</p>
+<p>One might say that the equivalent C-style declaration of the <code>- objectAtIndex:</code> function is:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="kt">id</span> <span class="nf">objectAtIndex</span><span class="p">(</span><span class="n">NSArray</span> <span class="o">*</span><span class="nb">self</span><span class="p">,</span> <span class="kt">SEL</span> <span class="n">_cmd</span><span class="p">,</span> <span class="n">NSUInteger</span> <span class="n">index</span><span class="p">);</span>
+</code></pre></div><p>Since on ARM64 these types of parameters are passed in the consecutive registers, we can expect the <code>self</code> pointer to be in <code>x0</code> register, the <code>_cmd</code> in <code>x1</code> register and the <code>index</code> of object in <code>x2</code> register. For details of parameter passing please reference the <a href="http://infocenter.arm.com/help/topic/com.arm.doc.ihi0055b/IHI0055B_aapcs64.pdf">ARM Procedure Call Standard</a>, noting that Apple&rsquo;s iOS version has <a href="https://developer.apple.com/library/ios/documentation/Xcode/Conceptual/iPhoneOSABIReference/Articles/ARM64FunctionCallingConventions.html">some divergences</a>.</p>
+<h2 id="analyzing-assembly">Analyzing Assembly<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#analyzing-assembly" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>This will look scary. Since analyzing a large chunk of assembly at once is not sane, we&rsquo;re going to walk through the following code step by step, figuring out what each line does.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0xc2d4</span>         <span class="n">stp</span>        <span class="n">x29</span><span class="p">,</span> <span class="n">x30</span><span class="p">,</span> <span class="n">[sp</span><span class="p">,</span> <span class="c1">#0xfffffff0]!</span>
+<span class="mh">0xc2d8</span>         <span class="n">mov</span>        <span class="n">x29</span><span class="p">,</span> <span class="n">sp</span>
+<span class="mh">0xc2dc</span>         <span class="n">sub</span>        <span class="n">sp</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="c1">#0x20</span>
+<span class="mh">0xc2e0</span>         <span class="n">adrp</span>       <span class="n">x8</span><span class="p">,</span> <span class="c1">#0x1d1000</span>
+<span class="mh">0xc2e4</span>         <span class="n">ldrsw</span>      <span class="n">x8</span><span class="p">,</span> <span class="n">[x8</span><span class="p">,</span> <span class="c1">#0x2c]</span>
+<span class="mh">0xc2e8</span>         <span class="n">ldr</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">[x0</span><span class="p">,</span> <span class="n">x8]</span>
+<span class="mh">0xc2ec</span>         <span class="n">cmp</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x2</span>
+<span class="mh">0xc2f0</span>         <span class="n">b.ls</span>       <span class="mh">0xc33c</span>
+
+<span class="mh">0xc2f4</span>         <span class="n">adrp</span>       <span class="n">x8</span><span class="p">,</span> <span class="c1">#0x1d1000</span>
+<span class="mh">0xc2f8</span>         <span class="n">ldrsw</span>      <span class="n">x8</span><span class="p">,</span> <span class="n">[x8</span><span class="p">,</span> <span class="c1">#0x30]</span>
+<span class="mh">0xc2fc</span>         <span class="n">ldr</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">[x0</span><span class="p">,</span> <span class="n">x8]</span>
+<span class="mh">0xc300</span>         <span class="n">lsr</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x8</span><span class="p">,</span> <span class="c1">#0x2</span>
+<span class="mh">0xc304</span>         <span class="n">adrp</span>       <span class="n">x9</span><span class="p">,</span> <span class="c1">#0x1d1000</span>
+<span class="mh">0xc308</span>         <span class="n">ldrsw</span>      <span class="n">x9</span><span class="p">,</span> <span class="n">[x9</span><span class="p">,</span> <span class="c1">#0x34]</span>
+<span class="mh">0xc30c</span>         <span class="n">ldr</span>        <span class="n">x9</span><span class="p">,</span> <span class="n">[x0</span><span class="p">,</span> <span class="n">x9]</span>
+<span class="mh">0xc310</span>         <span class="n">add</span>        <span class="n">x9</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">x9</span><span class="p">,</span> <span class="n">lsr</span> <span class="c1">#2</span>
+<span class="mh">0xc314</span>         <span class="n">cmp</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x9</span>
+<span class="mh">0xc318</span>         <span class="n">csel</span>       <span class="n">x8</span><span class="p">,</span> <span class="n">xzr</span><span class="p">,</span> <span class="n">x8</span><span class="p">,</span> <span class="n">hi</span>
+<span class="mh">0xc31c</span>         <span class="n">sub</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x9</span><span class="p">,</span> <span class="n">x8</span>
+<span class="mh">0xc320</span>         <span class="n">adrp</span>       <span class="n">x9</span><span class="p">,</span> <span class="c1">#0x1d1000</span>
+<span class="mh">0xc324</span>         <span class="n">ldrsw</span>      <span class="n">x9</span><span class="p">,</span> <span class="n">[x9</span><span class="p">,</span> <span class="c1">#0x38]</span>
+<span class="mh">0xc328</span>         <span class="n">ldr</span>        <span class="n">x9</span><span class="p">,</span> <span class="n">[x0</span><span class="p">,</span> <span class="n">x9]</span>
+<span class="mh">0xc32c</span>         <span class="n">ldr</span>        <span class="n">x0</span><span class="p">,</span> <span class="n">[x9</span><span class="p">,</span> <span class="n">x8</span><span class="p">,</span> <span class="n">lsl</span> <span class="c1">#3]</span>
+<span class="mh">0xc330</span>         <span class="n">mov</span>        <span class="n">sp</span><span class="p">,</span> <span class="n">x29</span>
+<span class="mh">0xc334</span>         <span class="n">ldp</span>        <span class="n">x29</span><span class="p">,</span> <span class="n">x30</span><span class="p">,</span> <span class="n">[sp]</span><span class="p">,</span> <span class="c1">#0x10</span>
+<span class="mh">0xc338</span>         <span class="n">ret</span>  
+</code></pre></div><h3 id="the-setup">The Setup<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#the-setup" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h3>
+<p>We begin with what seems to be an ARM64 <a href="http://en.wikipedia.org/wiki/Function_prologue">function prologue</a>. We&rsquo;re saving <code>x29</code> and <code>x30</code> registers on the stack then we move the current stack pointer <code>sp</code> to <code>x29</code> register:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0xc2d4</span>         <span class="n">stp</span>        <span class="n">x29</span><span class="p">,</span> <span class="n">x30</span><span class="p">,</span> <span class="n">[sp</span><span class="p">,</span> <span class="c1">#0xfffffff0]!</span>
+<span class="mh">0xc2d8</span>         <span class="n">mov</span>        <span class="n">x29</span><span class="p">,</span> <span class="n">sp</span>
+</code></pre></div><p>We make some room on the stack (subtracting, since stack grows downwards):</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0xc2dc</span>         <span class="n">sub</span>        <span class="n">sp</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="c1">#0x20</span>
+</code></pre></div><p>The path code we&rsquo;re interested in doesn&rsquo;t seem to be using this space. However, the &ldquo;out of bounds&rdquo; exception throwing code does call some other functions thus the prologue has to facilitate both options.</p>
+<h3 id="fetching-count">Fetching Count<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#fetching-count" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h3>
+<p>The next two lines perform <a href="http://en.wikipedia.org/wiki/Addressing_mode#PC-relative_2">program counter relative addressing</a>. The specifics of addresses encoding are <a href="http://kitoslab.blogspot.com/2012/10/armv8-aarch64-instruction-encoding.html">quite complicated</a> and the literature is scarce, however, Hopper automatically calculates more sane offsets:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0xc2e0</span>         <span class="n">adrp</span>       <span class="n">x8</span><span class="p">,</span> <span class="c1">#0x1d1000</span>
+<span class="mh">0xc2e4</span>         <span class="n">ldrsw</span>      <span class="n">x8</span><span class="p">,</span> <span class="n">[x8</span><span class="p">,</span> <span class="c1">#0x2c]</span>
+</code></pre></div><p>The two lines will fetch contents of memory located at <code>0x1d102c</code> and store it into <code>x8</code> register. What&rsquo;s over there? Hopper is kind enough to help us:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="n">_OBJC_IVAR_</span><span class="o">$</span><span class="n">___NSArrayM._used</span><span class="o">:</span>
+<span class="mh">0x1d102c</span>         <span class="n">dd</span>         <span class="mh">0x00000008</span>
+</code></pre></div><p>This is the offset of <code>_used</code> ivar inside the <code>__NSArrayM</code> class. Why go through the trouble of additional fetch, instead of simply putting the value <code>8</code> into the assembly? It&rsquo;s because of <a href="http://en.wikipedia.org/wiki/Fragile_base_class">fragile base class</a> problem. The modern Objective-C runtime handles this by giving itself an option to overwrite the value at <code>0x1d102c</code> (and all the other ivar offsets for that matter). If either <code>NSObject</code>, or <code>NSArray</code>, or <code>NSMutableArray</code> adds new ivars, the old binaries will still work.</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../images/arrayFragile@2x.jpg"
+         alt="The runtime can modify the ivars&#39; offsets dynamically without breaking compatibility"width="537px"height="249px"
+    /> 
+    </div><span>
+            <p>The runtime can modify the ivars' offsets dynamically without breaking compatibility</p>
+        </span>
+</div>
+
+<p>While the CPU has to do an additional memory fetch, this is a beautiful solution as explained in more details <a href="http://www.sealiesoftware.com/blog/archive/2009/01/27/objc_explain_Non-fragile_ivars.html">on Hamster Emporium</a> and <a href="http://www.cocoawithlove.com/2010/03/dynamic-ivars-solving-fragile-base.html">Cocoa with Love</a>.</p>
+<p>At this point we know the offset of <code>_used</code> within the class. And since the Obj-C objects are nothing more than <code>struct</code>s, and we&rsquo;ve got pointer to this struct in <code>x0</code>, all we have to do is fetch the value:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0xc2e8</span>         <span class="n">ldr</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">[x0</span><span class="p">,</span> <span class="n">x8]</span>
+</code></pre></div><p>The C equivalent of the above code would be:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-obj-c" data-lang="obj-c">    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="n">newX8</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="o">*</span><span class="p">)((</span><span class="kt">char</span> <span class="o">*</span><span class="p">)(</span><span class="k">__bridge</span> <span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="nb">self</span> <span class="o">+</span> <span class="n">x8</span><span class="p">);</span>
+</code></pre></div><p>I think I prefer the assembly version. Quick analysis of disassembled <code>- count</code> method of <code>__NSArrayM</code> reveals that the <code>_used</code> ivar contains the number of elements in <code>__NSArrayM</code>, and as of this moment we have this value in <code>x8</code> register.</p>
+<h3 id="checking-bounds">Checking Bounds<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#checking-bounds" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h3>
+<p>Having requested index in <code>x2</code> and count in <code>x8</code> the code compares the two:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0xc2ec</span>         <span class="n">cmp</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x2</span>
+<span class="mh">0xc2f0</span>         <span class="n">b.ls</span>       <span class="mh">0xc33c</span>
+</code></pre></div><p>When the value of <code>x8</code> is lower or same as <code>x2</code> then we jump to the code at <code>0xc33c</code>, which handles the exception throwing. This is essentially the bounds checking. If we fail the test (count is lower or equal to index), we throw exception. I&rsquo;m not going to discuss those parts of disassembly since they don&rsquo;t really introduce anything new. If we pass the test (count is greater than index) then we simply keep executing instructions in order.</p>
+<h3 id="calculating-memory-offset">Calculating Memory Offset<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#calculating-memory-offset" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h3>
+<p>We&rsquo;ve seen this before, this time we fetch the offset of <code>_size</code> ivar located at <code>0x1d1030</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0xc2f4</span>         <span class="n">adrp</span>       <span class="n">x8</span><span class="p">,</span> <span class="c1">#0x1d1000</span>
+<span class="mh">0xc2f8</span>         <span class="n">ldrsw</span>      <span class="n">x8</span><span class="p">,</span> <span class="n">[x8</span><span class="p">,</span> <span class="c1">#0x30]</span>
+</code></pre></div><p>Then we retrieve its contents and shift it to the right by two bits:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0xc2fc</span>         <span class="n">ldr</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">[x0</span><span class="p">,</span> <span class="n">x8]</span>
+<span class="mh">0xc300</span>         <span class="n">lsr</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x8</span><span class="p">,</span> <span class="c1">#0x2</span>
+</code></pre></div><p>What&rsquo;s the shift for? Let&rsquo;s take a look at the dumped header:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="nl">_doHardRetain</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="nl">_doWeakAccess</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="nl">_size</span><span class="p">:</span><span class="mi">62</span><span class="p">;</span>
+</code></pre></div><p>It turns out, all three bitfields share the same storage, so to get the actual value of <code>_size</code>, we have to shift value to the right, discarding the bits for <code>_doHardRetain</code> and <code>_doWeakAccess</code>. Ivar offsets for <code>_doHardRetain</code> and <code>_doWeakAccess</code> are exactly the same, but their bit accessing code is obviously different.</p>
+<p>Going further it&rsquo;s the same drill, we get the contents of <code>_offset</code> ivar (at <code>0x1d1034</code>) into <code>x9</code> register:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0xc304</span>         <span class="n">adrp</span>       <span class="n">x9</span><span class="p">,</span> <span class="c1">#0x1d1000</span>
+<span class="mh">0xc308</span>         <span class="n">ldrsw</span>      <span class="n">x9</span><span class="p">,</span> <span class="n">[x9</span><span class="p">,</span> <span class="c1">#0x34]</span>
+<span class="mh">0xc30c</span>         <span class="n">ldr</span>        <span class="n">x9</span><span class="p">,</span> <span class="n">[x0</span><span class="p">,</span> <span class="n">x9]</span>
+</code></pre></div><p>In the next line we add the requested index stored in <code>x2</code> to the 2-bits-right-shifted <code>_offset</code> (it&rsquo;s also a 62 bits-wide bitfield) and then we store it all back in <code>x9</code>. Isn&rsquo;t assembly just amazing?</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0xc310</span>         <span class="n">add</span>        <span class="n">x9</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">x9</span><span class="p">,</span> <span class="n">lsr</span> <span class="c1">#2</span>
+</code></pre></div><p>The next three lines are the most important ones. First of all, we compare the <code>_size</code> (in <code>x8</code>) with <code>_offset + index</code> (in <code>x9</code>):</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0xc314</span>         <span class="n">cmp</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x9</span>
+</code></pre></div><p>Then we conditionally select value of one register based on the result of previous comparison:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0xc318</span>         <span class="n">csel</span>       <span class="n">x8</span><span class="p">,</span> <span class="n">xzr</span><span class="p">,</span> <span class="n">x8</span><span class="p">,</span> <span class="n">hi</span>
+</code></pre></div><p>This is more or less equal to ?: operator in C:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">x8</span> <span class="o">=</span> <span class="n">hi</span> <span class="o">?</span> <span class="nl">xzr</span> <span class="p">:</span> <span class="n">x8</span><span class="p">;</span>      <span class="cm">/* csel       x8, xzr, x8, hi */</span>
+</code></pre></div><p>The <code>xzr</code> register is a <em>zero register</em> which contains value <code>0</code>, and the <code>hi</code> is the name of <a href="http://en.wikipedia.org/wiki/Status_register">condition code</a> the <code>csel</code> instruction should inspect. In this case we&rsquo;re checking whether the result of comparison was higher (if value of <code>x8</code> was greater than that of <code>x9</code>).</p>
+<p>Finally we subtract the new value of <code>x8</code> from the <code>_offset + index</code> (in <code>x9</code>) and we store it in <code>x8</code> again:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0xc31c</span>         <span class="n">sub</span>        <span class="n">x8</span><span class="p">,</span> <span class="n">x9</span><span class="p">,</span> <span class="n">x8</span>
+</code></pre></div><p>So what just happened? First of all let&rsquo;s look into equivalent C code:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="kt">int</span> <span class="n">tempIndex</span> <span class="o">=</span> <span class="n">_offset</span> <span class="o">+</span> <span class="n">index</span><span class="p">;</span>        <span class="cm">/* add        x9, x2, x9, lsr #2   */</span>
+<span class="kt">BOOL</span> <span class="n">isInRange</span> <span class="o">=</span> <span class="n">_size</span> <span class="o">&gt;</span> <span class="n">tempIndex</span><span class="p">;</span>     <span class="cm">/* cmp        x8, x9   */</span>
+<span class="kt">int</span> <span class="n">diff</span> <span class="o">=</span> <span class="n">isInRange</span> <span class="o">?</span> <span class="mi">0</span> <span class="o">:</span> <span class="n">_size</span><span class="p">;</span>       <span class="cm">/* csel       x8, xzr, x8, hi   */</span>
+<span class="kt">int</span> <span class="n">fetchIndex</span> <span class="o">=</span> <span class="n">tempIndex</span> <span class="o">-</span> <span class="n">diff</span><span class="p">;</span>      <span class="cm">/* sub        x8, x9, x8   */</span>
+</code></pre></div><p>In the C code we don&rsquo;t have to shift neither <code>_size</code> nor <code>_offset</code> to the right, since compiler does this automatically for bitfields access.</p>
+<h3 id="getting-the-data">Getting the Data<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#getting-the-data" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h3>
+<p>We&rsquo;re almost there. Let&rsquo;s fetch the contents of <code>_list</code> ivar (<code>0x1d1038</code>) into <code>x9</code> register:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0xc320</span>         <span class="n">adrp</span>       <span class="n">x9</span><span class="p">,</span> <span class="c1">#0x1d1000</span>
+<span class="mh">0xc324</span>         <span class="n">ldrsw</span>      <span class="n">x9</span><span class="p">,</span> <span class="n">[x9</span><span class="p">,</span> <span class="c1">#0x38]</span>
+<span class="mh">0xc328</span>         <span class="n">ldr</span>        <span class="n">x9</span><span class="p">,</span> <span class="n">[x0</span><span class="p">,</span> <span class="n">x9]</span>
+</code></pre></div><p>At this moment the <code>x9</code> points to the beginning of memory segment containing the data.</p>
+<p>Finally, shift the value of fetch index stored in <code>x8</code> to the left by 3 bits, add it to the <code>x9</code> and put the contents of memory at that location into <code>x0</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0xc32c</span>         <span class="n">ldr</span>        <span class="n">x0</span><span class="p">,</span> <span class="n">[x9</span><span class="p">,</span> <span class="n">x8</span><span class="p">,</span> <span class="n">lsl</span> <span class="c1">#3]</span>
+</code></pre></div><p>Two things are important here. First of all, every data offset is in bytes. Shifting a value to the left by 3 is equivalent to multiplying it by 8, which is the size of a pointer on a 64-bit architecture. Secondly, the results goes into <code>x0</code> which is the register which stores the return value of a function returning <code>NSUInteger</code>.</p>
+<p>At this point we are done. We have fetched the correct value stored in array.</p>
+<h3 id="function-epilog">Function Epilog<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#function-epilog" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h3>
+<p>There rest are some boilerplate operations that restore the state of registers and stack pointer before the call. We&rsquo;re reversing the function&rsquo;s prologue and returning:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0xc330</span>         <span class="n">mov</span>        <span class="n">sp</span><span class="p">,</span> <span class="n">x29</span>
+<span class="mh">0xc334</span>         <span class="n">ldp</span>        <span class="n">x29</span><span class="p">,</span> <span class="n">x30</span><span class="p">,</span> <span class="n">[sp]</span><span class="p">,</span> <span class="c1">#0x10</span>
+<span class="mh">0xc338</span>         <span class="n">ret</span>        
+</code></pre></div><h1 id="putting-it-all-together">Putting it all together<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#putting-it-all-together" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>I explained <em>what</em> the code does, but the question we will now answer is <em>why</em>?</p>
+<h2 id="the-meaning-of-ivars">The Meaning of ivars<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#the-meaning-of-ivars" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>Let&rsquo;s do a quick summary of what each ivar means:</p>
+<ul>
+<li><code>_used</code>   is count</li>
+<li><code>_list</code>   is a pointer to the buffer</li>
+<li><code>_size</code>   is size of the buffer</li>
+<li><code>_offset</code> is an index of the first element of the array stored in the buffer</li>
+</ul>
+<h2 id="the-c-code">The C code<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#the-c-code" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>With ivars in mind and the disassembly analyzed we now can write an equivalent Objective-C code that performs the very same actions:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="p">-</span> <span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nf">objectAtIndex:</span><span class="p">(</span><span class="n">NSUInteger</span><span class="p">)</span><span class="nv">index</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">_used</span> <span class="o">&lt;=</span> <span class="n">index</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">goto</span> <span class="n">ThrowException</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="n">NSUInteger</span> <span class="n">fetchOffset</span> <span class="o">=</span> <span class="n">_offset</span> <span class="o">+</span> <span class="n">index</span><span class="p">;</span>
+    <span class="n">NSUInteger</span> <span class="n">realOffset</span> <span class="o">=</span> <span class="n">fetchOffset</span> <span class="o">-</span> <span class="p">(</span><span class="n">_size</span> <span class="o">&gt;</span> <span class="n">fetchOffset</span> <span class="o">?</span> <span class="mi">0</span> <span class="o">:</span> <span class="n">_size</span><span class="p">);</span>
+    
+    <span class="k">return</span> <span class="n">_list</span><span class="p">[</span><span class="n">realOffset</span><span class="p">];</span>
+    
+<span class="nl">ThrowException</span><span class="p">:</span>
+    <span class="c1">// exception throwing code
+</span><span class="c1"></span><span class="p">}</span>
+</code></pre></div><p>Assembly was definitely much more long-winded.</p>
+<h2 id="memory-layout">Memory Layout<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#memory-layout" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>The most crucial part is deciding whether the <code>realOffset</code> should be equal to <code>fetchOffset</code> (subtracting zero) or <code>fetchOffset</code> minus <code>_size</code>. Since staring at dry code doesn&rsquo;t necessarily paint the perfect picture, let&rsquo;s consider two examples of how object fetching works.</p>
+<h3 id="_size--fetchoffset"><code>_size &gt; fetchOffset</code><a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#_size--fetchoffset" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h3>
+<p>In this example, the offset is relatively low:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../images/arrayIvars@2x.jpg"
+         alt="A simple example"width="402px"height="189px"
+    /> 
+    </div><span>
+            <p>A simple example</p>
+        </span>
+</div>
+
+<p>To fetch object at index <code>0</code> we calculate the <code>fetchOffset</code> as <code>3 + 0</code>. Since <code>_size</code> is larger than <code>fetchOffset</code> the <code>realOffset</code> is equal to <code>3</code> as well. The code returns value of <code>_list[3]</code>.  Fetching object at index <code>4</code> makes <code>fetchOffset</code> equal to <code>3 + 4</code> and the code returns <code>_list[7]</code>.</p>
+<h3 id="_size--fetchoffset-1"><code>_size &lt;= fetchOffset</code><a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#_size--fetchoffset-1" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h3>
+<p>What happens when offset is large?</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../images/arrayIvars2@2x.jpg"
+         alt="A more difficult example"width="402px"height="189px"
+    /> 
+    </div><span>
+            <p>A more difficult example</p>
+        </span>
+</div>
+
+<p>Fetching object at index <code>0</code> makes <code>fetchOffset</code> equal to <code>7 + 0</code> and the call returns <code>_list[7]</code> as expected. However, fetching object at index <code>4</code> makes <code>fetchOffset</code> equal to <code>7 + 4 = 11</code>, which is larger than <code>_size</code>. Obtaining <code>realOffset</code> requires subtracting <code>_size</code> value from <code>fetchOffset</code> which makes it <code>11 - 10 = 1</code> and the method returns <code>_list[1]</code>.</p>
+<p>We&rsquo;re essentially doing modulo arithmetic, <em>circling</em> back to the other end of the buffer when crossing the buffer boundary.</p>
+<h2 id="data-structure">Data Structure<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#data-structure" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>As you might have guessed, <code>__NSArrayM</code> makes use of <a href="http://en.wikipedia.org/wiki/Circular_buffer">circular buffer</a>. This data structure is extremely simple, but a little bit more sophisticated than a regular array/buffer. The contents of a circular buffer can wrap around when either end is reached.</p>
+<p>Circular buffers have some very cool properties. Notably, unless the buffer is full, insertion/deletion from either end doesn&rsquo;t require any memory to be moved. Let&rsquo;s analyze how the class utilizes circular buffer to be superior in its behavior in comparison to a C array.</p>
+<h1 id="__nsarraym-characteristics">__NSArrayM Characteristics<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#__nsarraym-characteristics" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>While reverse-engineering the rest of the disassembled methods would provide the definite explanation of <code>__NSArrayM</code> internals, we can employ the discovered points of data to investigate the class at a higher level.</p>
+<h2 id="inspecting-at-runtime">Inspecting at Runtime<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#inspecting-at-runtime" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>To inspect <code>__NSArrayM</code> at runtime we can&rsquo;t simply paste in the dumped header. First of all, the test application won&rsquo;t link without providing at least empty <code>@implementation</code> block for the <code>__NSArrayM</code> class. Adding this <code>@implementation</code> block is probably not a good idea. While the app builds and actually runs, I&rsquo;m not entirely sure how does the runtime decide which class to use (if you <em>do</em> know, please let me know). For the sake of safety I&rsquo;ve renamed the class name to something unique - <code>BCExploredMutableArray</code>.</p>
+<p>Secondly, ARC won&rsquo;t let us compile the <code>id *_list</code> ivar without specifying its ownership. We&rsquo;re not going to write into the ivar, so prepending <code>id</code> with <code>__unsafe_unretained</code> <em>should</em> not interfere with ARC&rsquo;s memory management. However, I&rsquo;ve chosen to declare the ivar as <code>void **_list</code> and it will soon become clear why.</p>
+<h2 id="printout-code">Printout code<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#printout-code" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>We can create a category on <code>NSMutableArray</code> that will print the contents of ivars as wells as the list of all the pointers contained within the array:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="p">-</span> <span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nf">explored_description</span>
+<span class="p">{</span>
+    <span class="n">assert</span><span class="p">([</span><span class="n">NSStringFromClass</span><span class="p">([</span><span class="nb">self</span> <span class="k">class</span><span class="p">])</span> <span class="nl">isEqualToString</span><span class="p">:</span><span class="s">@&#34;__NSArrayM&#34;</span><span class="p">]);</span>
+
+    <span class="n">BCExploredMutableArray</span> <span class="o">*</span><span class="n">array</span> <span class="o">=</span> <span class="p">(</span><span class="n">BCExploredMutableArray</span> <span class="o">*</span><span class="p">)</span><span class="nb">self</span><span class="p">;</span>
+
+    <span class="n">NSUInteger</span> <span class="n">size</span> <span class="o">=</span> <span class="n">array</span><span class="o">-&gt;</span><span class="n">_size</span><span class="p">;</span>
+    <span class="n">NSUInteger</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">array</span><span class="o">-&gt;</span><span class="n">_offset</span><span class="p">;</span>
+    
+    <span class="n">NSMutableString</span> <span class="o">*</span><span class="n">description</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableString</span> <span class="nl">stringWithString</span><span class="p">:</span><span class="s">@&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">];</span>
+    
+    <span class="p">[</span><span class="n">description</span> <span class="nl">appendFormat</span><span class="p">:</span><span class="s">@&#34;Size: %lu</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="n">size</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">description</span> <span class="nl">appendFormat</span><span class="p">:</span><span class="s">@&#34;Count: %llu</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span><span class="p">)</span><span class="n">array</span><span class="o">-&gt;</span><span class="n">_used</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">description</span> <span class="nl">appendFormat</span><span class="p">:</span><span class="s">@&#34;Offset: %lu</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="n">offset</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">description</span> <span class="nl">appendFormat</span><span class="p">:</span><span class="s">@&#34;Storage: %p</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">array</span><span class="o">-&gt;</span><span class="n">_list</span><span class="p">];</span>
+    
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">size</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="p">[</span><span class="n">description</span> <span class="nl">appendFormat</span><span class="p">:</span><span class="s">@&#34;[%d] %p</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">array</span><span class="o">-&gt;</span><span class="n">_list</span><span class="p">[</span><span class="n">i</span><span class="p">]];</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">description</span><span class="p">;</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<h2 id="the-results">The Results<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#the-results" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<h3 id="insertion-and-deletion-is-fast-at-both-ends">Insertion and deletion is fast at both ends<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#insertion-and-deletion-is-fast-at-both-ends" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h3>
+<p>Let&rsquo;s consider a very simple example:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">array</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="n">array</span><span class="p">];</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">[</span><span class="n">array</span> <span class="nl">addObject</span><span class="p">:</span><span class="l">@(</span><span class="n">i</span><span class="l">)</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="p">[</span><span class="n">array</span> <span class="nl">removeObjectAtIndex</span><span class="p">:</span><span class="mi">0</span><span class="p">];</span>
+<span class="p">[</span><span class="n">array</span> <span class="nl">removeObjectAtIndex</span><span class="p">:</span><span class="mi">0</span><span class="p">];</span>
+
+<span class="n">NSLog</span><span class="p">(</span><span class="s">@&#34;%@&#34;</span><span class="p">,</span> <span class="p">[</span><span class="n">array</span> <span class="n">explored_description</span><span class="p">]);</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>The output shows that removing object at index 0 twice simply clears the pointers and moves the <code>_offset</code> ivar accordingly:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain">Size: 6
+Count: 3
+Offset: 2
+Storage: 0x178245ca0
+[0] 0x0
+[1] 0x0
+[2] 0xb000000000000022
+[3] 0xb000000000000032
+[4] 0xb000000000000042
+[5] 0x0
+</code></pre></div><p>Here&rsquo;s the visual interpretation of what&rsquo;s going on:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../images/arrayNSMRemove@2x.jpg"
+         alt="Removing object at index 0 twice"width="402px"height="348px"
+    /> 
+    </div><span>
+            <p>Removing object at index 0 twice</p>
+        </span>
+</div>
+
+<p>What about adding objects? Let&rsquo;s run another test on a brand new array:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc">    <span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">array</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="n">array</span><span class="p">];</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="p">[</span><span class="n">array</span> <span class="nl">addObject</span><span class="p">:</span><span class="l">@(</span><span class="n">i</span><span class="l">)</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="p">[</span><span class="n">array</span> <span class="nl">insertObject</span><span class="p">:</span><span class="l">@(</span><span class="mi">15</span><span class="l">)</span> <span class="nl">atIndex</span><span class="p">:</span><span class="mi">0</span><span class="p">];</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>Inserting object at index 0 uses the circular buffer magic to put the newly inserted object at the end of the buffer:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain">Size: 6
+Count: 5
+Offset: 5
+Storage: 0x17004a560
+[0] 0xb000000000000002
+[1] 0xb000000000000012
+[2] 0xb000000000000022
+[3] 0xb000000000000032
+[4] 0x0
+[5] 0xb0000000000000f2
+</code></pre></div><p>And visually:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../images/arrayNSMInsert@2x.jpg"
+         alt="Adding object at index 0"width="489px"height="289px"
+    /> 
+    </div><span>
+            <p>Adding object at index 0</p>
+        </span>
+</div>
+
+<p>This is fantastic news! It means that <code>__NSArrayM</code> can be processed from <em>either</em> side. You can use <code>__NSArrayM</code> as either stack or queue without any performance hits.</p>
+<p>On a side note, you can see how on 64-bit architectures <code>NSNumber</code> uses <a href="http://objectivistc.tumblr.com/post/7872364181/tagged-pointers-and-fast-pathed-cfnumber-integers-in">tagged pointers</a> to do its storage.</p>
+<h3 id="non-integral-growth-factor">Non integral growth factor<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#non-integral-growth-factor" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h3>
+<p>OK, for this one I&rsquo;ve cheated a little bit. While I&rsquo;ve done some empirical testing as well, I wanted to have the exact value and I&rsquo;ve peeked into the disassembly of <code>insertObject:atIndex:</code>. Whenever the buffer gets full, it is reallocated with 1.625 times larger size. I was quite astonished for it not to be equal to 2.</p>
+<p><strong>Update:</strong> Mike Curtiss has <a href="https://twitter.com/mcurtiss/status/441432739523198977">provided</a> a <a href="https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md#memory-handling">very good explanation</a> of why making resizing factor equal to 2 is suboptimal.</p>
+<h3 id="once-grown-doesnt-shrink">Once grown, doesn&rsquo;t shrink<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#once-grown-doesnt-shrink" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h3>
+<p>This is a shocker – <code>__NSArrayM</code> never reduces its size! Let&rsquo;s run the following test code:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">array</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="n">array</span><span class="p">];</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10000</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">[</span><span class="n">array</span> <span class="nl">addObject</span><span class="p">:[</span><span class="n">NSObject</span> <span class="n">new</span><span class="p">]];</span>
+<span class="p">}</span>
+<span class="p">[</span><span class="n">array</span> <span class="n">removeAllObjects</span><span class="p">];</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>Even though at this point the array is empty, it still keeps the large buffer:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain">Size: 14336
+</code></pre></div><p>This is not something you should worry about unless you use the <code>NSMutableArray</code> to load in some enormous amounts of data and then clear the array with the intention of freeing the space.</p>
+<h3 id="initial-capacity-almost-doesnt-matter">Initial capacity almost doesn&rsquo;t matter<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#initial-capacity-almost-doesnt-matter" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h3>
+<p>Let&rsquo;s allocate new arrays with initial capacity set to consecutive powers of two:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">16</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">NSLog</span><span class="p">(</span><span class="s">@&#34;%@&#34;</span><span class="p">,</span> <span class="p">[[[</span><span class="n">NSMutableArray</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithCapacity</span><span class="p">:</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">]</span> <span class="n">explored_description</span><span class="p">]);</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>Surprise surprise:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain">Size:2     // requested capacity - 1
+Size:2     // requested capacity - 2
+Size:4     // requested capacity - 4
+Size:8     // requested capacity - 8
+Size:16    // requested capacity - 16
+Size:16    // requested capacity - 32
+Size:16    // requested capacity - 64
+Size:16    // requested capacity - 128
+... // Size:16 all the way down
+</code></pre></div><h3 id="it-doesnt-clean-up-its-pointers-on-deletion">It doesn&rsquo;t clean up its pointers on deletion<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#it-doesnt-clean-up-its-pointers-on-deletion" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h3>
+<p>This is barely important, but I found it nonetheless interesting:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">array</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="n">array</span><span class="p">];</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">6</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">[</span><span class="n">array</span> <span class="nl">addObject</span><span class="p">:</span><span class="l">@(</span><span class="n">i</span><span class="l">)</span><span class="p">];</span>
+<span class="p">}</span>
+<span class="p">[</span><span class="n">array</span> <span class="nl">removeObjectAtIndex</span><span class="p">:</span><span class="mi">1</span><span class="p">];</span>
+<span class="p">[</span><span class="n">array</span> <span class="nl">removeObjectAtIndex</span><span class="p">:</span><span class="mi">1</span><span class="p">];</span>
+<span class="p">[</span><span class="n">array</span> <span class="nl">removeObjectAtIndex</span><span class="p">:</span><span class="mi">1</span><span class="p">];</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>And the output:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain">Size: 6
+Count: 3
+Offset: 3
+Storage: 0x17805be10
+[0] 0xb000000000000002
+[1] 0xb000000000000002
+[2] 0xb000000000000002
+[3] 0xb000000000000002
+[4] 0xb000000000000042
+[5] 0xb000000000000052
+</code></pre></div><p>The <code>__NSArrayM</code> doesn&rsquo;t bother clearing previous space when moving its objects forward. However, the objects <em>do</em> get deallocated. It&rsquo;s not the <code>NSNumber</code> doing its magic either, <code>NSObject</code> acts correspondingly.</p>
+<p>This explains why I&rsquo;ve opted for defining <code>_list</code> ivar as <code>void **</code>. If the <code>_list</code> was declared as <code>id *</code> then the following loop would crash on the <code>object</code> assignment:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">size</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">id</span> <span class="n">object</span> <span class="o">=</span> <span class="n">array</span><span class="o">-&gt;</span><span class="n">_list</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+    <span class="n">NSLog</span><span class="p">(</span><span class="s">&#34;%p&#34;</span><span class="p">,</span> <span class="n">object</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div><p>ARC implicitly inserts a retain/release pair causing it to access deallocated objects. While prepending <code>id object</code> with <code>__unsafe_unretained</code> fixes the problem, I absolutely didn&rsquo;t want <em>anything</em> to call any methods on this bunch of stray pointers. That&rsquo;s my <code>void **</code> reasoning.</p>
+<h3 id="worst-case-scenario-is-addingremoving-from-the-middle">Worst case scenario is adding/removing from the middle<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#worst-case-scenario-is-addingremoving-from-the-middle" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h3>
+<p>In these two examples we will remove elements from roughly the middle of the array:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">array</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="n">array</span><span class="p">];</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">6</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">[</span><span class="n">array</span> <span class="nl">addObject</span><span class="p">:</span><span class="l">@(</span><span class="n">i</span><span class="l">)</span><span class="p">];</span>
+<span class="p">}</span>
+<span class="p">[</span><span class="n">array</span> <span class="nl">removeObjectAtIndex</span><span class="p">:</span><span class="mi">3</span><span class="p">];</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>In output we see that the top part shifts down, where down are lower indexes (notice the stray pointer at <code>[5]</code>)</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain">[0] 0xb000000000000002
+[1] 0xb000000000000012
+[2] 0xb000000000000022
+[3] 0xb000000000000042
+[4] 0xb000000000000052
+[5] 0xb000000000000052
+</code></pre></div>
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../images/arrayNSMcenterRemove@2x.jpg"
+         alt="Removing object at index 3"width="406px"height="249px"
+    /> 
+    </div><span>
+            <p>Removing object at index 3</p>
+        </span>
+</div>
+
+<p>However, when we call <code>[array removeObjectAtIndex:2]</code> instead, the bottom part shifts up, where up are higher indexes:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain">[0] 0xb000000000000002
+[1] 0xb000000000000002
+[2] 0xb000000000000012
+[3] 0xb000000000000032
+[4] 0xb000000000000042
+[5] 0xb000000000000052
+</code></pre></div>
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../images/arrayNSMcenterRemove2@2x.jpg"
+         alt="Removing object at index 2"width="403px"height="242px"
+    /> 
+    </div><span>
+            <p>Removing object at index 2</p>
+        </span>
+</div>
+
+<p>Inserting object in the middle has very similar results. The reasonable explanation is <code>__NSArrayM</code> tries to minimize the amount of memory moved, thus it will move at most <em>half</em> of its elements.</p>
+<h2 id="being-a-good-subclassing-citizen">Being a Good Subclassing Citizen<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#being-a-good-subclassing-citizen" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>As discussed in <a href="https://developer.apple.com/library/ios/documentation/Cocoa/Reference/Foundation/Classes/NSMutableArray_Class/Reference/Reference.html">NSMutableArray Class Reference</a> every <code>NSMutableArray</code> subclass <strong>must</strong> implement the following seven methods:</p>
+<ul>
+<li><code>- count</code></li>
+<li><code>- objectAtIndex:</code></li>
+<li><code>- insertObject:atIndex:</code></li>
+<li><code>- removeObjectAtIndex:</code></li>
+<li><code>- addObject:</code></li>
+<li><code>- removeLastObject</code></li>
+<li><code>- replaceObjectAtIndex:withObject:</code></li>
+</ul>
+<p>Unsurprisingly, <code>__NSArrayM</code> fulfills this requirement. However, the list of all the methods implemented by <code>__NSArrayM</code> is quite short and doesn&rsquo;t contain 21 additional methods listed in <code>NSMutableArray</code> header. Who&rsquo;s responsible for executing those methods?</p>
+<p>It turns out they&rsquo;re all part of the <code>NSMutableArray</code> class itself. This is extremely convenient – any subclass of <code>NSMutableArray</code> can implement only the seven most rudimentary methods. All the other higher-level abstractions are built on top of them. For instance <code>- removeAllObjects</code> method simply iterates backwards, calling <code>- removeObjectAtIndex:</code> one by one. Here&rsquo;s pseudo code:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="c1">// we actually know this is safe, since count is stored on 62 bits
+</span><span class="c1">// and casting to NSInteger will *not* overflow
+</span><span class="c1"></span><span class="n">NSInteger</span> <span class="n">count</span> <span class="o">=</span> <span class="p">(</span><span class="n">NSInteger</span><span class="p">)[</span><span class="nb">self</span> <span class="n">count</span><span class="p">];</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">return</span><span class="p">;</span>                          
+<span class="p">}</span>
+
+<span class="n">count</span><span class="o">--</span><span class="p">;</span>
+<span class="k">do</span> <span class="p">{</span>
+	<span class="p">[</span><span class="nb">self</span> <span class="nl">removeObjectAtIndex</span><span class="p">:</span><span class="n">count</span><span class="p">];</span>     
+	<span class="n">count</span><span class="o">--</span><span class="p">;</span>
+<span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">count</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">);</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>However, where it makes sense <code>__NSArrayM</code> <em>does</em> reimplement some of its superclasses' methods. For instance, while <code>NSArray</code> provides the default implementation for <code>- countByEnumeratingWithState:objects:count:</code> method of <a href="https://developer.apple.com/library/mac/documentation/Cocoa/Reference/NSFastEnumeration_protocol/">NSFastEnumeration</a> protocol, <code>__NSArrayM</code> has its own code-path as well. Knowing its internal storage <code>__NSArrayM</code> can provide much more efficient implementation.</p>
+<h1 id="foundations">Foundations<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#foundations" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>I&rsquo;ve always had this idea of Foundation being a thin wrapper on CoreFoundation. My argument was simple – there is no need to reinvent the wheel with brand new implementations of NS* classes when the CF* counterparts are available. I was shocked to realize neither <code>NSArray</code> nor <code>NSMutableArray</code> have anything in common with <code>CFArray</code>.</p>
+<h2 id="cfarray">CFArray<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#cfarray" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>The best thing about CFArray is that it&rsquo;s <a href="http://opensource.apple.com/source/CF/CF-855.11/CFArray.c">open sourced</a>. This will be a very quick overview, since the source code is publicly available, eagerly waiting to be read. The most important function in <code>CFArray</code> is <a href="https://gist.github.com/Ciechan/9258194#file-cfarray-c-L923">_CFArrayReplaceValues</a>. It&rsquo;s called by:</p>
+<ul>
+<li><a href="https://gist.github.com/Ciechan/9258194#file-cfarray-c-L693">CFArrayAppendValue</a></li>
+<li><a href="https://gist.github.com/Ciechan/9258194#file-cfarray-c-L703">CFArraySetValueAtIndex</a></li>
+<li><a href="https://gist.github.com/Ciechan/9258194#file-cfarray-c-L729">CFArrayInsertValueAtIndex</a></li>
+<li><a href="https://gist.github.com/Ciechan/9258194#file-cfarray-c-L760">CFArrayRemoveValueAtIndex</a></li>
+<li><a href="https://gist.github.com/Ciechan/9258194#file-cfarray-c-L918">CFArrayReplaceValues</a> (notice the lack of leading underscore).</li>
+</ul>
+<p>Basically, <code>CFArray</code> moves the memory around to accommodate the changes in the most efficient fashion, similarly to how <code>__NSArrayM</code> does its job. However, the <code>CFArray</code> does <em>not</em> use a circular buffer! Instead it has a larger buffer padded with zeros from both ends which makes enumeration and fetching the correct object much easier. Adding elements at either end simply eats up the remaining padding.</p>
+<h1 id="final-words">Final Words<a href="../blog/2014/03/05/exposing-nsmutablearray/index.html#final-words" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Even though <code>CFArray</code> has to serve slightly more general purposes, I find it fascinating that its internals don&rsquo;t work the same way as <code>__NSArrayM</code> does. While I suppose it would make sense to find common ground and make a single, canonical implementation, perhaps there are some other factors that influenced the separation.</p>
+<p>What those two have in common? They&rsquo;re the concrete implementation of abstract data type known as <a href="http://en.wikipedia.org/wiki/Double-ended_queue">deque</a>. Despite its name, <code>NSMutableArray</code> is an array on steroids, deprived of C-style counterpart&rsquo;s drawbacks.</p>
+<p>Personally, I&rsquo;m most delighted with constant-time performance of insertion/deletion from either end. I no longer have to question myself using <code>NSMutableArray</code> as queue. It works perfectly fine.</p>
+
+    </div>
+</div>
+      </div>
+    </div>
+    <div id="footer">
+        Copyright &copy; 2022 Bartosz Ciechanowski
+    </div>
+  </div>
+</body>
+
+</html>

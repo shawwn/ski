@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2052BB">
+<meta name="author" content="Bartosz Ciechanowski">
+<meta name="format-detection" content="telephone=no">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-25335284-3"></script>
+
+
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-25335284-3');
+</script>
+  <meta property="og:title" content="Tesseract – Bartosz Ciechanowski" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ciechanow.ski/tesseract/" />
+<meta property="og:description" content="Interactive article that visualizes a tesseract and the 4th dimension." />
+<meta property="og:locale" content="en_US">
+    <meta name="keywords" content="tesseract,4d,cube,square,fourth,dimension">
+  <link href="../css/base.css" rel="stylesheet" type="text/css"/>
+<link href="https://fonts.googleapis.com/css?family=Lato:700&display=swap" rel="stylesheet" type="text/css" async>
+<link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,400i,500&display=swap" rel="stylesheet" async>
+  <title>Tesseract – Bartosz Ciechanowski</title>
+  <link rel="icon" href="../favicon.ico">
+  <link href="../css/tesseract.css" rel="stylesheet" type="text/css" />
+  <script defer src="../js/base.js"></script>
+  <script defer src="../js/tesseract.js"></script>
+</head>
+
+<body>
+  <div id="main_container">
+    <div id="body">
+      <div id="banner">
+    <div id="banner_wrapper">
+        <div id="banner_content">
+            <div id="site_title">
+                <a href="../index.html">Bartosz Ciechanowski</a>
+            </div>
+            <div id="navigation">
+                <a href="../index.html">Blog</a>
+                <a href="../archives.html">Archives</a>
+            </div>
+            <div id="social">
+                <a class="patreon" href="https://www.patreon.com/ciechanowski" title="Patreon"><div class="patreonLogo">Patreon</div></a>
+                <a class="twitter" href="https://twitter.com/bciechanowski" title="Twitter"><div class="twitterLogo">Twitter</div></a>
+                <a class="instagram" href="https://www.instagram.com/bartoszciechanowski/" title="Instagram"><div class="igLogo">Instagram</div></a>
+                <a class="email" href="mailto:bartosz@ciechanow.ski" title="e-mail"><div class="emailLogo">e-mail</div></a>
+                <a class="rss" href="../atom.xml" title="rss"><div class="rssLogo">rss</div></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+      <div id="content">
+        
+<div class="article">
+    <div class="post_date">December 10, 2019</div>
+    <h1 class="post_title"><a href="index.html">Tesseract</a></h1>
+    <div class="padding_wrapper"><p>A cube is one of the simplest solids one can imagine. Over the course of this article I&rsquo;ll try to explain how to expand it to the next dimension to obtain a <em>tesseract</em> – a 4D equivalent of a cube.</p>
+<p>The concept of a four dimensional cube may be a bit overwhelming, but by the time we&rsquo;re done it should hopefully become more clear what the demonstration below is all about. You can drag the object around to view it from a different angle. The slider modifies the object itself:</p>
+<div class="drawer_container ts_drawer_small" id="ts_3D_demo_slice_container"></div>
+<div id="ts_3D_demo_slice_slider_container"></div>
+<p>What you&rsquo;ve just interacted with was a rotated tesseract going through our three dimensional world, but before we understand why it looks the way it looks we have to start at the very beginning. The initial steps we&rsquo;ll go through may be simple, but they&rsquo;ll let us build an intuition about the way a 4D cube is constructed.</p>
+<h1 id="building-cubes">Building Cubes<a href="index.html#building-cubes" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>We&rsquo;ll start our discussion in a nihilistic way by describing a zero dimensional space. This space is quite limited, it has no axes and it consists only of a single location:</p>
+<div class="drawer_container" id="ts_0D_cube_container"></div>
+<p>Since 0D space has no concepts of width, height, or depth, the only thing we can build in it is a lowly point:</p>
+<div class="drawer_container" id="ts_0Da_cube_container"></div>
+<p>This isn&rsquo;t particularly exciting, but we have to start somewhere and a point is the simplest geometrical object there is.</p>
+<p>We can expand on that dimensionless space by adding an actual <span class="ts_x">x</span> dimension to it to obtain a 1D space. This world allows a bit more creativity. In the demonstration below you can take a single point and &ldquo;stretch&rdquo; it into the next dimension by dragging the slider:</p>
+<div class="drawer_container" id="ts_1D_cube_container"></div>
+<div id="ts_1D_cube_slider_container"></div>
+<p>We&rsquo;ve just created a line segment. Notice that a line segment is bounded by two points, they define the extent of this new object.</p>
+<p>Let&rsquo;s expand our field of view to a more familiar two dimensional space by adding the <span class="ts_y">y</span> axis. Once again, we can perform the operation of taking the existing line segment and stretching it into the new dimension. We&rsquo;ll use the same stretching distance as before to make things uniform:</p>
+<div class="drawer_container" id="ts_2D_cube_container"></div>
+<div id="ts_2D_cube_slider_container"></div>
+<p>We ended up with a square which is bounded by four line segments. Those segments in turn meet at four corner points. It&rsquo;s worth pointing out that the new axis we added to represent the new dimension is <a href="https://en.wikipedia.org/wiki/Perpendicular">perpendicular</a> to the previous one – a movement in the <span class="ts_y">y</span> direction is completely independent of a movement in the <span class="ts_x">x</span> direction.</p>
+<p>We can continue the expansion process into the three dimensional space we live in. In the demonstration below I changed the viewing angle so that we can see how a square is stretched in the direction of the <span class="ts_z">z</span> axis:</p>
+<div class="drawer_container ts_drawer_small" id="ts_3D_cube_container"></div>
+<div id="ts_3D_cube_slider_container"></div>
+<p>By stretching a square into the third dimension we&rsquo;ve obtained the classic cube. It&rsquo;s bounded by 6 squares, which are bounded by 12 line segments, which in turn are bounded by 8 corners. We can finally view the familiar 3D cube with some perspective to help with depth perception. You can drag it around to see it from other directions:</p>
+<div class="drawer_container ts_drawer_small" id="ts_3D_cube_rot_container"></div>
+<p>In a three dimensional space all three <span class="ts_x">x</span><span class="ts_y">y</span><span class="ts_z">z</span> axes are perpendicular to each other. Unfortunately, there are some cases when this may not be particularly easy to see, so before we continue expanding the cube we need to take a quick sidestep to discuss those difficulties.</p>
+<h1 id="ambiguous-representation">Ambiguous Representation<a href="index.html#ambiguous-representation" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>You&rsquo;ve probably seen a 3D coordinate system represented by a 2D drawing in one way or another. Below you&rsquo;ll find a very common way to do it. I put a single black point in the 3D space, you can control its position with a slider:</p>
+<div class="drawer_container" id="ts_3D_ambig_container"></div>
+<div id="ts_3D_ambig_slider_container"></div>
+<p>Despite the movement of the point in a 3D space its position in a 2D drawing doesn&rsquo;t change. A 2D representation of a 3D space is inherently ambiguous – it&rsquo;s impossible to differentiate position of some points from the others.</p>
+<p>Additionally, the 2D projection has skewed the angles between the axes. In the simulation they&rsquo;re 120° apart, but we know that those angles are equal to 90°.</p>
+<p>The crucial point here is that an attempt to represent a higher dimensional space using a lower dimensional space will always have its compromises. With those limitations in mind, let&rsquo;s talk about a 4D space.</p>
+<h1 id="fourth-dimension">Fourth Dimension<a href="index.html#fourth-dimension" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>We&rsquo;ve seen how adding a higher dimension requires creating an axis perpendicular to all the other axes. The procedure to create the fourth dimension is no different. We&rsquo;ll label the axis of this new dimension as <span class="ts_w">w</span>. Below you can interact with <em>one</em> way to show a 4D space. You may drag the diagram around to change the viewing angle, I&rsquo;ve also put a single point in that space:</p>
+<div class="drawer_container" id="ts_4D_space_container"></div>
+<div class="segmented_container" id="ts_4D_space_segmented_container"></div>
+<br>
+<p>Similarly to the previous example the position of the black point is ambiguous. Using the segmented control you can show the point at three locations in the 4D space:</p>
+<div class="ts_space_list_wrap">
+<div class="ts_space_list">
+<div class="ts_space_list_item ts_space_list_0"><span class="ts_space">A</span> (<span class="ts_x">1</span>, <span class="ts_y">1</span>, <span class="ts_z">1</span>, <span class="ts_w">0</span>)</div><br>
+<div class="ts_space_list_item ts_space_list_0"><span class="ts_space">B</span> (<span class="ts_x">0</span>, <span class="ts_y">0</span>, <span class="ts_z">0</span>, <span class="ts_w">&minus;1</span>)</div><br>
+<div class="ts_space_list_item ts_space_list_2"><span class="ts_space">C</span> (<span class="ts_x">2</span>, <span class="ts_y">2</span>, <span class="ts_z">2</span>, <span class="ts_w">1</span>)</div><br>
+</div>
+</div>
+<p>Without the guidance of the helper lines it&rsquo;s impossible to <em>univocally</em> tell what the point&rsquo;s coordinates are. Moreover, the angles between the axes literally don&rsquo;t look right. This is particularly visible when we put a simple 3D cube spanned on <span class="ts_x">x</span><span class="ts_y">y</span><span class="ts_z">z</span> axes in a 4D space:</p>
+<div class="drawer_container ts_drawer_small" id="ts_3D_cube_4D_container"></div>
+<p>All four axes are actually perpendicular to each other, but we have no way of expressing that in a 3D model. To show that <span class="ts_w">w</span> axis is indeed at 90° to the other three, we have to ignore one of the dimensions and show all four possible triplets of the axes:</p>
+<div class="ts_quad_drawer_container"><div class="ts_quad_split_div"><div class="drawer_container" id="ts_3D_space_0_container"></div><div class="drawer_container" id="ts_3D_space_1_container"></div></div><div class="ts_quad_split_div"><div class="drawer_container" id="ts_3D_space_2_container"></div><div class="drawer_container" id="ts_3D_space_3_container"></div></div></div>
+<p>Both the angular deformation and position ambiguity are the result of a presentation of a 4D space using a 3D model. This is something that we&rsquo;ll have to, at least temporarily, live with.</p>
+<h1 id="tesseract">Tesseract<a href="index.html#tesseract" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>So far whenever we were building a higher dimensional object we just took what we had and we stretched it into the new dimension. We&rsquo;ll continue this process into the fourth dimension. In the demonstration below I made the walls of the cube transparent to show how the new edges are being formed. By dragging the slider you can stretch a cube to create a tesseract:</p>
+<div class="drawer_container" id="ts_4D_cube_container"></div>
+<div id="ts_4D_cube_slider_container"></div>
+<p>I personally find it quite difficult to see what&rsquo;s going on with this form of presentation. Unfortunately, I don&rsquo;t think I can do a better job of showing all four dimensions at once. Our human brains are hardwired to understand things in three dimensions – reasoning about the fourth one requires some amount of imagination or even delusion. We can try to understand how things work in 4D, but I don&rsquo;t think we can <em>fully</em> experience it.</p>
+<p>However, not all is lost! I&rsquo;ll show you some ways to remove one dimension from a 4D space and we&rsquo;ll be able to use our perfectly 3D-capable brains to look at a tesseract from a different perspective.</p>
+<h1 id="stepping-into-the-shadows">Stepping into the Shadows<a href="index.html#stepping-into-the-shadows" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>If you&rsquo;ve ever played with shadows cast by the Sun or a flashlight, you may have noticed that they don&rsquo;t really preserve the depth – they <em>flatten</em> three dimensional objects into two dimensional figures. In fact, shadow casting is one of the ways of reducing the dimensionality of a space.</p>
+<p>Let&rsquo;s look at the relation between a plain 3D cube with semitransparent walls and its shadow. In the simulation below you can rotate the cube on the left side to see how its shadow changes. The light source is symbolized with a yellow dot on the far left side. The right side represents the direct view of the <span class="rounded_bg ts_xy">xy</span> plane. You can choose to highlight one of the faces using the control underneath:</p>
+<div class="drawer_container" id="ts_2D_proj_container"></div>
+<div class="segmented_container" id="ts_2D_proj_segmented_container"></div>
+<br>
+<p>There are many interesting observations to be done here:</p>
+<ul>
+<li>A 3D cube projected onto a 2D space creates a 2D image</li>
+<li>Perfectly square faces of the cube are often deformed into <a href="https://en.wikipedia.org/wiki/Quadrilateral">quadrilaterals</a></li>
+<li>Intersections <a href="index.html#" class="link_button" onclick="ts_2d_proj_inters();return false;">may appear</a> between the edges, but in the cube the edges don&rsquo;t intersect with each other, they just meet at the corners</li>
+<li>In <a href="index.html#" class="link_button" onclick="ts_2d_proj_straight();return false;">some orientations</a> it looks as if one of the faces encompassed all the others even though all faces are the same</li>
+</ul>
+<p>The important point here is that a projection that creates a shadow introduces some distortions into the final image. By having some understanding of how the projected object is constructed we can at least <em>attempt</em> to see through those flaws.</p>
+<p>This next sentence requires a leap of faith. Just like a projection of a 3D object onto a 2D space creates a 2D object, a projection of a 4D object onto a 3D space forms a 3D object. In other words, a &ldquo;shadow&rdquo; of a tesseract is <em>three</em> dimensional.</p>
+<p>Without further ado, here&rsquo;s a demonstration of that shadow with a light source put somewhere on the <span class="ts_w">w</span> axis. You can drag the shadow around to see it from different angles. The faces of the tesseract are tinted a little so that it&rsquo;s easier to see which parts are in front. The segmented control below allows you to select different subcomponents of the tesseract:</p>
+<div class="drawer_container ts_drawer_small" id="ts_3D_proj_container"></div>
+<div class="segmented_container" id="ts_3D_proj_segmented_container"></div>
+<br>
+<p>The eight selectable solids are actually eight perfect cubes that form the tesseract. Many of them are deformed and don&rsquo;t look like cubes at all, but we&rsquo;ve already seen how a projection can skew squares into trapezoids and a similar thing happens here with the cubes.</p>
+<p>Additionally, the eighth cube seems to encompass all the others, but again, that&rsquo;s just a result of the projection. Each one of the eight cubes creating a tesseract is exactly the same. Moreover, each cube shares its faces with six other cubes, for example cube <strong>1</strong> neighbors with every other cube but cube <strong>8</strong>.</p>
+<p>With that projection we can make some interesting observations about ways things are connected inside a tesseract. There are 16 vertices total and each <span class="ts_corner">vertex</span> belongs to <span class="ts_edge">4 edges</span> and <span class="ts_wall">6 faces</span>:</p>
+<div class="drawer_container ts_drawer_small" id="ts_tess_corner_container"></div>
+<p>A tesseract has 32 edges and 24 faces. Each <span class="ts_edge">edge</span> belongs to <span class="ts_wall">3 faces</span>:</p>
+<div class="drawer_container ts_drawer_small" id="ts_tess_edge_container"></div>
+<p>If you look back on the regular 3D cube you may recall that in a cube each <span class="ts_corner">vertex</span> belongs to <span class="ts_edge">3 edges</span> and <span class="ts_wall">3 faces</span>, and each <span class="ts_edge">edge</span> belongs to <span class="ts_wall">2 faces</span>:</p>
+<div class="drawer_container ts_drawer_small" id="ts_cube_edge_container"></div>
+<p>As you can see a tesseract is just a cube on steroids, similarly to how a cube is an upgraded square, and a square is a next level line segment. A generalization of a cube in other dimensions is called a <a href="https://en.wikipedia.org/wiki/Hypercube">hypercube</a>. Here are the five hypercubes we&rsquo;ve encountered:</p>
+<div class="ts_space_list_wrap">
+<div class="ts_space_list">
+<div class="ts_space_list_item ts_space_list_0"><span class="ts_space">0D</span> point</div><br>
+<div class="ts_space_list_item ts_space_list_0"><span class="ts_space">1D</span> line segment</div><br>
+<div class="ts_space_list_item ts_space_list_2"><span class="ts_space">2D</span> square</div><br>
+<div class="ts_space_list_item ts_space_list_3"><span class="ts_space">3D</span> cube</div><br>
+<div class="ts_space_list_item ts_space_list_4"><span class="ts_space">4D</span> tesseract</div><br>
+</div>
+</div>
+<p>The diagrams get very messy very quickly so I won&rsquo;t show you any examples of higher dimensional hypercubes. However, the rules of building the subsequent hypercubes are exactly the same – take the previous hypercube and <em>stretch</em> it into the new dimension. Every point creates a line segment, every line segment creates a square, every square creates a cube, and so on.</p>
+<h1 id="plane-of-rotation">Plane of Rotation<a href="index.html#plane-of-rotation" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>So far we&rsquo;ve been looking at a simple case of an axis aligned tesseract and we&rsquo;ve merely been viewing its shadow from different angles. The real fun begins when we <em>rotate</em> a tesseract in a 4D space, but that requires talking about rotations in general.</p>
+<p>In a 3D world you&rsquo;re probably used to a concept of an <em>axis</em> of rotation. In a rotating object, the only stationary points are those on the axis itself, the other points rotate <em>around</em> this axis:</p>
+<div class="drawer_container ts_drawer_small" id="ts_3D_rot_axis_container"></div>
+<div id="ts_3D_rot_axis_slider_container"></div>
+<p>Equivalently, that axis can be used to define a <em>plane</em> of rotation. Every point on that plane will paint a circle around the center point. Additionally, every plane parallel to that plane is just a sibling plane of rotation:</p>
+<div class="drawer_container ts_drawer_small" id="ts_3D_rot_plane_container"></div>
+<div id="ts_3D_rot_plane_slider_container"></div>
+<p>In a 3D world we can define three basic planes of rotation spanned between the axes of the coordinate system: <span class="rounded_bg ts_xy">xy</span>, <span class="rounded_bg ts_xz">xz</span>, and <span class="rounded_bg ts_yz">yz</span>. Naturally, the plane of rotation can be positioned arbitrarily in the 3D space, but those three planes form the simplest building blocks:</p>
+<div class="drawer_container ts_drawer_small" id="ts_3D_rot_planes_container"></div>
+<p>The idea of a plane of rotation works well in 2D where the entire space is constrained to just a single <span class="rounded_bg ts_xy">xy</span> plane. It lets us avoid the quirk of having to introduce a third dimension just to define an axis of rotation in that space.</p>
+<p>A plane of rotation also works well in 4D where we can describe a total of <em>six</em> basic planes – <span class="rounded_bg ts_xy">xy</span>, <span class="rounded_bg ts_xz">xz</span>, <span class="rounded_bg ts_xw">xw</span>, <span class="rounded_bg ts_yz">yz</span>, <span class="rounded_bg ts_yw">yw</span>, and <span class="rounded_bg ts_zw">zw</span>:</p>
+<div class="drawer_container ts_drawer_small" id="ts_4D_rot_planes_container"></div>
+<p>In fact, in four dimensions we can&rsquo;t even <em>define</em> an axis of rotation since every plane has <em>two</em> different directions perpendicular to it. For instance, both <span class="ts_z">z</span> <em>and</em> <span class="ts_w">w</span> axes are perpendicular to the <span class="rounded_bg ts_xy">xy</span> plane. When a four dimensional object rotates in the <span class="rounded_bg ts_xy">xy</span> plane, all points on the <span class="rounded_bg ts_zw">zw</span> plane remain stationary.</p>
+<p>The main takeaway here is that a plane of rotation is a more universal way of describing rotations since it works in 2D, 3D, 4D, and higher dimensions. We&rsquo;ll use this concept to give the tesseract a spin.</p>
+<h1 id="in-n-out">In-N-Out<a href="index.html#in-n-out" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>This next demonstration will be a little trippy, but dragging around to change the viewing angle will do wonders for understanding what&rsquo;s going on. The slider controls the rotation of the tesseract in the <span class="rounded_bg ts_xw">xw</span> plane. I highlighted one of the cubes to make it easier to see how it morphs:</p>
+<div class="drawer_container ts_drawer_small" id="ts_3D_proj_rot_container"></div>
+<div id="ts_3D_projxw_slider_container"></div>
+<p>You may notice that sometimes the faces of the tesseract seem to intersect, however, this is just a limitation of the projection. We&rsquo;ve already seen a similar issue with edges of the 3D cube intersecting in its 2D shadow. In the actual tesseract those walls are perfectly disjoint.</p>
+<p>The transformations of the highlighted cube may seem peculiar, but we can witness something very similar in a 3D cube and its shadow:</p>
+<div class="drawer_container" id="ts_2D_proj_container2"></div>
+<div id="ts_2D_proj_slider_container"></div>
+<p>Notice how the yellow wall starts on the inside as a <a href="index.html#" class="link_button" onclick="ts_2d_proj2_inside();return false;">square</a>, then it moves to become an <a href="index.html#" class="link_button" onclick="ts_2d_proj2_trap();return false;">interior trapezoid</a>, only to degenerate into a <a href="index.html#" class="link_button" onclick="ts_2d_proj2_line();return false;">line segment</a>, to come back as a <a href="index.html#" class="link_button" onclick="ts_2d_proj2_trap2();return false;">trapezoid</a> again, and to finally <a href="index.html#" class="link_button" onclick="ts_2d_proj2_outside();return false;">devour</a> the entire object.</p>
+<p>A rotating tesseract is an alien construct and we have no evolved intuitions about how it should behave, so don&rsquo;t be afraid to fallback to a 3D cube in the search for explanations of the tesseract&rsquo;s unusual nature.</p>
+<h1 id="leaving-platos-cave">Leaving Plato&rsquo;s Cave<a href="index.html#leaving-platos-cave" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Playing with a shadow of a tesseract let us look into its structure, but it doesn&rsquo;t illustrate how <em>we</em> would perceive a solid tesseract traveling through space.</p>
+<p>We&rsquo;ll once again build some intuitions at a lower dimension so let&rsquo;s see what happens when a 3D cube travels through a 2D world. In the simulation below you can drag the slider to change the cube&rsquo;s position on the <span class="ts_z">z</span> axis. The right side shows a direct view of the <span class="rounded_bg ts_xy">xy</span> plane. You may also drag the cube on the left side to change its orientation in the space:</p>
+<div class="drawer_container" id="ts_2D_slice_container"></div>
+<div id="ts_2D_slice_slider_container"></div>
+<p>Notice that when the cube is <a href="index.html#" class="link_button" onclick="ts_straight_3D_cube_slice();return false;">perfectly aligned</a> with the axes it can pop in and out of existence on the 2D plane quite abruptly. A <a href="index.html#" class="link_button" onclick="ts_rotated_3D_simple_slice();return false;">simple rotation</a> in the <span class="rounded_bg ts_xz">xz</span> plane creates a growing, shifting, and shrinking rectangle. In general case, a slice of an <a href="index.html#" class="link_button" onclick="ts_rotated_3D_cube_slice();return false;">arbitrarily rotated</a> cube creates a convex <a href="https://en.wikipedia.org/wiki/Polygon">polygon</a>. You can even create a <a href="index.html#" class="link_button" onclick="ts_rotated_3D_hex_slice();return false;">perfect hexagon</a>.</p>
+<p>For the grand finale of this article lets drag a tesseract through a 4D space and see how it intersects with a 3D world. Just like an intersection of a 3D object with a 2D space creates a 2D object, an intersection of a 4D object with a 3D space creates a 3D object.</p>
+<p>Behold the sliders galore! The first one controls the position of the tesseract along the <span class="ts_w">w</span> axis. The other three rotate the tesseract in <span class="rounded_bg ts_xw">xw</span>, <span class="rounded_bg ts_yw">yw</span>, and <span class="rounded_bg ts_zw">zw</span> planes respectively:</p>
+<div class="drawer_container ts_drawer_small" id="ts_3D_slice_container"></div>
+<div id="ts_3D_slice_slider_container"></div>
+<div id="ts_3D_slice_xw_rot_slider_container"></div>
+<div id="ts_3D_slice_yw_rot_slider_container"></div>
+<div id="ts_3D_slice_zw_rot_slider_container"></div>
+<p>Similarly to the 2D intersection of a 3D cube, when a tesseract <a href="index.html#" class="link_button" onclick="ts_straight_4D_cube_slice();return false;">is axis aligned</a> it will abruptly pop in and out of existence when dragged along the <span class="ts_w">w</span> axis. A <a href="index.html#" class="link_button" onclick="ts_simple_rotated_4D_cube_slice();return false;">simple rotation</a> about one of the planes spanned on the <span class="ts_w">w</span> axis will cause the intersection to be a growing, shifting, and shrinking <a href="https://en.wikipedia.org/wiki/Cuboid#Rectangular_cuboid">rectangular cuboid</a>. A more <a href="index.html#" class="link_button" onclick="ts_rotated_4D_cube_slice();return false;">complex rotation</a> creates a more complicated shape – a convex <a href="https://en.wikipedia.org/wiki/Polyhedron">polyhedron</a>.</p>
+<p>The anatomy of the 3D &ldquo;slices&rdquo; of a tesseract may seem bizarre, but we&rsquo;ve already seen very similar patterns in 2D slices of a regular cube. This time they&rsquo;re just one dimension richer.</p>
+<p>It&rsquo;s quite unlikely that you&rsquo;ll ever get to interact with a real tesseract, but these examples have hopefully let you build some intuitions about what to expect in that fantastic scenario.</p>
+<h1 id="further-watching-and-reading">Further Watching and Reading<a href="index.html#further-watching-and-reading" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p><a href="https://marctenbosch.com">Marc ten Bosh</a> does amazing things with the fourth dimension. His <a href="https://marctenbosch.com/news/2017/06/4d-toys-a-box-of-four-dimensional-toys/">4D Toys</a> is a fully interactive app that allows you to play with four dimensional objects including physical interactions between them! His upcoming game entitled <a href="https://miegakure.com">Miegakure</a> will explore these concepts in even more depth. Marc&rsquo;s <a href="https://www.youtube.com/watch?v=9yW--eQaA2I">explanation</a> of how walking through a 4D space works is well worth the watch.</p>
+<p>For a short video about projections of a rotating tesseract I recommend <a href="https://www.youtube.com/watch?v=iGO12Z5Lw8s">Understanding 4D &ndash; The Tesseract</a>. James Schloss goes over a few things I&rsquo;ve discussed here while also providing some more mathematical background on how to apply projections.</p>
+<p><a href="http://hi.gher.space/classic/introduction.htm">Introduction to the fourth dimension</a> is a multi-part article about the concept of a 4D space. The website also <a href="http://hi.gher.space/classic/sitemap.htm">explores</a> many of the unusual features of a higher-dimensional worlds. The site&rsquo;s <a href="http://hi.gher.space/forum/index.php">forum</a> is one of those hidden places on the internet that make you realize some rabbit holes are <em>really</em> deep.</p>
+<p>Chris McMullen&rsquo;s book <a href="https://www.amazon.com/Visual-Guide-Extra-Dimensions-Higher-Dimensional/dp/1438298927/">The Visual Guide To Extra Dimensions</a> provides a more thorough look at the fourth dimension. The author describes some other higher-dimensional solids and goes into more details about a hypothetical 4D universe.</p>
+<h1 id="final-words">Final Words<a href="index.html#final-words" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>I find it very inspiring that while we can&rsquo;t physically experience a four dimensional space, with just a bit of ingenuity we can easily simulate how a tesseract and its shadow would look in our day-to-day world.</p>
+<p>You may find math&rsquo;s indifference to the limitations of our human perception quite cruel, but I think it&rsquo;s liberating. Reflecting on higher dimensions is transcendent – it removes the shackles of the physical world and allows us to explore the realms we&rsquo;ll never encounter.</p>
+<p>Analyzing a tesseract may be of little practical use, but it hopefully stretched your mind into the fourth dimension at least to some degree.</p>
+
+    </div>
+</div>
+      </div>
+    </div>
+    <div id="footer">
+        Copyright &copy; 2022 Bartosz Ciechanowski
+    </div>
+  </div>
+</body>
+
+</html>

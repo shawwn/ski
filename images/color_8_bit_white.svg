@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="170" viewBox="0 0 440 170">
+  <g fill="none" fill-rule="evenodd">
+    <rect width="30" height="50" x="10" y="10" fill="#F9F9F9"/>
+    <rect width="30" height="50" x="40" y="10" fill="#FAFAFA"/>
+    <rect width="30" height="50" x="70" y="10" fill="#FAFAFA"/>
+    <rect width="30" height="50" x="100" y="10" fill="#FBFBFB"/>
+    <rect width="30" height="50" x="130" y="10" fill="#FBFBFB"/>
+    <rect width="30" height="50" x="160" y="10" fill="#FBFBFB"/>
+    <rect width="30" height="50" x="190" y="10" fill="#FCFCFC"/>
+    <rect width="30" height="50" x="220" y="10" fill="#FCFCFC"/>
+    <rect width="30" height="50" x="250" y="10" fill="#FDFDFD"/>
+    <rect width="30" height="50" x="280" y="10" fill="#FDFDFD"/>
+    <rect width="30" height="50" x="310" y="10" fill="#FEFEFE"/>
+    <rect width="30" height="50" x="340" y="10" fill="#FEFEFE"/>
+    <rect width="30" height="50" x="370" y="10" fill="#FFF"/>
+    <rect width="30" height="50" x="400" y="10" fill="#FFF"/>
+    <rect width="30" height="50" x="370" y="110" fill="#FEFEFE"/>
+    <rect width="30" height="50" x="340" y="110" fill="#FDFDFD"/>
+    <rect width="30" height="50" x="10" y="110" fill="#F2F2F2"/>
+    <rect width="30" height="50" x="40" y="110" fill="#F3F3F3"/>
+    <rect width="30" height="50" x="70" y="110" fill="#F4F4F4"/>
+    <rect width="30" height="50" x="100" y="110" fill="#F5F5F5"/>
+    <rect width="30" height="50" x="130" y="110" fill="#F6F6F6"/>
+    <rect width="30" height="50" x="160" y="110" fill="#F7F7F7"/>
+    <rect width="30" height="50" x="190" y="110" fill="#F8F8F8"/>
+    <rect width="30" height="50" x="220" y="110" fill="#F9F9F9"/>
+    <rect width="30" height="50" x="250" y="110" fill="#FAFAFA"/>
+    <rect width="30" height="50" x="280" y="110" fill="#FBFBFB"/>
+    <rect width="30" height="50" x="310" y="110" fill="#FCFCFC"/>
+    <rect width="30" height="50" x="400" y="110" fill="#FFF"/>
+    <rect width="6" height="2" x="22" y="84" fill="#D8D8D8" rx="1"/>
+    <rect width="6" height="2" x="52" y="84" fill="#D8D8D8" rx="1"/>
+    <rect width="6" height="2" x="82" y="84" fill="#D8D8D8" rx="1"/>
+    <rect width="6" height="2" x="112" y="84" fill="#D8D8D8" rx="1"/>
+    <rect width="6" height="2" x="142" y="84" fill="#D8D8D8" rx="1"/>
+    <rect width="6" height="2" x="172" y="84" fill="#D8D8D8" rx="1"/>
+    <rect width="6" height="2" x="202" y="84" fill="#D8D8D8" rx="1"/>
+    <rect width="6" height="2" x="232" y="84" fill="#D8D8D8" rx="1"/>
+    <rect width="6" height="2" x="262" y="84" fill="#D8D8D8" rx="1"/>
+    <rect width="6" height="2" x="292" y="84" fill="#D8D8D8" rx="1"/>
+    <rect width="6" height="2" x="322" y="84" fill="#D8D8D8" rx="1"/>
+    <rect width="6" height="2" x="352" y="84" fill="#D8D8D8" rx="1"/>
+    <rect width="6" height="2" x="382" y="84" fill="#D8D8D8" rx="1"/>
+    <rect width="6" height="2" x="412" y="84" fill="#D8D8D8" rx="1"/>
+  </g>
+</svg>

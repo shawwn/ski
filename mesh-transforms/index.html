@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2052BB">
+<meta name="author" content="Bartosz Ciechanowski">
+<meta name="format-detection" content="telephone=no">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-25335284-3"></script>
+
+
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-25335284-3');
+</script>
+  <meta property="og:title" content="Mesh Transforms – Bartosz Ciechanowski" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ciechanow.ski/mesh-transforms/" />
+<meta property="og:description" content="" />
+<meta property="og:locale" content="en_US">
+  <link href="../css/base.css" rel="stylesheet" type="text/css"/>
+<link href="https://fonts.googleapis.com/css?family=Lato:700&display=swap" rel="stylesheet" type="text/css" async>
+<link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,400i,500&display=swap" rel="stylesheet" async>
+  <title>Mesh Transforms – Bartosz Ciechanowski</title>
+  <link rel="icon" href="../favicon.ico">
+  <link href="../css/syntax.css" rel="stylesheet" type="text/css" />
+  <script defer src="../js/base.js"></script>
+</head>
+
+<body>
+  <div id="main_container">
+    <div id="body">
+      <div id="banner">
+    <div id="banner_wrapper">
+        <div id="banner_content">
+            <div id="site_title">
+                <a href="../index.html">Bartosz Ciechanowski</a>
+            </div>
+            <div id="navigation">
+                <a href="../index.html">Blog</a>
+                <a href="../archives.html">Archives</a>
+            </div>
+            <div id="social">
+                <a class="patreon" href="https://www.patreon.com/ciechanowski" title="Patreon"><div class="patreonLogo">Patreon</div></a>
+                <a class="twitter" href="https://twitter.com/bciechanowski" title="Twitter"><div class="twitterLogo">Twitter</div></a>
+                <a class="instagram" href="https://www.instagram.com/bartoszciechanowski/" title="Instagram"><div class="igLogo">Instagram</div></a>
+                <a class="email" href="mailto:bartosz@ciechanow.ski" title="e-mail"><div class="emailLogo">e-mail</div></a>
+                <a class="rss" href="../atom.xml" title="rss"><div class="rssLogo">rss</div></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+      <div id="content">
+        
+<div class="article">
+    <div class="post_date">May 14, 2014</div>
+    <h1 class="post_title"><a href="index.html">Mesh Transforms</a></h1>
+    <div class="padding_wrapper"><p>I&rsquo;m a huge fan of the <code>transform</code> property. Combining rotations, translations, and scalings is one of the easiest way to modify a shape of a <code>UIView</code> or a <code>CALayer</code>. While easy to use, regular transforms are quite limited in what they can achieve – a rectangular shape of a layer can be transformed into an <a href="http://stackoverflow.com/q/9470493/558816">arbitrary quadrilateral</a>. It&rsquo;s nothing to sneeze at, but there are much more powerful toys out there.</p>
+<p>This article is focused on mesh transforms. The core idea of a mesh transform is very straightforward: you introduce a set of vertices in the layer then you move them around deforming the entire contents:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../images/meshTransforms@2x.png"
+         alt="A mesh transform"width="654px"height="244px"
+    /> 
+    </div><span>
+            <p>A mesh transform</p>
+        </span>
+</div>
+
+<p>The major part of this post is dedicated to a private Core Animation API that&rsquo;s been part of the framework since iOS 5.0. If at this point you&rsquo;re leaving this page to prevent spoiling your mind with deliciousness of private API, fear not. In the second section of the article I present an equivalent, open-sourced alternative.</p>
+<h1 id="cameshtransform">CAMeshTransform<a href="index.html#cameshtransform" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>The first time I saw <a href="https://github.com/nst/iOS-Runtime-Headers">iOS-runtime headers</a> I was mesmerized. The descriptions of so many private classes and hidden properties were extremely eye-opening. One of my most intriguing findings was <code>CAMeshTransform</code> class and a corresponding <code>meshTransform</code> property on <code>CALayer</code>. I badly wanted to figure it all out and recently I finally did. While seemingly complex, the concepts behind a mesh transform are easy to grasp. Here&rsquo;s how a convenience construction method of <code>CAMeshTransform</code> looks like:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="p">+</span> <span class="p">(</span><span class="kt">instancetype</span><span class="p">)</span><span class="nf">meshTransformWithVertexCount:</span><span class="p">(</span><span class="n">NSUInteger</span><span class="p">)</span><span class="nv">vertexCount</span>
+                                    <span class="nf">vertices:</span><span class="p">(</span><span class="n">CAMeshVertex</span> <span class="o">*</span><span class="p">)</span><span class="nv">vertices</span>
+                                   <span class="nf">faceCount:</span><span class="p">(</span><span class="n">NSUInteger</span><span class="p">)</span><span class="nv">faceCount</span>
+                                       <span class="nf">faces:</span><span class="p">(</span><span class="n">CAMeshFace</span> <span class="o">*</span><span class="p">)</span><span class="nv">faces</span>
+                          <span class="nf">depthNormalization:</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">depthNormalization</span><span class="p">;</span></code></pre></div>
+<p>This method clearly describes the basic components of a <code>CAMeshTransform</code> – vertices, faces, and a string describing depth normalization. We will tackle these components one by one.</p>
+<p><strong>Disclaimer</strong>: unfortunately, names of fields inside a <code>struct</code> are lost during compilation so I had to come up with reasonable descriptions on my own. While original names are most likely different, their intention remains the same.</p>
+<h2 id="a-vertex">A Vertex<a href="index.html#a-vertex" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p><code>CAMeshVertex</code> is a simple struct with two fields:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">CAMeshVertex</span> <span class="p">{</span>
+    <span class="n">CGPoint</span> <span class="n">from</span><span class="p">;</span>
+    <span class="n">CAPoint3D</span> <span class="n">to</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">CAMeshVertex</span><span class="p">;</span></code></pre></div>
+<p><code>CAPoint3D</code> is very similar to a regular <code>CGPoint</code> – it&rsquo;s trivially extended by a missing <code>z</code> coordinate:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">CAPoint3D</span> <span class="p">{</span>
+    <span class="n">CGFloat</span> <span class="n">x</span><span class="p">;</span>
+    <span class="n">CGFloat</span> <span class="n">y</span><span class="p">;</span>
+    <span class="n">CGFloat</span> <span class="n">z</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">CAPoint3D</span><span class="p">;</span></code></pre></div>
+<p>With that in mind the purpose of a <code>CAMeshVertex</code> is easily inferred: it describes the mapping between the flat point on the surface of a layer and the transformed point located in a 3D space. <code>CAMeshVertex</code> defines the following action: &ldquo;take this point <code>from</code> the layer and move it <code>to</code> that position&rdquo;. Since <code>CAPoint3D</code> field has <code>x</code>, <code>y</code>, and <code>z</code> components, a mesh transform doesn&rsquo;t have to be flat:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../images/meshTransformsVertex@2x.png"
+         alt="A vertex moves from a 2D point on a layer to a 3D point in a space"width="630px"height="212px"
+    /> 
+    </div><span>
+            <p>A vertex moves from a 2D point on a layer to a 3D point in a space</p>
+        </span>
+</div>
+
+<h2 id="a-face">A Face<a href="index.html#a-face" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p><code>CAMeshFace</code> is simple as well:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">CAMeshFace</span> <span class="p">{</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">indices</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span>
+    <span class="kt">float</span> <span class="n">w</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span>
+<span class="p">}</span> <span class="n">CAMeshFace</span><span class="p">;</span></code></pre></div>
+<p>The <code>indices</code> array describes which four vertices a face is spanned on. Since <code>CAMeshTransform</code> is defined by an array of vertices, a <code>CAMeshFace</code> can reference vertices it&rsquo;s built with by their indexes in <code>vertices</code> array. This is a standard paradigm in computer graphics and it&rsquo;s very convenient – many faces can point at the same vertex. This not only removes the problem of data duplication, but also makes it easy to continuously modify the shape of all the attached faces:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../images/meshTransformsFaces@2x.png"
+         alt="Faces are defined by their vertices"width="488px"height="296px"
+    /> 
+    </div><span>
+            <p>Faces are defined by their vertices</p>
+        </span>
+</div>
+
+<p>As for the <code>w</code> field of <code>CAMeshFace</code>, we&rsquo;ll temporarily postpone its discussion.</p>
+<h2 id="coordinates">Coordinates<a href="index.html#coordinates" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>With an overview of the vertices and faces at hand it&rsquo;s still not obvious what values should we put inside a <code>CAMeshVertex</code>. While the vast majority of <code>CALayer</code>&rsquo;s properties are defined in points, there are a few that make use of unit coordinates, the <code>anchorPoint</code> being probably the most popular one. <code>CAMeshVertex</code> makes use of unit coordinates as well. The <code>from</code> point of <code>{0.0, 0.0}</code> corresponds to a top left corner of the layer and <code>{1.0, 1.0}</code> point corresponds to bottom right corner of the layer. The <code>to</code> point uses exactly the same coordinate system:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../images/meshTransformCoordinates@2x.png"
+         alt="Vertices are defined in unit coordinates"width="484px"height="311px"
+    /> 
+    </div><span>
+            <p>Vertices are defined in unit coordinates</p>
+        </span>
+</div>
+
+<p>The reason for using unit coordinates is introduced in <a href="https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/CoreAnimation_guide/CoreAnimationBasics/CoreAnimationBasics.html#//apple_ref/doc/uid/TP40004514-CH2-SW16">Core Animation Programming Guide</a>:</p>
+<blockquote>
+<p>Unit coordinates are used when the value should not be tied to screen coordinates because it is relative to some other value.</p>
+</blockquote>
+<p>The best thing about unit coordinates is that they&rsquo;re size invariant. You can reuse the exact same mesh to transform both small and large views and it will all work just fine. I believe this was the main reason for choosing them as units of <code>CAMeshTransform</code>.</p>
+<h2 id="modifying-mesh-transforms">Modifying Mesh Transforms<a href="index.html#modifying-mesh-transforms" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>One of the drawbacks of creating a regular <code>CAMeshTransform</code> is that it&rsquo;s immutable and all the vertices and faces have to be defined before the transform is created. Thankfully, a mutable subclass named <code>CAMutableMeshTransform</code> also exists and this one <em>does</em> allow adding, removing and replacing vertices and faces at any time.</p>
+<p>Both mutable and immutable mesh transform have a <code>subdivisionSteps</code> property that describes how many mesh subdivisions should be performed by the framework when layer gets rendered on screen. Number of splits grows exponentially, so setting the value of property to 3 will divide each edge to 8 pieces. The default value of <code>subdivisionSteps</code> is −1 and it usually makes the meshes look smooth. I assume it tries to automatically adjust the number of subdivisions to make the final result look good.</p>
+<p>What&rsquo;s not obvious, for non 0 values of <code>subdivisionSteps</code> generated mesh doesn&rsquo;t go through all of its vertices:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../images/meshTransformSubdivision@2x.png"
+         alt="Shape of subdivided mesh vs its vertices"width="261px"height="268px"
+    /> 
+    </div><span>
+            <p>Shape of subdivided mesh vs its vertices</p>
+        </span>
+</div>
+
+<p>In fact, the vertices are control points of a surface and by observing how they influence the shape I suspect <code>CAMeshTransform</code> actually defines a cubic <a href="http://en.wikipedia.org/wiki/Non-uniform_rational_B-spline">NURBS surface</a>. Here&rsquo;s where <code>w</code> field of <code>CAMeshFace</code> comes back. Setting a value at one of the four indices of the <code>w</code> array seems to influence the weight of the corresponding vertex. The factor doesn&rsquo;t seem to be the weight as defined in NURBS equation. Unfortunately, I couldn&rsquo;t force myself to get through literally hundreds lines of floating point assembly to figure out what&rsquo;s going on.</p>
+<p>Even though NURBS surfaces are extremely powerful, the fact that they don&rsquo;t go through the defining vertices is quite a kicker. When I was designing my meshes I wanted to have total control over what&rsquo;s going on and how the generated mesh looked like so I usually set <code>subdivisionSteps</code> property to 0.</p>
+<h2 id="applying-mesh-transform">Applying Mesh Transform<a href="index.html#applying-mesh-transform" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>On its own <code>CAMeshTransform</code> is of little use, but it can be easily assigned to a private property of a <code>CALayer</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="k">@property</span> <span class="p">(</span><span class="k">copy</span><span class="p">)</span> <span class="n">CAMeshTransform</span> <span class="o">*</span><span class="n">meshTransform</span><span class="p">;</span></code></pre></div>
+<p>The following piece of code creates a wavy mesh transform. It&rsquo;s excessively verbose for the purpose of demonstrating how all the pieces fit together. With a bunch of convenience methods, the same effect can be created within literally a few lines of code.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="p">-</span> <span class="p">(</span><span class="n">CAMeshTransform</span> <span class="o">*</span><span class="p">)</span><span class="nf">wavyTransform</span>
+<span class="p">{</span>
+    <span class="k">const</span> <span class="kt">float</span> <span class="n">Waves</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">float</span> <span class="n">Amplitude</span> <span class="o">=</span> <span class="mf">0.15</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">float</span> <span class="n">DistanceShrink</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">;</span>
+    
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">Columns</span> <span class="o">=</span> <span class="mi">40</span><span class="p">;</span>
+    
+    <span class="n">CAMutableMeshTransform</span> <span class="o">*</span><span class="n">transform</span> <span class="o">=</span> <span class="p">[</span><span class="n">CAMutableMeshTransform</span> <span class="n">meshTransform</span><span class="p">];</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">Columns</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        
+        <span class="kt">float</span> <span class="n">t</span> <span class="o">=</span> <span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="n">i</span> <span class="o">/</span> <span class="n">Columns</span><span class="p">;</span>
+        <span class="kt">float</span> <span class="n">sine</span> <span class="o">=</span> <span class="n">sin</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="n">M_PI</span> <span class="o">*</span> <span class="n">Waves</span><span class="p">);</span>
+        
+        <span class="n">CAMeshVertex</span> <span class="n">topVertex</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">.</span><span class="n">from</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">},</span>
+            <span class="p">.</span><span class="n">to</span>   <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">,</span> <span class="n">Amplitude</span> <span class="o">*</span> <span class="n">sine</span> <span class="o">*</span> <span class="n">sine</span> <span class="o">+</span> <span class="n">DistanceShrink</span> <span class="o">*</span> <span class="n">t</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">}</span>
+        <span class="p">};</span>
+        <span class="n">CAMeshVertex</span> <span class="n">bottomVertex</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">.</span><span class="n">from</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">},</span>
+            <span class="p">.</span><span class="n">to</span>   <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">Amplitude</span> <span class="o">+</span> <span class="n">Amplitude</span> <span class="o">*</span> <span class="n">sine</span> <span class="o">*</span> <span class="n">sine</span> <span class="o">-</span> <span class="n">DistanceShrink</span> <span class="o">*</span> <span class="n">t</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">}</span>
+        <span class="p">};</span>
+        
+        <span class="p">[</span><span class="n">transform</span> <span class="nl">addVertex</span><span class="p">:</span><span class="n">topVertex</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">transform</span> <span class="nl">addVertex</span><span class="p">:</span><span class="n">bottomVertex</span><span class="p">];</span>
+    <span class="p">}</span>
+    
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">Columns</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">topLeft</span>     <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">topRight</span>    <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">;</span>
+        <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">bottomRight</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">3</span><span class="p">;</span>
+        <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">bottomLeft</span>  <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+        
+        <span class="p">[</span><span class="n">transform</span> <span class="nl">addFace</span><span class="p">:(</span><span class="n">CAMeshFace</span><span class="p">){.</span><span class="n">indices</span> <span class="o">=</span> <span class="p">{</span><span class="n">topLeft</span><span class="p">,</span> <span class="n">topRight</span><span class="p">,</span> <span class="n">bottomRight</span><span class="p">,</span> <span class="n">bottomLeft</span><span class="p">}}];</span>
+    <span class="p">}</span>
+    
+    <span class="n">transform</span><span class="p">.</span><span class="n">subdivisionSteps</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    
+    <span class="k">return</span> <span class="n">transform</span><span class="p">;</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>Here&rsquo;s a <code>UILabel</code> with a mesh transform applied:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../images/meshTransformSimple@2x.png"
+         alt="Mesh-transformed UILabel"width="300px"height="281px"
+    /> 
+    </div><span>
+            <p>Mesh-transformed UILabel</p>
+        </span>
+</div>
+
+<p>It&rsquo;s worth pointing out that you might often see different results depending on whether the app is run on a simulator or on a device. Apparently, the iOS simulator version of Core Animation uses a software renderer for its 3D stuff and it&rsquo;s a <em>different</em> software renderer than the one used for OpenGL ES. This is especially visible with patterned textures.</p>
+<h2 id="leaky-abstractions">Leaky Abstractions<a href="index.html#leaky-abstractions" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>When you look closer at the mesh-transformed <code>UILabel</code> on a retina device, you&rsquo;ll notice that its text quality is subpar. It turns out it can be easily improved with a single property assignment:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="n">label</span><span class="p">.</span><span class="n">layer</span><span class="p">.</span><span class="n">rasterizationScale</span> <span class="o">=</span> <span class="p">[</span><span class="n">UIScreen</span> <span class="n">mainScreen</span><span class="p">].</span><span class="n">scale</span><span class="p">;</span></code></pre></div>
+<p>This is a giveaway of how it all might work under the hood. The contents of layer and all its sublayers get rasterized into a single texture that later gets applied to the vertex mesh. In theory, the rasterization process could be avoided by generating the correct meshes for all the sublayers of the transformed layer by making them perfectly overlap their respective superlayers. In general case, however, vertices of the sublayers would be placed in-between vertices of the parent layer which would surely cause a nasty <a href="http://en.wikipedia.org/wiki/Z-fighting">z-fighting</a>. Rasterization looks like a good solution.</p>
+<p>The other problem I noticed has its roots in hardware. <code>CAMeshTransform</code> provides a nice abstraction of a face which is nothing more than a quadrilateral, also known as a quad. However, modern GPUs are only interested in rendering triangles. Before it is sent to the GPU a quad has to be split into two triangles. This process can be done in two distinct ways by choosing either diagonal as a separating edge:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../images/meshTransformSplit@2x.png"
+         alt="Two different divisions of the same quad into triangles"width="345px"height="143px"
+    /> 
+    </div><span>
+            <p>Two different divisions of the same quad into triangles</p>
+        </span>
+</div>
+
+<p>It might not seem like a big deal, but performing a seemingly similar transform can produce vastly different results:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../images/meshTransformDifferentResults@2x.png"
+         alt="Symmetrical meshes, asymmetrical results"width="545px"height="374px"
+    /> 
+    </div><span>
+            <p>Symmetrical meshes, asymmetrical results</p>
+        </span>
+</div>
+
+<p>Notice that the shapes of mesh transforms are perfectly symmetrical, yet the result of their action is not. In the left mesh only one of the triangles actually gets transformed. In the right mesh both triangles do. It shouldn&rsquo;t be hard to guess which diagonal does Core Animation use for its quad subdivision. Note that the effect will also happen for the exact meshes if you change the order of indices inside their respective faces.</p>
+<p>Even though the small issues caused by rasterization and triangulation are <a href="http://www.joelonsoftware.com/articles/LeakyAbstractions.html">leaky abstractions</a> and can&rsquo;t be completely ignored, they seem to be the only viable solutions to the complexity they try to mask.</p>
+<h2 id="adding-depth">Adding Depth<a href="index.html#adding-depth" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>The unit coordinates are a neat idea and they work great for both width and height. However, we don&rsquo;t have any way to define the third dimension – a <code>size</code> field of layer&rsquo;s <code>bounds</code> has merely two dimensions. One unit of width is equal to <code>bounds.size.width</code> points and height works correspondingly. How can one specify how many points does one unit of depth have? Authors of Core Animation have solved this problem in a very simple but surprisingly effective way.</p>
+<p>A <code>depthNormalization</code> property of <code>CAMeshTransform</code> is an <code>NSString</code> that can legally by set to one of the six following constants:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="k">extern</span> <span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">kCADepthNormalizationNone</span><span class="p">;</span>
+<span class="k">extern</span> <span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">kCADepthNormalizationWidth</span><span class="p">;</span>
+<span class="k">extern</span> <span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">kCADepthNormalizationHeight</span><span class="p">;</span>
+<span class="k">extern</span> <span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">kCADepthNormalizationMin</span><span class="p">;</span>
+<span class="k">extern</span> <span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">kCADepthNormalizationMax</span><span class="p">;</span>
+<span class="k">extern</span> <span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">kCADepthNormalizationAverage</span><span class="p">;</span></code></pre></div>
+<p>Here&rsquo;s the trick: <code>CAMeshTransform</code> evaluates the depth normalization as a function of the other two dimensions. The constant names are self-explanatory, but let&rsquo;s get through a quick example. Let&rsquo;s assume the <code>depthNormalization</code> is set to <code>kCADepthNormalizationAverage</code> and the layer <code>bounds</code> are equal to <code>CGRectMake(0.0, 0.0, 100.0, 200.0)</code>. Since we picked the average normalization, one unit of depth will map to <code>150.0</code> points. A <code>CAMeshVertex</code> with <code>to</code> coordinates of <code>{1.0, 0.5, 1.5}</code> will map to a 3D point with coordinates equal to <code>{100.0, 100.0, 225.0}</code>:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../images/meshTransformPointConvert@2x.png"
+         alt="Converting from units to points"width="484px"height="186px"
+    /> 
+    </div><span>
+            <p>Converting from units to points</p>
+        </span>
+</div>
+
+<p>Why go through the trouble of converting unit coordinates to points? It&rsquo;s because of a <code>transform</code> property of a <code>CALayer</code> and its type – <code>CATransform3D</code>. Components of <code>CATransform3D</code> are defined in terms of points. You can actually apply any transform to the layer itself and it will influence its vertices as well. The <code>z</code> coordinate translation and a perspective transform come to mind as a major beneficiaries of this feature.</p>
+<p>At this point we could create another example, this time with <code>depthNormalization</code> not equal to the default <code>kCADepthNormalizationNone</code>. The results would be quite disappointing – everything would look flat. The depth added by non-zero <code>z</code> coordinates of vertices is very unconvincing. We can skip this step altogether and add a missing component that would emphasize the slopes and curvatures of the mesh – the shading.</p>
+<h2 id="meeting-prometheus">Meeting Prometheus<a href="index.html#meeting-prometheus" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>Since we&rsquo;ve already opened Pandora&rsquo;s box of private Core Animation classes, we might as well use another one. At this point it should come as no surprise that a class named <code>CALight</code> exists and it&rsquo;s actually very useful since <code>CALayer</code> has a private, <code>NSArray</code>-typed <code>lights</code> property.</p>
+<p>A <code>CALight</code> is created with <code>+ (id)lightWithType:(NSString *)lightType</code> convenience method and the <code>lightType</code> argument can be one of the following four values:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="k">extern</span> <span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">kCALightTypeAmbient</span><span class="p">;</span>
+<span class="k">extern</span> <span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">kCALightTypeDirectional</span><span class="p">;</span>
+<span class="k">extern</span> <span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">kCALightTypePoint</span><span class="p">;</span>
+<span class="k">extern</span> <span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">kCALightTypeSpot</span><span class="p">;</span></code></pre></div>
+<p>I&rsquo;m not going to discuss <code>CALight</code> in details, so let&rsquo;s jump straight to an example. This time we&rsquo;re going to use two hand-made <code>CAMutableMeshTransform</code> convenience methods. The first one, <code>identityMeshTransformWithNumberOfRows:numberOfColumns:</code>, creates a mesh with uniformly spread vertices that don&rsquo;t introduce any disturbances. Then we&rsquo;re going to modify those vertices by <code>mapVerticesUsingBlock:</code> method that maps all vertices to some other vertices.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="n">CALight</span> <span class="o">*</span><span class="n">light</span> <span class="o">=</span> <span class="p">[</span><span class="n">CALight</span> <span class="n">new</span><span class="p">];</span> <span class="c1">// directional light by default
+</span><span class="c1"></span><span class="p">[</span><span class="n">label</span><span class="p">.</span><span class="n">superview</span><span class="p">.</span><span class="n">layer</span> <span class="nl">setLights</span><span class="p">:</span><span class="l">@[</span><span class="n">light</span><span class="l">]</span><span class="p">];</span> <span class="c1">// has to be applied to superlayer
+</span><span class="c1"></span>
+<span class="n">CAMutableMeshTransform</span> <span class="o">*</span><span class="n">meshTransform</span> <span class="o">=</span> <span class="p">[</span><span class="n">CAMutableMeshTransform</span> <span class="nl">identityMeshTransformWithNumberOfRows</span><span class="p">:</span><span class="mi">50</span> <span class="nl">numberOfColumns</span><span class="p">:</span><span class="mi">50</span><span class="p">];</span>
+<span class="p">[</span><span class="n">meshTransform</span> <span class="nl">mapVerticesUsingBlock</span><span class="p">:</span><span class="o">^</span><span class="n">CAMeshVertex</span><span class="p">(</span><span class="n">CAMeshVertex</span> <span class="n">vertex</span><span class="p">,</span> <span class="n">NSUInteger</span> <span class="n">vertexIndex</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">float</span> <span class="n">x</span> <span class="o">=</span> <span class="n">vertex</span><span class="p">.</span><span class="n">from</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="mf">0.5f</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">y</span> <span class="o">=</span> <span class="n">vertex</span><span class="p">.</span><span class="n">from</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="mf">0.5f</span><span class="p">;</span>
+    
+    <span class="kt">float</span> <span class="n">r</span> <span class="o">=</span> <span class="n">sqrtf</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="n">y</span><span class="p">);</span>
+    
+    <span class="n">vertex</span><span class="p">.</span><span class="n">to</span><span class="p">.</span><span class="n">z</span> <span class="o">=</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">sinf</span><span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">M_PI</span> <span class="o">*</span> <span class="mf">4.0</span><span class="p">);</span>
+    
+    <span class="k">return</span> <span class="n">vertex</span><span class="p">;</span>
+<span class="p">}];</span>
+<span class="n">label</span><span class="p">.</span><span class="n">layer</span><span class="p">.</span><span class="n">meshTransform</span> <span class="o">=</span> <span class="n">meshTransform</span><span class="p">;</span>
+
+<span class="n">CATransform3D</span> <span class="n">transform</span> <span class="o">=</span> <span class="n">CATransform3DMakeRotation</span><span class="p">(</span><span class="o">-</span><span class="n">M_PI_4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="n">transform</span><span class="p">.</span><span class="n">m34</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">800.0</span><span class="p">;</span> <span class="c1">// some perspective
+</span><span class="c1"></span><span class="n">label</span><span class="p">.</span><span class="n">layer</span><span class="p">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">transform</span><span class="p">;</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>And here&rsquo;s the result of applying the code to a square <code>UILabel</code>:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../images/meshTransformLight@2x.jpg"
+         alt="CALight, CAMeshTransform, and CATransform3D all working together"width="427px"height="325px"
+    /> 
+    </div><span>
+            <p>CALight, CAMeshTransform, and CATransform3D all working together</p>
+        </span>
+</div>
+
+<p>While the lighting looks a little bit cheesy, it certainly is impressive how easy it is to do quite complex effects.</p>
+<p><code>CALight</code> seems to have tunable ambient, diffuse and specular intensities – a standard set of coefficients of <a href="http://en.wikipedia.org/wiki/Phong_reflection_model">Phong reflection model</a>. Moreover, <code>CALayer</code> has corresponding surface reflectance properties. I played with these for a few minutes and I didn&rsquo;t really get anywhere, but I <a href="https://gist.github.com/Ciechan/0449012865bb0a28947f">cleaned-up the private headers</a> so it should be much easier to test the lighting capabilities of Core Animation.</p>
+<h2 id="private-for-a-reason">Private for a Reason<a href="index.html#private-for-a-reason" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>One of the most important reasons for keeping an API private is that it doesn&rsquo;t have to be bullet proof and <code>CAMeshTransform</code> certainly is <em>not</em>. There are a few ways to get hurt.</p>
+<p>To begin with, assigning 20 to <code>subdivisionSteps</code> property is probably the easiest way to programmatically reboot your device. A set of memory warnings spilled into console is a clear indication of what&rsquo;s going on. This is certainly annoying, but can be easily avoided – don&rsquo;t touch the property or set it to 0.</p>
+<p>If one of the faces you provide is degenerated, e.g. all of its indices point to the same vertex, you will <strong>hang</strong> your device. Everything will stop working, including the hardware buttons (!) and only a hard restart will help (long press home + power buttons). The framework doesn&rsquo;t seem to be prepared for malformed input.</p>
+<p>Why do these problems happen? It&rsquo;s because of the <a href="http://iphonedevwiki.net/index.php/Backboardd">backboardd</a> – a process that is, among other activities, acting as a render server for Core Animation. Technically, it&rsquo;s not the app itself that makes the system crash, it&rsquo;s the indirect misuse of one of the core components of iOS that causes all the troubles.</p>
+<h2 id="missing-features">Missing Features<a href="index.html#missing-features" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>The idea of a general purpose mesh-transformable layer is complex enough that Core Animation team had to cut some corners and skip some of the potential features.</p>
+<p>Core Animation allows mesh-transformed layers to have an alpha channel. Rendering semitransparent objects <em>correctly</em> is not a trivial problem. It&rsquo;s usually done with a <a href="http://en.wikipedia.org/wiki/Painter's_algorithm">Painter&rsquo;s algorithm</a>. The z-sorting step is not hard to implement and indeed the code does seem to execute a <a href="http://en.wikipedia.org/wiki/Radix_sort">radix sort</a> call which is quite clever, since floats <a href="http://codercorner.com/RadixSortRevisited.htm">can be sorted with radix sort</a> as well. However, it&rsquo;s not enough to sort the triangles as some of them may overlap or intersect.</p>
+<p>The usual solution to this problem is to divide the triangles so that all the edge cases are removed. This part of the algorithm seems to be <em>not implemented</em>. Granted, correct &amp; good-looking meshes should rarely overlap in a tricky way, but sometimes it does happen and the mesh-transformed layer may look glitchy.</p>
+<p>Another feature that&rsquo;s been completely ignored is hit testing – the layer behaves as if it hasn&rsquo;t been mesh-transformed at all. Since neither <code>CALayer</code>&rsquo;s nor <code>UIView</code>&rsquo;s <code>hitTest:</code> method are aware of mesh, the hit test area of all the controls will rarely match their visual representation:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../images/meshTranformHitTest@2x.png"
+         alt="Hit test area of an embedded UISwitch is not affected by a mesh transform"width="587px"height="220px"
+    /> 
+    </div><span>
+            <p>Hit test area of an embedded UISwitch is not affected by a mesh transform</p>
+        </span>
+</div>
+
+<p>The solution to this problem would be to shoot a ray through the space, figure out which triangle has been hit, project the hit point from the 3D space back into the 2D space of the layer and <em>then</em> do the regular hit testing. Doable, but not easy.</p>
+<h1 id="replacing-private-api">Replacing Private API<a href="index.html#replacing-private-api" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Taking into account all the drawbacks of <code>CAMeshTransform</code> one could argue it&rsquo;s a faulty product. It&rsquo;s not. It&rsquo;s just <em>amazing</em>. It opens up the entire new spectrum of interaction and animation on iOS. It&rsquo;s a breath of fresh air in a world of plain old transforms, fade-ins and blurs. I badly wanted to mesh-transform everything, but I can&rsquo;t consciously rely on that many lines of private API calls. So I wrote an <a href="https://github.com/Ciechan/BCMeshTransformView">open-sourced and very closely matching replacement</a>.</p>
+<p>In the spirit of <code>CAMeshTransform</code> I created a <code>BCMeshTransform</code> which copies almost every feature of the original class. My intention was clear: if <code>CAMeshTransform</code> ever ships, you should be able to use the exact same mesh transforms on any <code>CALayer</code> and achieve extremely similar, if not exact, results. The only required step would be to find and replace <code>BC</code> class prefix with <code>CA</code>.</p>
+<p>With a transform class in hand the only thing that&rsquo;s missing is a target of a mesh transform. For this purpose I created a <code>BCMeshTransformView</code>, a <code>UIView</code> subclass that has a <code>meshTransform</code> property.</p>
+<p>Without direct, public access to Core Animation render server I was forced to use OpenGL for my implementation. This is not a perfect solution as it introduces some drawbacks the original class didn&rsquo;t have, but it seems to be the only currently available option.</p>
+<h1 id="a-few-tricks">A Few Tricks<a href="index.html#a-few-tricks" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>When I was creating the classes I encountered a few challenges and it probably won&rsquo;t hurt to discuss my solutions to these problems.</p>
+<h2 id="animating-with-uiview-animation-block">Animating with <code>UIView</code> Animation Block<a href="index.html#animating-with-uiview-animation-block" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>It turns out it&rsquo;s not that hard to write a custom animatable property of any class. <a href="https://twitter.com/davidronnqvist">David Rönnqvist</a> has pointed out in his <a href="https://github.com/d-ronnqvist/Behind-the-Curtain-of-UIView-Animations-Slides">presentation on UIView animations</a> that a <code>CALayer</code> asks its delegate (a <code>UIView</code> owning the layer) for an action when any of its animatable properties is set.</p>
+<p>If we&rsquo;re inside an animation block then <code>UIView</code> will return an animation as a result of an <code>actionForKey:</code>method call. With a <code>CAAnimation</code> in hand we can check its properties to figure out what animation parameters does the block based animation have.</p>
+<p>My initial implementation looked like this:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setMeshTransform:</span><span class="p">(</span><span class="n">BCMeshTransform</span> <span class="o">*</span><span class="p">)</span><span class="nv">meshTransform</span>
+<span class="p">{</span>
+    <span class="n">CABasicAnimation</span> <span class="o">*</span><span class="n">animation</span> <span class="o">=</span> <span class="p">[</span><span class="nb">self</span> <span class="nl">actionForLayer</span><span class="p">:</span><span class="nb">self</span><span class="p">.</span><span class="n">layer</span> <span class="nl">forKey</span><span class="p">:</span><span class="s">@&#34;opacity&#34;</span><span class="p">];</span>
+    <span class="k">if</span> <span class="p">([</span><span class="n">animation</span> <span class="nl">isKindOfClass</span><span class="p">:[</span><span class="n">CABasicAnimation</span> <span class="k">class</span><span class="p">]])</span> <span class="p">{</span>
+    	<span class="c1">// we&#39;re inside an animation block
+</span><span class="c1"></span>    	<span class="n">NSTimeInterval</span> <span class="n">duration</span> <span class="o">=</span> <span class="n">animation</span><span class="p">.</span><span class="n">duration</span><span class="p">;</span>
+    	<span class="p">...</span>
+    <span class="p">}</span>
+    <span class="p">...</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>I quickly realized it was an invalid approach – the completion callback did not fire. When a block based animation is made, UIKit creates an instance of <code>UIViewAnimationState</code> and sets it as a delegate of any <code>CAAnimation</code> created within the block. What I suspect also happens, <code>UIViewAnimationState</code> waits for all the animations it owns to finish or get cancelled before firing the completion block. Since I was obtaining the animation just for the purpose of reading its properties, it hasn&rsquo;t been added to any layer and thus it never finished.</p>
+<p>The solution for this problem was much less complicated than I expected. I added a dummy view as a subview of <code>BCMeshTransformView</code> itself. Here&rsquo;s the code I&rsquo;m currently using:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-objc" data-lang="objc"><span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setMeshTransform:</span><span class="p">(</span><span class="n">BCMeshTransform</span> <span class="o">*</span><span class="p">)</span><span class="nv">meshTransform</span>
+<span class="p">{</span>
+    <span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">dummyAnimationView</span><span class="p">.</span><span class="n">layer</span> <span class="n">removeAllAnimations</span><span class="p">];</span>
+    <span class="nb">self</span><span class="p">.</span><span class="n">dummyAnimationView</span><span class="p">.</span><span class="n">layer</span><span class="p">.</span><span class="n">opacity</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
+    <span class="nb">self</span><span class="p">.</span><span class="n">dummyAnimationView</span><span class="p">.</span><span class="n">layer</span><span class="p">.</span><span class="n">opacity</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+    <span class="n">CAAnimation</span> <span class="o">*</span><span class="n">animation</span> <span class="o">=</span> <span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">dummyAnimationView</span><span class="p">.</span><span class="n">layer</span> <span class="nl">animationForKey</span><span class="p">:</span><span class="s">@&#34;opacity&#34;</span><span class="p">];</span>
+    
+    <span class="k">if</span> <span class="p">([</span><span class="n">animation</span> <span class="nl">isKindOfClass</span><span class="p">:[</span><span class="n">CABasicAnimation</span> <span class="k">class</span><span class="p">]])</span> <span class="p">{</span>
+    	<span class="c1">// we&#39;re inside UIView animation block
+</span><span class="c1"></span>    <span class="p">}</span>
+    <span class="p">...</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>The double <code>opacity</code> assignment is needed to ensure the property changes it value. The animation will not be added to a layer if it&rsquo;s already in the destination state. Moreover, a layer has to be in a view hierarchy of any <code>UIWindow</code>, otherwise its properties won&rsquo;t get animated.</p>
+<p>As for animating the meshes themselves, it&rsquo;s possible to force Core Animation to interpolate any <code>float</code> values by packing them in <code>NSNumber</code>, shoving them into <code>NSArray</code>, implementing <code>needsDisplayForKey:</code> class method and responding to presentation layer changes inside <code>setValue:forKey:</code> method. While very convenient, this approach has some serious performance issues. Meshes with 25x25 faces were not animated with 60 FPS, even on the iPad Air. The cost of packing and unpacking is very high.</p>
+<p>Instead of pursuing the Core Animation way, I used a very simple animation engine powered by <code>CADisplayLink</code>. This approach is <em>much</em> more performant, handling 100x100 faces with butter smooth 60 FPS. It&rsquo;s not a perfect solution, we&rsquo;re loosing many conveniences of <code>CAAnimation</code>, but I believe the 16x speed boost is worth the trouble.</p>
+<h2 id="rendering-content">Rendering Content<a href="index.html#rendering-content" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h2>
+<p>The core purpose of <code>BCMeshTransformView</code> is to display its mesh-transformed subviews. The view hierarchy has to be rendered into a texture before its submitted to OpenGL. The textured vertex mesh then gets displayed by <code>GLKView</code> which is the the main workhorse of <code>BCMeshTransformView</code>. This high level overview is straightforward, but it doesn&rsquo;t mention the problem of snapshotting the subview hierarchy.</p>
+<p>We don&rsquo;t want to snapshot the <code>GLKView</code> itself as this would quickly create a mirror-tunnel like effect. On top of that, we don&rsquo;t want to display the other subviews directly – they&rsquo;re supposed to be visible inside the OpenGL world, not within the UIKit view hierarchy. They can&rsquo;t be put beneath the <code>GLKView</code> as it has to be non opaque. To solve these issues I came up with a concept of a <code>contentView</code>, similarly to how <code>UITableViewCell</code> handles its user defined subviews. Here&rsquo;s how a view hierarchy looks:</p>
+
+
+<div class="img_container">
+    <div class="img_border">
+    <img src="../images/meshTransformContentView@2x.png"
+         alt="The view hierarchy of BCMeshTransformView"width="565px"height="495px"
+    /> 
+    </div><span>
+            <p>The view hierarchy of BCMeshTransformView</p>
+        </span>
+</div>
+
+<p>The <code>contentView</code> is embedded inside a <code>containerView</code>. The <code>containerView</code> has a frame of <code>CGRectZero</code> and  <code>clipsToBounds</code> property set to <code>YES</code>, making it invisible to the user but still within the reach of <code>BCMeshTransformView</code>. Every subview that should get mesh-transformed must be added to <code>contentView</code>.</p>
+<p>A content of <code>contentView</code> is rendered into a texture using <code>drawViewHierarchyInRect:afterScreenUpdates:</code>. The entire process of snapshotting and uploading texture is very fast, but unfortunately for larger views it takes more than 16 milliseconds. This is too much to render the hierarchy on every frame.
+Even though <code>BCMeshTransformView</code> automatically observes changes of its <code>contentView</code> subviews and re-renders the texture on its own, it doesn&rsquo;t support animations inside the meshed subviews.</p>
+<h1 id="final-words">Final Words<a href="index.html#final-words" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
+<p>Without a doubt, a mesh transform is a fantastic concept, yet it seems so unexplored in the world of interfaces. It certainly adds more playfulness to otherwise dull screens. In fact, you can experience mesh transforms today, on your iOS device, by launching Game Center and watching the subtle deformations of bubbles. This is <code>CAMeshTransform</code> working its magic.</p>
+<p>I encourage you to check out <a href="https://github.com/Ciechan/BCMeshTransformView">the demo app I made</a> for <code>BCMeshTransformView</code>. It contains a few ideas of how a mesh transform can be used to enrich interaction, like my very simple, but functional take on <a href="https://dribbble.com/shots/899177-Slide-Concept">that famous Dribbble</a>. For more inspiration on some sweet meshes, <a href="http://marcus-experiments.tumblr.com">Experiments by Marcus Eckert</a> is a great place to start.</p>
+<p>I wholeheartedly hope <code>BCMeshTransformView</code> becomes obsolete on the first day of WWDC 2014. The Core Animation implementation of mesh transforms has more features and is more tightly integrated with the system. Although it currently doesn&rsquo;t handle all the edge cases correctly, with a bit of polishing it surely could. Fingers crossed for June 2.</p>
+
+    </div>
+</div>
+      </div>
+    </div>
+    <div id="footer">
+        Copyright &copy; 2022 Bartosz Ciechanowski
+    </div>
+  </div>
+</body>
+
+</html>

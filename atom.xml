@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Bartosz Ciechanowski</title>
+    <link>https://ciechanow.ski/</link>
+    <description>Recent content on Bartosz Ciechanowski</description>
+    
+    
+    
+	    <atom:link href="https://ciechanow.ski/atom.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Mechanical Watch</title>
+      <link>https://ciechanow.ski/mechanical-watch/</link>
+      <pubDate>Wed, 04 May 2022 04:00:00 -0800</pubDate>
+      
+      <guid>https://ciechanow.ski/mechanical-watch/</guid>
+      <description>In the world of modern portable devices, it may be hard to believe that merely a few decades ago the most convenient way to keep track of time was a mechanical watch. Unlike their quartz and smart siblings, mechanical watches can run without using any batteries or other electronic components.
+Over the course of this article I&amp;rsquo;ll explain the workings of the mechanism seen in the demonstration below. You can drag the device around to change your viewing angle, and you can use the slider to peek at what&amp;rsquo;s going on inside:&lt;br&gt;&lt;br&gt;This article has many interactive demonstrations which are best seen &lt;a href="https://ciechanow.ski/mechanical-watch/"&gt;on the website&lt;/a&gt;.
+      </description>
+    </item>
+    
+    <item>
+      <title>GPS</title>
+      <link>https://ciechanow.ski/gps/</link>
+      <pubDate>Tue, 18 Jan 2022 04:00:00 -0800</pubDate>
+      
+      <guid>https://ciechanow.ski/gps/</guid>
+      <description>Global Positioning System is, without a doubt, one of the most useful inventions of the late 20th century. It made it significantly easier for ships, airplanes, cars, and hikers to figure out where they are with high degree of accuracy.
+One of the most exciting aspects of this system are the satellites surrounding Earth. Here&amp;rsquo;s a current constellation of active satellites, you can drag the view around to see it from different angles:&lt;br&gt;&lt;br&gt;This article has many interactive demonstrations which are best seen &lt;a href="https://ciechanow.ski/gps/"&gt;on the website&lt;/a&gt;.
+      </description>
+    </item>
+    
+  </channel>
+</rss>

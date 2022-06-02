@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="492" height="202" viewBox="0 0 492 202">
+  <g fill="none" fill-rule="evenodd">
+    <rect width="20" height="20" x="351" y="21" fill="#9D9D9D"/>
+    <rect width="20" height="20" x="331" y="21" fill="#F9F9F9"/>
+    <rect width="20" height="20" x="371" y="21" fill="#C8C8C8"/>
+    <rect width="20" height="20" x="391" y="21" fill="#F3F3F3"/>
+    <rect width="20" height="20" x="351" y="41" fill="#686868"/>
+    <rect width="20" height="20" x="371" y="41" fill="#000"/>
+    <rect width="20" height="20" x="391" y="41" fill="#010101"/>
+    <rect width="20" height="20" x="411" y="41" fill="#272727"/>
+    <rect width="20" height="20" x="431" y="41" fill="#5B5B5B"/>
+    <rect width="20" height="20" x="451" y="41" fill="#909090"/>
+    <rect width="20" height="20" x="471" y="41" fill="#FAFAFA"/>
+    <rect width="20" height="20" x="451" y="61" fill="#181818"/>
+    <rect width="20" height="20" x="431" y="61" fill="#000"/>
+    <rect width="20" height="20" x="411" y="61" fill="#000"/>
+    <rect width="20" height="20" x="391" y="61" fill="#000"/>
+    <rect width="20" height="20" x="371" y="61" fill="#171717"/>
+    <rect width="20" height="20" x="351" y="61" fill="#EFEFEF"/>
+    <rect width="20" height="20" x="371" y="81" fill="#A4A4A4"/>
+    <rect width="20" height="20" x="391" y="81" fill="#000"/>
+    <rect width="20" height="20" x="411" y="81" fill="#000"/>
+    <rect width="20" height="20" x="431" y="81" fill="#000"/>
+    <rect width="20" height="20" x="451" y="81" fill="#717171"/>
+    <rect width="20" height="20" x="451" y="101" fill="#CDCDCD"/>
+    <rect width="20" height="20" x="431" y="101" fill="#000"/>
+    <rect width="20" height="20" x="411" y="101" fill="#000"/>
+    <rect width="20" height="20" x="391" y="101" fill="#434343"/>
+    <rect width="20" height="20" x="391" y="121" fill="#D9D9D9"/>
+    <rect width="20" height="20" x="411" y="121" fill="#070707"/>
+    <rect width="20" height="20" x="431" y="121" fill="#292929"/>
+    <rect width="20" height="20" x="431" y="141" fill="#848484"/>
+    <rect width="20" height="20" x="411" y="141" fill="#7F7F7F"/>
+    <rect width="20" height="20" x="411" y="161" fill="#FAFAFA"/>
+    <rect width="20" height="20" x="431" y="161" fill="#EDEDED"/>
+    <path stroke="#000" stroke-opacity=".122" d="M311 1L311 201M331 1L331 201M351 1L351 201M371 1L371 201M391 1L391 201M411 1L411 201M431 1L431 201M451 1L451 201M471 1L471 201"/>
+    <path stroke="#000" stroke-linecap="square" stroke-opacity=".122" d="M291 21L491 21M291 41L491 41M291 61L491 61M291 81L491 81M291 101L491 101M291 121L491 121M291 141L491 141M291 161L491 161M291 181L491 181"/>
+    <path stroke="#000" stroke-opacity=".122" d="M21 1L21 201M41 1L41 201M61 1L61 201M81 1L81 201M101 1L101 201M121 1L121 201M141 1L141 201M161 1L161 201M181 1L181 201"/>
+    <path stroke="#000" stroke-linecap="square" stroke-opacity=".122" d="M1 21L201 21M1 41L201 41M1 61L201 61M1 81L201 81M1 101L201 101M1 121L201 121M1 141L201 141M1 161L201 161M1 181L201 181"/>
+    <polygon stroke="#2968FF" stroke-width="2" points="55.336 28.652 143.395 171.16 185.035 55.121"/>
+    <g fill="#555" stroke="#555" transform="matrix(0 -1 -1 0 271 109)">
+      <polygon points="7 0 14 14 0 14"/>
+      <path stroke-linecap="square" stroke-width="3" d="M7,13.75 L7,49.25"/>
+    </g>
+    <rect width="200" height="200" x="291" y="1" stroke="#979797"/>
+    <rect width="200" height="200" x="1" y="1" stroke="#979797"/>
+  </g>
+</svg>
