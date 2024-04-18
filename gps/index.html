@@ -53,10 +53,10 @@
             </div>
             <div id="social">
                 <a class="patreon" href="https://www.patreon.com/ciechanowski" title="Patreon"><div class="patreonLogo">Patreon</div></a>
-                <a class="twitter" href="https://twitter.com/bciechanowski" title="Twitter"><div class="twitterLogo">Twitter</div></a>
+                <a class="twitter" href="https://twitter.com/bciechanowski" title="X / Twitter"><div class="twitterLogo">X / Twitter</div></a>
                 <a class="instagram" href="https://www.instagram.com/bartoszciechanowski/" title="Instagram"><div class="igLogo">Instagram</div></a>
                 <a class="email" href="mailto:bartosz@ciechanow.ski" title="e-mail"><div class="emailLogo">e-mail</div></a>
-                <a class="rss" href="../atom.xml" title="rss"><div class="rssLogo">rss</div></a>
+                <a class="rss" href="../atom.xml" title="RSS"><div class="rssLogo">RSS</div></a>
             </div>
         </div>
     </div>
@@ -112,7 +112,7 @@
 </div>
 <p>The process of calculating a location of a point using measurement of distances is called <em>trilateration</em> – that procedure lies at the heart of a GPS receiver. However, being tied to two or three measuring tapes is certainly <em>not</em> how any GPS device functions, so let&rsquo;s keep on making our primitive positioning system better.</p>
 <h1 id="time-of-flight">Time of Flight<a href="index.html#time-of-flight" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
-<p>The only purpose of the measuring tapes was to measure distances, but there are other ways to figure out how far away something is. For example, when we drive a car at a more or less <em>constant</em> speed of <span class="imperial_word">60 mph</span><span class="metric_word">60 km/h</span> we can easily calculate that after 15 minutes we&rsquo;ve traveled a distance of around <span class="imperial_word">15 mi</span><span class="metric_word">15 km</span>. As a side note, I&rsquo;m using <span class="imperial_word">imperial</span><span class="metric_word">metric</span> units here, but you can <a href="index.html#" class="es_link_button" onclick="switch_units();return false;">switch</a> to <span class="imperial_word">the metric</span><span class="metric_word">the imperial</span> system if you prefer.</p>
+<p>The only purpose of the measuring tapes was to measure distances, but there are other ways to figure out how far away something is. For example, when we drive a car at a more or less <em>constant</em> speed of <span class="imperial_word">60 mph</span><span class="metric_word">60 km/h</span> we can easily calculate that after 15 minutes we&rsquo;ve traveled a distance of around <span class="imperial_word">15 mi</span><span class="metric_word">15 km</span>. As a side note, I&rsquo;m using <span class="imperial_word">imperial</span><span class="metric_word">metric</span> units here, but you can <a href="index.html#" class="link_button" onclick="switch_units();return false;">switch</a> to <span class="imperial_word">the metric</span><span class="metric_word">the imperial</span> system if you prefer.</p>
 <p>Instead of driving from point to point we can fly a little drone around. In the simulation below you can control the progress of <span class="user_clock"><strong>time</strong></span> with the slider. The clock marks the time between the drone starting and ending its journey with a <span style="color:#85ADCD"><strong>blue arc</strong></span>:</p>
 <div class="padding_wrapper">
 <div class="drawer_container full_width ratio_70" id="map_drone0"></div>
@@ -287,7 +287,7 @@ c = 299 792 458 m/s
 <p>The Earth&rsquo;s curvature acts as a hill that obscures areas that lie beyond the horizon as seen by the <span style="color:rgb(255, 35, 21)"><strong>emitter</strong></span>. Thankfully, the higher we put the <span style="color:rgb(255, 35, 21)"><strong>emitter</strong></span>, the larger the area it sees. We can visualize that area in three dimensions using a cone:</p>
 <div class="drawer_container ratio_110" id="visible_cone"></div>
 <div id="visible_cone_sl0"></div>
-<p>Naturally, we can&rsquo;t build an arbitrarily tall tower, so to put an <span style="color:rgb(255, 35, 21)"><strong>emitter</strong></span> well above the ground level we&rsquo;ll have attach it to a <em>satellite</em> that we&rsquo;ll place high enough that it sees a reasonably big section of Earth. One could naively hope that we can just put a satellite in any place in space and it will just stay there, but unfortunately things aren&rsquo;t that simple.</p>
+<p>Naturally, we can&rsquo;t build an arbitrarily tall tower, so to put an <span style="color:rgb(255, 35, 21)"><strong>emitter</strong></span> well above the ground level we&rsquo;ll have to attach it to a <em>satellite</em> that we&rsquo;ll place high enough that it sees a reasonably big section of Earth. One could naively hope that we can just put a satellite in any place in space and it will just stay there, but unfortunately things aren&rsquo;t that simple.</p>
 <h1 id="orbits">Orbits<a href="index.html#orbits" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
 <p>Let&rsquo;s see what would happen to an object if we could magically put it motionless in space somewhere around the Earth. In the demonstration below you can drag the <span style="color:#FFB200"><strong>yellow object</strong></span> around. Once you let it go it will get pulled by the Earth&rsquo;s gravity which I&rsquo;ve symbolized with <span style="color:#4A7AB8"><strong>little blue arrows</strong></span>. As the <span style="color:#FFB200"><strong>object</strong></span> starts to move a <span style="color:#B79545"><strong>yellow arrow</strong></span> reflects its current velocity:</p>
 <div class="drawer_container full_width ratio_60" id="satellite_sim0"></div>
@@ -404,7 +404,7 @@ a<sup>3</sup> = T<sup>2</sup> &times; <span class="equation_frac">
     </div>
 </div>
 <div class="dark_light_bg_grad_bottom"></div>
-<p>So far I&rsquo;ve been fairly vague about the message that reaches a receiver, what that message contains, and how it&rsquo;s decoded, but those details there are fascinating – I&rsquo;ll discuss them in the last two sections of this article.</p>
+<p>So far I&rsquo;ve been fairly vague about the message that reaches a receiver, what that message contains, and how it&rsquo;s decoded, but those details are fascinating – I&rsquo;ll discuss them in the last two sections of this article.</p>
 <h1 id="navigation-message">Navigation Message<a href="index.html#navigation-message" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
 <p>The information sent by a GPS satellite is collectively known as a <em>navigation message</em>. I&rsquo;ll go over most of its pieces one by one, but first let&rsquo;s look at its structure. The entire message consists of 25 <span class="frame"><strong>frames</strong></span>, each <span class="frame"><strong>frame</strong></span> consists of 5 <span class="subframe"><strong>subframes</strong></span>. Each <span class="subframe"><strong>subframe</strong></span>, represented by a single row, consists of 10 <span class="word"><strong>words</strong></span>, and each <span class="word"><strong>word</strong></span> consists of 30 bits:</p>
 <div class="padding_wrapper">
@@ -576,7 +576,7 @@ a<sup>3</sup> = T<sup>2</sup> &times; <span class="equation_frac">
 <p>For a personal description of the history of GPS I recommend <a href="https://ethw.org/Oral-History:Brad_Parkinson#Parkinson.27s_educational_background_and_the_origins_of_GPS.5D">the interview</a> with <a href="https://en.wikipedia.org/wiki/Bradford_Parkinson">Brad Parkinson</a>, who was the lead architect of the system. While the interview was conducted in 1999, still relatively early days of consumer GPS, Brad correctly predicted an upcoming explosion in widespread personal use.</p>
 <h1 id="final-words">Final Words<a href="index.html#final-words" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
 <p>It&rsquo;s fascinating how much complexity and ingenuity is hidden behind the simple act of observing one&rsquo;s location in a mapping app on a smartphone. What I find particularly remarkable is how many different technological advancements were needed for GPS to work.</p>
-<p>Just the satellites themselves required the development of rockets, mastery of orbital controls, and manufacturing prowess to build devices capable of withstanding the extremities of space.</p>
+<p>Just the satellites themselves required the development of rockets, mastery of orbital controls, and manufacturing prowess to build devices capable of withstanding the extremes of space.</p>
 <p>Precise time tracking was made possible by the invention of an atomic clock, while advancements in radio transmission and clever coding algorithms allowed the very weak signal sent by satellites to be correctly deciphered on Earth by receivers, which were in turn dependent on microchips and the digital revolution.</p>
 <p>It&rsquo;s hard not get inspired by the relentless drive of people who kept pushing science and technology forward. All of their work made GPS an indispensable tool in our everyday life.</p>
 
@@ -584,7 +584,11 @@ a<sup>3</sup> = T<sup>2</sup> &times; <span class="equation_frac">
       </div>
     </div>
     <div id="footer">
-        Copyright &copy; 2022 Bartosz Ciechanowski
+        
+<div class="article_footer">
+If you enjoy these articles, consider supporting on <a href="https://www.patreon.com/ciechanowski">Patreon</a>.
+</div>
+Copyright &copy; 2024 Bartosz Ciechanowski
     </div>
   </div>
 </body>

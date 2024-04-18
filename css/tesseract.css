@@ -46,6 +46,9 @@
 
 .ts_xy, .ts_xz, .ts_xw, .ts_yz, .ts_yw, .ts_zw {
     text-transform: uppercase;
+    font-size: 1em;
+    padding-left: 0.25em;
+    padding-right: 0.25em;
 }
 
 .ts_xy {

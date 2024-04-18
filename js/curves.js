@@ -4138,8 +4138,10 @@ let cubic_patch_curvature_circle_principal;
 
             self.requested_repaint = false;
 
-
             if (!self.visible)
+                return;
+
+            if (width == 0 || height == 0)
                 return;
 
             self.was_drawn = true;

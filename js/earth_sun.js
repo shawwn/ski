@@ -535,11 +535,11 @@ function SpaceDrawer(gl, scale, container, mode) {
             return (num.toString().length) == 1 ? "0" + num : num.toString();
         }
 
-        date_string = imperial ? pad(m) + "/" + pad(d) + "/" + y :
+        date_string = !metric ? pad(m) + "/" + pad(d) + "/" + y :
             pad(d) + "/" + pad(m) + "/" + y;
 
 
-        time_string = imperial ? pad((h + 11) % 12 + 1) + ":" + pad(mi) + " " + (h < 12 || hour == 24 ? "AM" : "PM") :
+        time_string = !metric ? pad((h + 11) % 12 + 1) + ":" + pad(mi) + " " + (h < 12 || hour == 24 ? "AM" : "PM") :
             pad(h) + ":" + pad(mi);
 
         time_string += " UTC"
@@ -649,7 +649,7 @@ function SpaceDrawer(gl, scale, container, mode) {
         if (mode == "sun_size") {
             ctx.translate(width / 2, height / 2);
 
-            var size = Math.min(width, height) - 30;
+            var size = Math.max(0, Math.min(width, height) - 30);
 
             var sun_size = size;
 
@@ -673,7 +673,7 @@ function SpaceDrawer(gl, scale, container, mode) {
         } else if (mode == "orbit") {
             orbit();
         } else if (mode == "earth_rotation") {
-            var size = Math.min(width - 30, height - 80);
+            var size = Math.max(0, Math.min(width - 30, height - 80));
 
             var sidereal_day = 23.9344696;
             var angle = 2 * Math.PI * (hour + minute / 60) / sidereal_day + Math.PI;
@@ -889,7 +889,7 @@ function SpaceDrawer(gl, scale, container, mode) {
 
             var offset = fake_e * major;
 
-            var s = (0.5 * Math.min(width, height - 30) - 5);
+            var s = Math.max(0, (0.5 * Math.min(width, height - 30) - 5));
 
             ctx.translate(width / 2, height / 2 - 15);
 
@@ -1075,7 +1075,7 @@ function SpaceDrawer(gl, scale, container, mode) {
         function earth_orbit_axis() {
 
 
-            var size = Math.min(width, height - 30) * 0.9;
+            var size = Math.max(0, Math.min(width, height - 30) * 0.9);
 
             ctx.translate(width / 2, height / 2 - 15);
 
@@ -1351,7 +1351,7 @@ function SpaceDrawer(gl, scale, container, mode) {
 
         function sun_peri_ap_size() {
 
-            var size = Math.min(width, height * 2);
+            var size = Math.max(0, Math.min(width, height * 2));
 
             ctx.translate(Math.round(width / 2), Math.round(height / 2) - 20);
 
@@ -1426,7 +1426,7 @@ function SpaceDrawer(gl, scale, container, mode) {
 
             var offset = e * major;
 
-            var s = (0.5 * Math.min(width, height - 30) - 2);
+            var s = Math.max(0, (0.5 * Math.min(width, height - 30) - 2));
 
             ctx.translate(width / 2, height / 2 - 15);
 
@@ -1500,7 +1500,7 @@ function SpaceDrawer(gl, scale, container, mode) {
 
         function earth_sunlight_sun() {
 
-            var size = Math.min(width, height - 30) - 30;
+            var size = Math.max(0, Math.min(width, height - 30) - 30);
 
             ctx.translate(width / 2, height / 2 - 15);
 
@@ -1586,7 +1586,7 @@ function SpaceDrawer(gl, scale, container, mode) {
 
         function earth_sunlight(point) {
 
-            var size = Math.min(width, height - 30) - 30;
+            var size = Math.max(0, Math.min(width, height - 30) - 30);
 
             ctx.translate(width / 2, height / 2 - 15);
 
@@ -1715,7 +1715,7 @@ function SpaceDrawer(gl, scale, container, mode) {
         };
 
         function tropical_year() {
-            var size = Math.min(width, height) - 70;
+            var size = Math.max(0, Math.min(width, height) - 70);
 
             ctx.translate(width / 2, height / 2);
 
@@ -1860,7 +1860,7 @@ function SpaceDrawer(gl, scale, container, mode) {
 
             var offset = fake_e * major;
 
-            var s = (0.5 * Math.min(width, height - 30) - 5);
+            var s = Math.max(0, (0.5 * Math.min(width, height - 30) - 5));
 
             ctx.translate(width / 2, height / 2 - 15);
 
@@ -1993,7 +1993,7 @@ function SpaceDrawer(gl, scale, container, mode) {
 
             var offset = fake_e * major;
 
-            var s = (0.5 * Math.min(width, height - 30) - 5);
+            var s = Math.max(0, (0.5 * Math.min(width, height - 30) - 5));
 
             ctx.translate(width / 2, height / 2 - 15);
 
@@ -2126,7 +2126,7 @@ function SpaceDrawer(gl, scale, container, mode) {
 
             var offset = e * major;
 
-            var s = (0.5 * Math.min(width, height - 30) - 5);
+            var s = Math.max(0, (0.5 * Math.min(width, height - 30) - 5));
 
             ctx.translate(width / 2, height / 2 - 15);
 
@@ -2262,7 +2262,7 @@ function SpaceDrawer(gl, scale, container, mode) {
             var tilt = Math.PI * drag_y * 0.5 / max_tilt;
             var sc = Math.cos(tilt);
 
-            var s = (0.25 * Math.min(width, height / sc) - 2);
+            var s = Math.max(0, (0.25 * Math.min(width, height / sc) - 2));
 
             ctx.translate(Math.round(width / 2), Math.round(height / 2));
 
@@ -2503,7 +2503,7 @@ function SpaceDrawer(gl, scale, container, mode) {
 
 
         function precession() {
-            var size = Math.min(width, height) - 30;
+            var size = Math.max(0, Math.min(width, height) - 30);
 
             ctx.translate(width / 2, height / 2);
 
@@ -2747,7 +2747,7 @@ function SpaceDrawer(gl, scale, container, mode) {
 
 
         function cosine() {
-            var size = Math.min(width, height - 30) * 0.9;
+            var size = Math.max(0, Math.min(width, height - 30) * 0.9);
 
             ctx.translate(width / 2, height / 2 - 13);
 
@@ -3145,8 +3145,8 @@ function SpaceDrawer(gl, scale, container, mode) {
     var self = this;
     this.on_resize = function() {
 
-        width = wrapper.clientWidth;
-        height = wrapper.clientHeight;
+        width = Math.max(wrapper.clientWidth, 100);
+        height = Math.max(wrapper.clientHeight, 100);
 
 
         canvas.style.width = width + "px";
@@ -3157,7 +3157,7 @@ function SpaceDrawer(gl, scale, container, mode) {
 
         if (arcball) {
 
-            var size = Math.min(width, height - 30) - 30;
+            var size = Math.max(0, Math.min(width, height - 30) - 30);
             arcball.set_viewport(15, 15, size, size);
         }
 
@@ -3173,7 +3173,7 @@ function SpaceDrawer(gl, scale, container, mode) {
     window.addEventListener("load", this.on_resize, true);
 }
 
-var imperial = false;
+var metric = true;
 
 var fake_orbit_slider;
 var fake_orbit_drawer;
@@ -3196,12 +3196,19 @@ var earth_orbit_side_drawer;
 var repaint_func;
 
 document.addEventListener("DOMContentLoaded", function(event) {
-
-    var language = window.navigator.userLanguage || window.navigator.language;
-    if (language == "en_US" || language == "en-US") {
-        imperial = true;
-        document.body.classList.add("show_imperial");
+    
+    if (!localStorage.getItem("global.metric")) {      
+        let language = window.navigator.userLanguage || window.navigator.language;
+        if (language == "en_US" || language == "en-US") {
+            metric = false;
+        }
+    } else {
+        metric = localStorage.getItem("global.metric") === "true";
     }
+    
+    if (!metric)
+        document.body.classList.add("show_imperial");
+
 
     var repaint = function() {
         for (var i = 0; i < drawers.length; i++) {
@@ -3426,12 +3433,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
 });
 
 function switch_units() {
-    imperial = !imperial;
+    metric = !metric;
+    
+    localStorage.setItem("global.metric", metric ? "true" : "false");
 
-    if (imperial)
-        document.body.classList.add("show_imperial");
-    else
+    if (metric)
         document.body.classList.remove("show_imperial");
+    else
+        document.body.classList.add("show_imperial");
 
     repaint_func();
 }

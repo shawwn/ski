@@ -49,10 +49,10 @@
             </div>
             <div id="social">
                 <a class="patreon" href="https://www.patreon.com/ciechanowski" title="Patreon"><div class="patreonLogo">Patreon</div></a>
-                <a class="twitter" href="https://twitter.com/bciechanowski" title="Twitter"><div class="twitterLogo">Twitter</div></a>
+                <a class="twitter" href="https://twitter.com/bciechanowski" title="X / Twitter"><div class="twitterLogo">X / Twitter</div></a>
                 <a class="instagram" href="https://www.instagram.com/bartoszciechanowski/" title="Instagram"><div class="igLogo">Instagram</div></a>
                 <a class="email" href="mailto:bartosz@ciechanow.ski" title="e-mail"><div class="emailLogo">e-mail</div></a>
-                <a class="rss" href="../atom.xml" title="rss"><div class="rssLogo">rss</div></a>
+                <a class="rss" href="../atom.xml" title="RSS"><div class="rssLogo">RSS</div></a>
             </div>
         </div>
     </div>
@@ -196,7 +196,7 @@ Similarly to scientific notation in base-10, we also moved the binary point to r
 </div>
 <p>Unfortunately, the number of bits of significand in a <code>float</code> is limited, so some real values may not be perfectly representable in the floating point form. A decimal number 0.2 has the following base-2 representation:</p>
 <div class="standard_number">
-<div class ="standard_digit"><span class="float_sign">&minus;</span><span class="float_mant">1.<span class="vinculum">1001</span>...</span>&#215;2<span class="float_exp"><sup>&minus;3</sup></span></div>
+<div class ="standard_digit"><span class="float_sign">+</span><span class="float_mant">1.<span class="vinculum">1001</span>...</span>&#215;2<span class="float_exp"><sup>&minus;3</sup></span></div>
 </div>
 <p>The <span class="vinculum">overline</span> (technically known as <a href="https://en.wikipedia.org/wiki/Vinculum_(symbol)">vinculum</a>) indicates a forever repeating value. The 25<sup>th</sup> and later significant digits of the perfect base-2 scientific representation of that number won&rsquo;t fit in a <code>float</code> and have to be accounted for by rounding the remaining bits. The full significand:</p>
 <div class="standard_number small">
@@ -653,7 +653,11 @@ Notice the necessary truncation of a large part of exponents and of a gigantic p
       </div>
     </div>
     <div id="footer">
-        Copyright &copy; 2022 Bartosz Ciechanowski
+        
+<div class="article_footer">
+If you enjoy these articles, consider supporting on <a href="https://www.patreon.com/ciechanowski">Patreon</a>.
+</div>
+Copyright &copy; 2024 Bartosz Ciechanowski
     </div>
   </div>
 </body>

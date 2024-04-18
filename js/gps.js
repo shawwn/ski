@@ -2086,6 +2086,8 @@ let signal11;
             if (!self.visible)
                 return;
 
+            if (width == 0 || height == 0)
+                return;
 
             let ctx = canvas.getContext("2d");
 
@@ -4305,7 +4307,7 @@ let signal11;
                 grad.addColorStop(0.42, "rgba(255, 122, 76, 0.12)");
                 grad.addColorStop(0.50, "rgba(255, 119, 73, 0.00)");
 
-                ctx.globalCompositeOperation = "plus-lighter";
+                ctx.globalCompositeOperation = "lighter";
                 ctx.fillStyle = grad;
                 ctx.fillEllipse(0, 0, 0.15);
 
@@ -6493,13 +6495,17 @@ let signal11;
 
     document.addEventListener("DOMContentLoaded", function(event) {
 
-
-        var language = window.navigator.userLanguage || window.navigator.language;
-
-        if (language == "en_US" || language == "en-US") {
-            metric = false;
-            document.body.classList.add("show_imperial");
+        if (!localStorage.getItem("global.metric")) {      
+            let language = window.navigator.userLanguage || window.navigator.language;
+            if (language == "en_US" || language == "en-US") {
+                metric = false;
         }
+        } else {
+            metric = localStorage.getItem("global.metric") === "true";
+        }
+        
+        if (!metric)
+            document.body.classList.add("show_imperial");
 
         function make_drawer(name, slider_count, args) {
             let ret = [];
@@ -6794,6 +6800,8 @@ function global_animate(animate) {
 
 function switch_units() {
     metric = !metric;
+    
+    localStorage.setItem("global.metric", metric ? "true" : "false");
 
     if (metric)
         document.body.classList.remove("show_imperial");

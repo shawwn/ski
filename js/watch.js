@@ -3237,6 +3237,9 @@ let gear_train5_explainers;
             if (!self.visible)
                 return;
 
+            if (width == 0 || height == 0)
+                return;
+
             vp = mat4_mul(proj, mat3_to_mat4(rot));
 
             let ctx = canvas.getContext("2d");

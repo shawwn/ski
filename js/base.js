@@ -81,6 +81,7 @@ CanvasRenderingContext2D.prototype.arrow = function(x0, y0, x1, y1, w, arrw, arr
 CanvasRenderingContext2D.prototype.feather = function(w, h, l, r, t, b, tx, ty) {
     this.save();
     this.resetTransform();
+    this.globalAlpha = 1;
 
     if (tx !== undefined && ty !== undefined)
         this.translate(tx, ty);
@@ -88,15 +89,19 @@ CanvasRenderingContext2D.prototype.feather = function(w, h, l, r, t, b, tx, ty) 
     this.globalCompositeOperation = "destination-out";
 
     let grd;
-    let n = 8;
+    let n = 15;
+    
+    let stops = new Array (n + 1);
+    for (let i = 0; i <= n; i++) {
+        let x = i / n;
+        stops[i] = "rgba(0,0,0," + x*x*x*(x*(x*6.0-15.0)+10.0) + ")";
+    }
 
     if (t) {
         grd = this.createLinearGradient(0, 0, 0, t);
         for (let i = 0; i <= n; i++) {
-            let t = i / n;
-            grd.addColorStop(1 - t, "rgba(0,0,0," + ((t * t * t) + 3 * (1 - t) * t * t * t) + ")");
+            grd.addColorStop(1 - i / n, stops[i]);
         }
-
 
         this.fillStyle = grd;
         this.fillRect(0, 0, w, t);
@@ -105,8 +110,7 @@ CanvasRenderingContext2D.prototype.feather = function(w, h, l, r, t, b, tx, ty) 
     if (b) {
         grd = this.createLinearGradient(0, h - b, 0, h);
         for (let i = 0; i <= n; i++) {
-            let t = i / n;
-            grd.addColorStop(t, "rgba(0,0,0," + ((t * t * t) + 3 * (1 - t) * t * t * t) + ")");
+            grd.addColorStop(i / n, stops[i]);
         }
 
         this.fillStyle = grd;
@@ -116,8 +120,7 @@ CanvasRenderingContext2D.prototype.feather = function(w, h, l, r, t, b, tx, ty) 
     if (l) {
         grd = this.createLinearGradient(0, 0, l, 0);
         for (let i = 0; i <= n; i++) {
-            let t = i / n;
-            grd.addColorStop(1 - t, "rgba(0,0,0," + ((t * t * t) + 3 * (1 - t) * t * t * t) + ")");
+            grd.addColorStop(1 - i / n, stops[i]);
         }
 
 
@@ -128,8 +131,7 @@ CanvasRenderingContext2D.prototype.feather = function(w, h, l, r, t, b, tx, ty) 
     if (r) {
         grd = this.createLinearGradient(w - r, 0, w, 0);
         for (let i = 0; i <= n; i++) {
-            let t = i / n;
-            grd.addColorStop(t, "rgba(0,0,0," + ((t * t * t) + 3 * (1 - t) * t * t * t) + ")");
+            grd.addColorStop(i / n, stops[i]);
         }
 
 
@@ -145,7 +147,7 @@ CanvasRenderingContext2D.prototype.feather = function(w, h, l, r, t, b, tx, ty) 
 
 function mat4_transpose(a) {
 
-    var res = [a[0], a[4], a[8], a[12],
+    let res = [a[0], a[4], a[8], a[12],
         a[1], a[5], a[9], a[13],
         a[2], a[6], a[10], a[14],
         a[3], a[7], a[11], a[15]
@@ -160,7 +162,7 @@ function mat4_mul(a, b) {
        8  9 10 11
       12 13 14 15 */
 
-    var res = [];
+    let res = new Array(16);;
     res[0] = a[0] * b[0] + a[1] * b[4] + a[2] * b[8] + a[3] * b[12];
     res[1] = a[0] * b[1] + a[1] * b[5] + a[2] * b[9] + a[3] * b[13];
     res[2] = a[0] * b[2] + a[1] * b[6] + a[2] * b[10] + a[3] * b[14];
@@ -185,7 +187,7 @@ function mat4_mul(a, b) {
 }
 
 function mat4_mul_vec3(a, b) {
-    var res = [];
+    let res = new Array(4);
     res[0] = a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3];
     res[1] = a[4] * b[0] + a[5] * b[1] + a[6] * b[2] + a[7];
     res[2] = a[8] * b[0] + a[9] * b[1] + a[10] * b[2] + a[11];
@@ -195,7 +197,7 @@ function mat4_mul_vec3(a, b) {
 }
 
 function mat4_mul_vec4(a, b) {
-    var res = [];
+    let res = new Array(4);
     res[0] = a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3];
     res[1] = a[4] * b[0] + a[5] * b[1] + a[6] * b[2] + a[7] * b[3];
     res[2] = a[8] * b[0] + a[9] * b[1] + a[10] * b[2] + a[11] * b[3];
@@ -206,7 +208,7 @@ function mat4_mul_vec4(a, b) {
 
 function mat4_invert(a) {
 
-    let out = Array(16);
+    let out = new Array(16);
 
     let a00 = a[0],
         a01 = a[1],
@@ -263,7 +265,7 @@ function mat4_invert(a) {
 }
 
 
-var ident_mat4 = [1, 0, 0, 0,
+let ident_mat4 = [1, 0, 0, 0,
     0, 1, 0, 0,
     0, 0, 1, 0,
     0, 0, 0, 1
@@ -287,8 +289,8 @@ function scale_mat4(a) {
 
 
 function rot_x_mat4(a) {
-    var c = Math.cos(a);
-    var s = Math.sin(a);
+    let c = Math.cos(a);
+    let s = Math.sin(a);
 
     return [1, 0, 0, 0,
         0, c, -s, 0,
@@ -298,8 +300,8 @@ function rot_x_mat4(a) {
 }
 
 function rot_y_mat4(a) {
-    var c = Math.cos(a);
-    var s = Math.sin(a);
+    let c = Math.cos(a);
+    let s = Math.sin(a);
 
     return [c, 0, s, 0,
         0, 1, 0, 0, -s, 0, c, 0,
@@ -308,8 +310,8 @@ function rot_y_mat4(a) {
 }
 
 function rot_z_mat4(a) {
-    var c = Math.cos(a);
-    var s = Math.sin(a);
+    let c = Math.cos(a);
+    let s = Math.sin(a);
 
     return [c, -s, 0, 0,
         s, c, 0, 0,
@@ -354,18 +356,16 @@ let z_flip_mat3 = [1, 0, 0, 0, 1, 0, 0, 0, -1];
 
 function mat3_to_mat4(mat) {
     return [mat[0], mat[1], mat[2], 0,
-        mat[3], mat[4], mat[5], 0,
-        mat[6], mat[7], mat[8], 0,
-        0, 0, 0, 1
-    ];
+            mat[3], mat[4], mat[5], 0,
+            mat[6], mat[7], mat[8], 0,
+            0, 0, 0, 1];
 }
 
 
 function mat4_to_mat3(mat) {
     return [mat[0], mat[1], mat[2],
-        mat[4], mat[5], mat[6],
-        mat[8], mat[9], mat[10]
-    ];
+            mat[4], mat[5], mat[6],
+            mat[8], mat[9], mat[10]];
 }
 
 
@@ -373,27 +373,27 @@ function mat4_to_mat3(mat) {
 
 
 function mat3_invert(a) {
-    var a00 = a[0],
+    let a00 = a[0],
         a01 = a[1],
         a02 = a[2];
-    var a10 = a[3],
+    let a10 = a[3],
         a11 = a[4],
         a12 = a[5];
-    var a20 = a[6],
+    let a20 = a[6],
         a21 = a[7],
         a22 = a[8];
-    var b01 = a22 * a11 - a12 * a21;
-    var b11 = -a22 * a10 + a12 * a20;
-    var b21 = a21 * a10 - a11 * a20;
+    let b01 = a22 * a11 - a12 * a21;
+    let b11 = -a22 * a10 + a12 * a20;
+    let b21 = a21 * a10 - a11 * a20;
 
-    var det = a00 * b01 + a01 * b11 + a02 * b21;
+    let det = a00 * b01 + a01 * b11 + a02 * b21;
 
     if (!det) {
         return null;
     }
 
     det = 1.0 / det;
-    var out = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+    let out = [0, 0, 0, 0, 0, 0, 0, 0, 0];
     out[0] = b01 * det;
     out[1] = (-a22 * a01 + a02 * a21) * det;
     out[2] = (a12 * a01 - a02 * a11) * det;
@@ -411,7 +411,7 @@ function mat3_mul(a, b) {
        3 4 5
        6 7 8 */
 
-    var res = [];
+    let res = new Array(9);
     res[0] = a[0] * b[0] + a[1] * b[3] + a[2] * b[6];
     res[1] = a[0] * b[1] + a[1] * b[4] + a[2] * b[7];
     res[2] = a[0] * b[2] + a[1] * b[5] + a[2] * b[8];
@@ -429,17 +429,7 @@ function mat3_mul(a, b) {
 
 
 function mat3_mul_vec(a, b) {
-    var res = [];
-    res[0] = a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-    res[1] = a[3] * b[0] + a[4] * b[1] + a[5] * b[2];
-    res[2] = a[6] * b[0] + a[7] * b[1] + a[8] * b[2];
-
-    return res;
-}
-
-
-function mat3_mul_vec(a, b) {
-    var res = [];
+    let res = new Array(3);
     res[0] = a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
     res[1] = a[3] * b[0] + a[4] * b[1] + a[5] * b[2];
     res[2] = a[6] * b[0] + a[7] * b[1] + a[8] * b[2];
@@ -449,7 +439,7 @@ function mat3_mul_vec(a, b) {
 
 function mat3_transpose(a) {
 
-    var res = [a[0], a[3], a[6],
+    let res = [a[0], a[3], a[6],
         a[1], a[4], a[7],
         a[2], a[5], a[8]
     ];
@@ -463,22 +453,22 @@ function scale_mat3(a) {
 }
 
 function rot_x_mat3(a) {
-    var c = Math.cos(a);
-    var s = Math.sin(a);
+    let c = Math.cos(a);
+    let s = Math.sin(a);
 
     return [1, 0, 0, 0, c, -s, 0, s, c];
 }
 
 function rot_y_mat3(a) {
-    var c = Math.cos(a);
-    var s = Math.sin(a);
+    let c = Math.cos(a);
+    let s = Math.sin(a);
 
     return [c, 0, s, 0, 1, 0, -s, 0, c];
 }
 
 function rot_z_mat3(a) {
-    var c = Math.cos(a);
-    var s = Math.sin(a);
+    let c = Math.cos(a);
+    let s = Math.sin(a);
 
     return [c, -s, 0, s, c, 0, 0, 0, 1];
 }
@@ -506,42 +496,49 @@ function rot_aa_mat3(axis, angle) {
     ];
 }
 
-var ident_matrix = [1, 0, 0, 0, 1, 0, 0, 0, 1];
-var ident_mat3 = ident_matrix;
+let ident_matrix = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+let ident_mat3 = ident_matrix;
 
 
 function vec_add(a, b) {
-    var r = [];
-    for (var i = 0; i < a.length; i++)
-        r.push(a[i] + b[i]);
+    let r = new Array(a.length);
+    for (let i = 0; i < a.length; i++)
+        r[i] = a[i] + b[i];
     return r;
 }
 
 function vec_sub(a, b) {
-    var r = [];
-    for (var i = 0; i < a.length; i++)
-        r.push(a[i] - b[i]);
+    let r = new Array(a.length);
+    for (let i = 0; i < a.length; i++)
+        r[i] = a[i] - b[i];
+    return r;
+}
+
+function vec_neg(a) {
+    let r  = new Array(a.length);
+    for (let i = 0; i < a.length; i++)
+        r[i] = -a[i];
     return r;
 }
 
 function vec_scale(a, x) {
-    var r = [];
-    for (var i = 0; i < a.length; i++)
-        r.push(a[i] * x);
+    let r = new Array(a.length);
+    for (let i = 0; i < a.length; i++)
+        r[i] = a[i] * x;
     return r;
 }
 
 function vec_mul(a, b) {
-    var r = [];
-    for (var i = 0; i < a.length; i++)
-        r.push(a[i] * b[i]);
+    let r = new Array(a.length);
+    for (let i = 0; i < a.length; i++)
+        r[i] = a[i] * b[i];
     return r;
 }
 
 
 function vec_dot(a, b) {
-    var r = 0
-    for (var i = 0; i < a.length; i++)
+    let r = 0;
+    for (let i = 0; i < a.length; i++)
         r += a[i] * b[i];
     return r;
 }
@@ -551,21 +548,24 @@ function vec_cross(a, b) {
     return [a[1] * b[2] - a[2] * b[1], -a[0] * b[2] + a[2] * b[0], a[0] * b[1] - a[1] * b[0]];
 }
 
-function vec_len_sq(a) {
+function vec_cross_2d(a, b) {
+    return a[0] * b[1] - a[1] * b[0];
+}
 
+function vec_len_sq(a) {
     return vec_dot(a, a);
 }
 
 function vec_len(a) {
-    var d = 0;
-    for (var i = 0; i < a.length; i++)
+    let d = 0;
+    for (let i = 0; i < a.length; i++)
         d += a[i] * a[i];
 
     return Math.sqrt(d);
 }
 
 function vec_eq(a, b) {
-    for (var i = 0; i < a.length; i++)
+    for (let i = 0; i < a.length; i++)
         if (a[i] != b[i])
             return false;
 
@@ -573,26 +573,26 @@ function vec_eq(a, b) {
 }
 
 function vec_norm(a) {
-    var d = 0;
-    for (var i = 0; i < a.length; i++)
+    let d = 0;
+    for (let i = 0; i < a.length; i++)
         d += a[i] * a[i];
 
     d = 1.0 / Math.sqrt(d);
-    var r = [];
+    let r = new Array(a.length);
     if (d < 0.00000001) {
-        for (var i = 0; i < a.length; i++)
-            r.push(0);
+        for (let i = 0; i < a.length; i++)
+            r[i] = 0;
         return r;
     }
 
-    for (var i = 0; i < a.length; i++)
-        r.push(a[i] * d);
+    for (let i = 0; i < a.length; i++)
+        r[i] = a[i] * d;
     return r;
 }
 
 function vec_lerp(a, b, f) {
-    var r = [];
-    for (var i = 0; i < a.length; i++)
+    let r = new Array(a.length);
+    for (let i = 0; i < a.length; i++)
         r[i] = lerp(a[i], b[i], f);
     return r;
 }
@@ -631,6 +631,10 @@ function step(edge0, x) {
     return x > edge0 ? 1 : 0;
 }
 
+function hash(x) {
+    return (((Math.sin(x)*0.5 + 0.5) * 43758.5453) % 1);
+}
+
 function sharp_step(edge0, edge1, x) {
     return saturate((x - edge0) / (edge1 - edge0));
 }
@@ -640,12 +644,23 @@ function smooth_step(edge0, edge1, x) {
     return x * x * (3.0 - 2.0 * x);
 }
 
+function rgba_hex_color(rgb, a = 1) {
+    return [(((rgb >> 16) & 0xff) / 255.0) * a, (((rgb >> 8) & 0xff) / 255.0) * a, ((rgb & 0xff) / 255.0) * a, a];
+}
+
 function rgba255_sq_color(r, g, b, a) {
     return [(r / 255.0) * (r / 255.0) * a, (g / 255.0) * (g / 255.0) * a, (b / 255.0) * (b / 255.0) * a, a];
 }
 
 function rgba255_color(r, g, b, a) {
     return [(r / 255.0) * a, (g / 255.0) * a, (b / 255.0) * a, a];
+}
+
+function rgba_color_string(rgba) {
+    return "rgba(" + Math.round(saturate(rgba[0]) * 255) + "," +
+        Math.round(saturate(rgba[1]) * 255) + "," +
+        Math.round(saturate(rgba[2]) * 255) + "," +
+        saturate(rgba[3]) + ")";
 }
 
 function flatten(a) {
@@ -683,18 +698,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
 window.TouchHandler = function(target, begin, move, end) {
 
-    target.onmousedown = mouse_down;
-    target.addEventListener("touchstart", genericTouchHandler(mouse_down), false);
-
-    var move_handler = genericTouchHandler(mouse_move);
+    target.addEventListener("mousedown", mouse_down, false);
 
     function mouse_down(e) {
         window.addEventListener("mousemove", mouse_move, false);
         window.addEventListener("mouseup", mouse_up, false);
-
-        window.addEventListener("touchmove", move_handler, false);
-        window.addEventListener("touchend", mouse_up, false);
-        window.addEventListener("touchcancel", mouse_up, false);
 
         let res = begin ? begin(e) : true;
 
@@ -711,11 +719,77 @@ window.TouchHandler = function(target, begin, move, end) {
         window.removeEventListener("mousemove", mouse_move, false);
         window.removeEventListener("mouseup", mouse_up, false);
 
-        window.removeEventListener("touchmove", move_handler, false);
-        window.removeEventListener("touchend", mouse_up, false);
-        window.removeEventListener("touchcancel", mouse_up, false);
-
         return end ? end(e) : true;
+    }
+
+
+
+    target.addEventListener("touchstart", touch_down, false);
+
+
+    let identifier;
+
+    function touch_down(e) {
+
+
+        if (!identifier) {
+            window.addEventListener("touchmove", touch_move, false);
+            window.addEventListener("touchend", touch_end, false);
+            window.addEventListener("touchcancel", touch_end, false);
+            let touch = e.changedTouches[0];
+            
+            identifier = touch.identifier;
+            touch.timeStamp = e.timeStamp;
+
+            let res = begin ? begin(touch) : true;
+
+            if (res && e.preventDefault)
+                e.preventDefault();
+            return res;
+        }
+        return false;
+
+
+
+    }
+
+    function touch_move(e) {
+
+        if (!move)
+            return true;
+
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            
+            let touch = e.changedTouches[i];
+
+            if (touch.identifier == identifier) {
+                touch.timeStamp = e.timeStamp;
+
+                return move(touch);
+            }
+        }
+    }
+
+
+    function touch_end(e) {
+
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            let touch = e.changedTouches[i];
+
+            if (touch.identifier == identifier) {
+                touch.timeStamp = e.timeStamp;
+
+                identifier = undefined;
+
+                window.removeEventListener("touchmove", touch_move, false);
+                window.removeEventListener("touchend", touch_end, false);
+                window.removeEventListener("touchcancel", touch_end, false);
+                return end ? end(touch) : true;
+            }
+        }
+
+
+        return true;
     }
 }
 
@@ -725,9 +799,9 @@ window.Dragger = function(target, callback) {
     target.onmousedown = mouse_down;
     target.addEventListener("touchstart", genericTouchHandler(mouse_down), false);
 
-    var move_handler = genericTouchHandler(mouse_move);
+    let move_handler = genericTouchHandler(mouse_move);
 
-    var prev_mouse_x, prev_mouse_y;
+    let prev_mouse_x, prev_mouse_y;
 
     function mouse_down(e) {
 
@@ -768,7 +842,7 @@ window.Dragger = function(target, callback) {
 }
 
 window.SegmentedControl = function(container_div, callback, values) {
-    var container = document.createElement("div");
+    let container = document.createElement("div");
     container.style.position = "relative";
     container.classList.add("segmented_control_container");
     container.classList.add("non_selectable");
@@ -777,12 +851,12 @@ window.SegmentedControl = function(container_div, callback, values) {
 
     container_div.appendChild(container);
 
-    var segments = [];
-    var option = 0;
-    var pad = 2.0;
+    let segments = [];
+    let option = 0;
+    let pad = 2.0;
 
-    for (var i = 0; i < values.length; i++) {
-        var el = document.createElement("div");
+    for (let i = 0; i < values.length; i++) {
+        let el = document.createElement("div");
         el.style.top = pad + "px";
         el.classList.add("segmented_control_off");
         el.innerHTML = values[i];
@@ -817,13 +891,13 @@ window.SegmentedControl = function(container_div, callback, values) {
 
 
     function layout() {
-        var width = container_div.getBoundingClientRect().width;
-        var w = Math.floor((width - (values.length + 1) * pad) / values.length);
+        let width = container_div.getBoundingClientRect().width;
+        let w = Math.floor((width - (values.length + 1) * pad) / values.length);
 
         container.style.width = ((w + pad) * values.length + pad) + "px";
 
-        for (var i = 0; i < values.length; i++) {
-            var el = segments[i];
+        for (let i = 0; i < values.length; i++) {
+            let el = segments[i];
             el.style.left = (pad + (w + pad) * i) + "px";
             el.style.width = (w) + "px";
         }
@@ -831,8 +905,8 @@ window.SegmentedControl = function(container_div, callback, values) {
 
     function mouse_click(e) {
 
-        var rect = container.getBoundingClientRect();
-        var o = e.clientX - rect.left;
+        let rect = container.getBoundingClientRect();
+        let o = e.clientX - rect.left;
         o = Math.min(Math.max(0, Math.floor(o * values.length / rect.width)), values.length - 1);
 
         if (o != option) {
@@ -856,7 +930,7 @@ window.SegmentedControl = function(container_div, callback, values) {
 }
 
 window.Slider = function(container_div, callback, style_prefix, default_value, disable_click) {
-    var container = document.createElement("div");
+    let container = document.createElement("div");
     container.style.width = "100%";
     container.style.height = "0";
     container.style.position = "relative";
@@ -864,12 +938,12 @@ window.Slider = function(container_div, callback, style_prefix, default_value, d
     if (style_prefix)
         container.classList.add(style_prefix + "slider_container");
 
-    var left_gutter = document.createElement("div");
+    let left_gutter = document.createElement("div");
     left_gutter.classList.add("slider_left_gutter");
     if (style_prefix)
         left_gutter.classList.add(style_prefix + "slider_left_gutter");
 
-    var right_gutter = document.createElement("div");
+    let right_gutter = document.createElement("div");
     right_gutter.classList.add("slider_right_gutter");
     if (style_prefix)
         right_gutter.classList.add(style_prefix + "slider_right_gutter");
@@ -879,19 +953,18 @@ window.Slider = function(container_div, callback, style_prefix, default_value, d
         right_gutter.onclick = mouse_click;
     }
 
-    var knob_container = document.createElement("div");
+    let knob_container = document.createElement("div");
     knob_container.style.width = "0";
     knob_container.style.height = "0";
     knob_container.style.top = "0"
     knob_container.style.position = "absolute";
 
-    var knob = document.createElement("div");
+    let knob = document.createElement("div");
     knob.classList.add("slider_knob");
     if (style_prefix)
         knob.classList.add(style_prefix + "slider_knob");
 
-    knob.onmousedown = mouse_down;
-    knob.addEventListener("touchstart", genericTouchHandler(mouse_down), false);
+
 
     container_div.appendChild(container);
     container.appendChild(left_gutter);
@@ -905,7 +978,7 @@ window.Slider = function(container_div, callback, style_prefix, default_value, d
     this.dragged = false;
     let self = this;
 
-    var percentage = default_value === undefined ? 0.5 : default_value;
+    let percentage = default_value === undefined ? 0.5 : default_value;
 
     layout();
     callback(percentage);
@@ -920,7 +993,7 @@ window.Slider = function(container_div, callback, style_prefix, default_value, d
     }
 
     function layout() {
-        var width = container.getBoundingClientRect().width;
+        let width = container.getBoundingClientRect().width;
 
         left_gutter.style.width = width * percentage + "px";
         left_gutter.style.left = "0";
@@ -931,64 +1004,46 @@ window.Slider = function(container_div, callback, style_prefix, default_value, d
         knob_container.style.left = (width * percentage) + "px"
     }
 
-    var selection_offset;
+    let selection_offset = 0;
 
-    var move_handler = genericTouchHandler(mouse_move);
+    new TouchHandler(knob,
+        function(e) {
+            if (window.bc_touch_down_state)
+                return false;
 
-    function mouse_down(e) {
+            e == e || window.event;
+            let knob_rect = knob_container.getBoundingClientRect();
+            selection_offset = e.clientX - knob_rect.left - knob_rect.width / 2;
 
-        if (window.bc_touch_down_state)
-            return false;
+            self.dragged = true;
 
-        e == e || window.event;
-        var knob_rect = knob_container.getBoundingClientRect();
-        selection_offset = e.clientX - knob_rect.left - knob_rect.width / 2;
+            return true;
+        },
+        function(e) {
+            let container_rect = container.getBoundingClientRect();
+            let x = e.clientX - selection_offset - container_rect.left;
 
-        window.addEventListener("mousemove", mouse_move, false);
-        window.addEventListener("mouseup", mouse_up, false);
+            let p = saturate(x / container_rect.width);
 
-        window.addEventListener("touchmove", move_handler, false);
-        window.addEventListener("touchend", mouse_up, false);
-        window.addEventListener("touchcancel", mouse_up, false);
+            if (percentage != p) {
+                percentage = p;
+                layout();
+                callback(p);
+            }
 
-        self.dragged = true;
+            return true;
+        },
+        function(e) {
+            self.dragged = false;
 
-        if (e.preventDefault)
-            e.preventDefault();
-        return true;
-    }
+        });
 
-    function mouse_move(e) {
-        var container_rect = container.getBoundingClientRect();
-        var x = e.clientX - selection_offset - container_rect.left;
-
-        var p = Math.max(0, Math.min(1.0, x / container_rect.width));
-
-        if (percentage != p) {
-            percentage = p;
-            layout();
-            callback(p);
-        }
-
-        return true;
-    }
-
-    function mouse_up(e) {
-        self.dragged = false;
-
-        window.removeEventListener("mousemove", mouse_move, false);
-        window.removeEventListener("mouseup", mouse_up, false);
-
-        window.removeEventListener("touchmove", move_handler, false);
-        window.removeEventListener("touchend", mouse_up, false);
-        window.removeEventListener("touchcancel", mouse_up, false);
-    }
 
     function mouse_click(e) {
-        var container_rect = container.getBoundingClientRect();
-        var x = e.clientX - container_rect.left;
+        let container_rect = container.getBoundingClientRect();
+        let x = e.clientX - container_rect.left;
 
-        var p = Math.max(0, Math.min(1.0, x / container_rect.width));
+        let p = Math.max(0, Math.min(1.0, x / container_rect.width));
 
         if (percentage != p) {
             percentage = p;
@@ -1001,21 +1056,36 @@ window.Slider = function(container_div, callback, style_prefix, default_value, d
 }
 
 
-
 window.Shader = function(gl, vert_src, frag_src, attributes_names, uniforms_names) {
 
-    var vert = gl.createShader(gl.VERTEX_SHADER);
+    let vert = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(vert, vert_src);
     gl.compileShader(vert);
 
-    var frag = gl.createShader(gl.FRAGMENT_SHADER);
+    const vert_message = gl.getShaderInfoLog(vert);
+    if (vert_message.length > 0) {
+        console.log(vert_message);
+    }
+
+    let frag = gl.createShader(gl.FRAGMENT_SHADER);
     gl.shaderSource(frag, frag_src);
     gl.compileShader(frag);
 
-    var shader = gl.createProgram();
+    const frag_message = gl.getShaderInfoLog(frag);
+    if (frag_message.length > 0) {
+        console.log(frag_message);
+    // throw new Error('Parameter is not a number!');
+    }
+
+    let shader = gl.createProgram();
     gl.attachShader(shader, vert);
     gl.attachShader(shader, frag);
     gl.linkProgram(shader);
+
+    if (!gl.getProgramParameter(shader, gl.LINK_STATUS)) {
+        const info = gl.getProgramInfoLog(shader);
+        console.log(info);
+      }
 
     this.shader = shader;
 
@@ -1023,12 +1093,12 @@ window.Shader = function(gl, vert_src, frag_src, attributes_names, uniforms_name
     this.uniforms = {};
 
     if (attributes_names) {
-        for (var i = 0; i < attributes_names.length; i++)
+        for (let i = 0; i < attributes_names.length; i++)
             this.attributes[attributes_names[i]] = gl.getAttribLocation(shader, attributes_names[i]);
     }
 
     if (uniforms_names) {
-        for (var i = 0; i < uniforms_names.length; i++)
+        for (let i = 0; i < uniforms_names.length; i++)
             this.uniforms[uniforms_names[i]] = gl.getUniformLocation(shader, uniforms_names[i]);
     }
 }

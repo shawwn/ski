@@ -1,0 +1,301 @@
+.dashed_box {
+    width: 1.1em;
+    height: 1.1em;
+    display: inline-block;
+
+    margin: 0em 0.2em -0.1em 0.2em;
+
+    background-image: linear-gradient(to right, #888 50%, transparent 50%),
+        linear-gradient(to right, #888 50%, transparent 50%), linear-gradient(to bottom, #888 50%, transparent 50%), linear-gradient(to bottom, #888 50%, transparent 50%);
+    background-position: left top, left bottom, left top, right top;
+    background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+    background-size: 0.3em 1.5px, 0.3em 1.5px, 1.5px 0.3em, 1.5px 0.3em;
+}
+
+.dashed_circle {
+    margin: 0em 0.1em -0.2em 0.1em;
+    content: "";
+    position: relative;
+    /* display:block; */
+    width: calc(1.2em + 3px);
+    height: calc(1.2em + 3px);
+    display: inline-block;
+    background: repeating-conic-gradient(transparent 0deg 6deg,
+            #333 9deg 21deg,
+            transparent 24deg 30deg);
+
+    border-radius: 50%;
+}
+
+
+.active_container {
+    opacity: 1.0;
+    transition: opacity 0.2s linear;
+}
+
+.inactive_container {
+    opacity: 0.5;
+    transition: opacity 0.2s linear;
+}
+
+.dashed_circle:after {
+    text-align: center;
+    vertical-align: middle;
+    position: absolute;
+    line-height: 0.9em;
+    font-size: 1.2em;
+    width: 1.0em;
+    height: 1.0em;
+    display: inline-block;
+    background: #F8F8F8;
+    border-radius: 50%;
+    top: 50%;
+    margin-top: -0.5em;
+    left: 50%;
+    margin-left: -0.5em;
+}
+
+.plus.dashed_circle:after {
+    content: "+";
+}
+
+.minus.dashed_circle:after {
+    content: "−";
+}
+
+.dashed {
+    background-image: linear-gradient(to right, rgba(70, 70, 70, 1) 55%, rgba(70, 70, 70, 0) 0%);
+    background-position: 0px 1.1em;
+    background-size: 8px 1.5px;
+    background-repeat: repeat-x;
+}
+
+.drawer_container {
+    max-width: 500px;
+}
+
+.full_width {
+    max-width: 100%;
+}
+
+.marker_drop {
+    cursor: pointer;
+}
+
+.particle_dragger_container {
+    position: absolute;
+}
+
+#grass5 {
+    max-width: 360px;
+}
+
+#laminar_turb_comparison {
+    max-width: 500px;
+}
+
+tr {
+    border: #ddd 1px solid;
+    border-width: 1px 0;
+    font-size: 1.1em;
+}
+
+tr:first-child {
+    border-top: none;
+}
+
+tr:last-child {
+    border-bottom: none;
+}
+
+td {
+    padding: 0.4em;
+}
+
+.item_material {
+    padding-right: 3em;
+}
+
+.item_index {
+    text-align: right;
+}
+
+.item_unit {
+    color: #555;
+    font-size: 0.9em;
+}
+
+.pp {
+    color: #E5432E;
+}
+
+.low_pp {
+    color: #ddb0aa;
+}
+
+
+.pn {
+    color: #3F90CD;
+}
+
+.low_pn {
+    color: #9db8cd;
+}
+
+.leaves {
+    color: #C5820A;
+}
+
+.grass {
+    color: #5B7C38
+}
+
+.arrows {
+    color: #111;
+}
+
+
+.slider_grass .slider_left_gutter,
+.slider_grass .slider_right_gutter,
+.slider_grass .slider_knob {
+    background: #535f45;
+}
+
+
+.lift {
+    color: #6c9157;
+}
+
+.drag {
+    color: #AF4A4A;
+}
+
+.molecule1 {
+    color: #EE9842;
+}
+
+.molecule2 {
+    color: #0B89DB;
+}
+
+.boundary {
+    color:rgba(70, 116, 171, 0.9);
+    background-image: linear-gradient(to right, rgba(70, 116, 171, 0.8) 57%, rgba(70, 116, 171, 0) 0%);
+    background-position: 0px 1.1em;
+    background-size: 0.8em 0.095em;
+    background-repeat: repeat-x;
+}
+
+.steepness {
+    color:#aaa;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+}
+
+.grass_arrow {
+    color: #424b37
+}
+
+.leaf_marker {
+    color: #715728
+}
+
+.car {
+    color: #144BA2
+}
+
+.plane {
+    color: #9a9a9a
+}
+
+.ball {
+    color: #cac83d;
+}
+
+.plate {
+    color: #777;
+}
+
+.balls {
+    color: #9b695a;
+}
+
+.slider_balls .slider_left_gutter,
+.slider_balls .slider_right_gutter,
+.slider_balls .slider_knob {
+    background: #a77768;
+}
+
+.cardboard {
+    color: #B58B62
+}
+
+.cross_section {
+    color: #dab017
+}
+
+.viscosity {
+    color: #729d8e
+}
+
+.slider_viscosity .slider_left_gutter,
+.slider_viscosity .slider_right_gutter,
+.slider_viscosity .slider_knob {
+    background: #7eac9b;
+}
+
+.time_speed {
+    color: #838d92
+}
+
+.slider_time_speed .slider_left_gutter,
+.slider_time_speed .slider_right_gutter,
+.slider_time_speed .slider_knob {
+    background: #a2abb0
+}
+
+.air_speed {
+    color: #5475a3
+}
+
+.slider_air_speed .slider_left_gutter,
+.slider_air_speed .slider_right_gutter,
+.slider_air_speed .slider_knob {
+    background: #6a92ca
+}
+
+.box_size {
+    color: #e64b43;
+}
+
+.slider_size .slider_left_gutter,
+.slider_size .slider_right_gutter,
+.slider_size .slider_knob {
+    background: #e64b43;
+}
+
+.intensity {
+    color: #6daba5;
+}
+
+.slider_intensity .slider_left_gutter,
+.slider_intensity .slider_right_gutter,
+.slider_intensity .slider_knob {
+    background: #6daba5;
+}
+
+.aoa {
+    color: #A38721;
+}
+
+.slider_aoa .slider_left_gutter,
+.slider_aoa .slider_right_gutter,
+.slider_aoa .slider_knob {
+    background: #A38721;
+}
+
+.slider_velocity .slider_left_gutter,
+.slider_velocity .slider_right_gutter,
+.slider_velocity .slider_knob {
+    background: #64759a;
+}

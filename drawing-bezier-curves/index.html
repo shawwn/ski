@@ -49,10 +49,10 @@
             </div>
             <div id="social">
                 <a class="patreon" href="https://www.patreon.com/ciechanowski" title="Patreon"><div class="patreonLogo">Patreon</div></a>
-                <a class="twitter" href="https://twitter.com/bciechanowski" title="Twitter"><div class="twitterLogo">Twitter</div></a>
+                <a class="twitter" href="https://twitter.com/bciechanowski" title="X / Twitter"><div class="twitterLogo">X / Twitter</div></a>
                 <a class="instagram" href="https://www.instagram.com/bartoszciechanowski/" title="Instagram"><div class="igLogo">Instagram</div></a>
                 <a class="email" href="mailto:bartosz@ciechanow.ski" title="e-mail"><div class="emailLogo">e-mail</div></a>
-                <a class="rss" href="../atom.xml" title="rss"><div class="rssLogo">rss</div></a>
+                <a class="rss" href="../atom.xml" title="RSS"><div class="rssLogo">RSS</div></a>
             </div>
         </div>
     </div>
@@ -286,7 +286,7 @@
 <p>The crucial factor for choosing OpenGL is that it made the animation and interaction possibilities <em>endless</em>. Some of the line effects I&rsquo;ve implemented and/or had in mind would simply be next to impossible to craft using Core Graphics.</p>
 <h1 id="final-words">Final Words<a href="index.html#final-words" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
 <p>Cushioned with easy to use, high level API one often ignores the underlying concepts and nitty-gritty details of how stuff works. Consciously depriving myself of Core Graphics conveniences forced me to think about drawing Bézier curves in terms of &ldquo;<em>how?</em>&rdquo;. Understanding the mathematical foundations guiding the drawn shapes is something worth going through, even just for the sake of curiosity.</p>
-<p>The presented method is not the state of the art. There are actually more <a href="http://antigrain.com/research/adaptive_bezier/">complex and robust methods</a> of drawing the curves, but the solution implemented in Revolved fits the purpose completely (the fact that I found the linked resource just a few days ago certainly didn&rsquo;t help).</p>
+<p>The presented method is not the state of the art. There are actually more <a href="https://agg.sourceforge.net/antigrain.com/research/adaptive_bezier/">complex and robust methods</a> of drawing the curves, but the solution implemented in Revolved fits the purpose completely (the fact that I found the linked resource just a few days ago certainly didn&rsquo;t help).</p>
 <p>As for the rendering implementation, OpenGL was the right choice. While some less important elements of Revolved like buttons, tutorial and credits panels are UIKit based, the essential part of the application runs <em>entirely</em> in OpenGL. This is still not a <a href="http://atp.fm/episodes/22-full-brichter">full Brichter</a>, but writing an app this way was an absolute joy.</p>
 <p>If you get bored dissecting the Bézier curves I encourage you to try playing with them, this time in 3D, <a href="https://itunes.apple.com/app/revolved/id689658680?mt=8">on your iPad</a>.</p>
 
@@ -295,7 +295,11 @@
       </div>
     </div>
     <div id="footer">
-        Copyright &copy; 2022 Bartosz Ciechanowski
+        
+<div class="article_footer">
+If you enjoy these articles, consider supporting on <a href="https://www.patreon.com/ciechanowski">Patreon</a>.
+</div>
+Copyright &copy; 2024 Bartosz Ciechanowski
     </div>
   </div>
 </body>

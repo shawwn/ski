@@ -2187,8 +2187,11 @@ let head_section;
         this.repaint = function() {
 
             self.requested_repaint = false;
-            
+
             if (!self.visible)
+                return;
+
+            if (width == 0 || height == 0)
                 return;
             
             self.was_drawn = true;
@@ -6743,7 +6746,7 @@ let head_section;
         if ("IntersectionObserver" in window) {
             const observer = new IntersectionObserver(entries => {
                 entries.forEach(entry => {entry.target.drawer.set_visible(entry.isIntersecting);})
-            }, {rootMargin: "-100px"})
+            }, {rootMargin: "100px"})
 
             all_containers.forEach(container => observer.observe(container));
         } else {
