@@ -59,7 +59,7 @@
 <div class="article">
     <div class="post_date">April 8, 2014</div>
     <h1 class="post_title"><a href="index.html">__NSDictionaryI objectForKey:</a></h1>
-    <div class="padding_wrapper"><p>This is a companion article for my <a href="../../blog/2014/04/08/exposing-nsdictionary/index.html#howItWorks">blog post</a> on <code>NSDictionary</code>. It contains the disassembly analysis for <code>objectForKey:</code> method of <code>__NSDictionaryI</code> class. The disassembly was generated using <a href="http://www.hopperapp.com">Hopper</a> and it&rsquo;s based on iOS 7.1 SDK targeting ARM64 architecture.</p>
+    <div class="padding_wrapper"><p>This is a companion article for my <a href="../../exposing-nsdictionary/index.html#howItWorks">blog post</a> on <code>NSDictionary</code>. It contains the disassembly analysis for <code>objectForKey:</code> method of <code>__NSDictionaryI</code> class. The disassembly was generated using <a href="http://www.hopperapp.com">Hopper</a> and it&rsquo;s based on iOS 7.1 SDK targeting ARM64 architecture.</p>
 <h2 id="the-code">The Code<a href="index.html#the-code" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
 <p>Here&rsquo;s what we&rsquo;re going to digest:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14e90</span>       <span class="n">stp</span>        <span class="n">x29</span><span class="p">,</span> <span class="n">x30</span><span class="p">,</span> <span class="n">[sp</span><span class="p">,</span> <span class="c1">#0xfffffff0]!</span>
@@ -150,7 +150,7 @@
 </code></pre></div><p>We clear out the <code>x0</code> register, effectively making it store <code>nil</code> value:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14eac</span>       <span class="n">movz</span>       <span class="n">x0</span><span class="p">,</span> <span class="c1">#0x0</span>
 </code></pre></div><h2 id="fetching-size-index">Fetching Size Index<a href="index.html#fetching-size-index" class="hanchor" ariaLabel="Anchor"><img src="../../images/anchor.png" width="16px" height="8px"/></a> </h2>
-<p>As <a href="../../blog/2014/03/05/exposing-nsmutablearray/index.html#fetching-count">it&rsquo;s been discussed previously</a>, the next three instructions simply fetch the one byte contents of <code>_szidx</code> ivar into <code>w9</code> register:</p>
+<p>As <a href="../../exposing-nsmutablearray/index.html#fetching-count">it&rsquo;s been discussed previously</a>, the next three instructions simply fetch the one byte contents of <code>_szidx</code> ivar into <code>w9</code> register:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-s" data-lang="s"><span class="mh">0x14eb0</span>       <span class="n">adrp</span>       <span class="n">x9</span><span class="p">,</span> <span class="c1">#0x1d1000</span>
 <span class="mh">0x14eb4</span>       <span class="n">ldrsw</span>      <span class="n">x9</span><span class="p">,</span> <span class="n">[x9</span><span class="p">,</span> <span class="c1">#0x60]</span>
 <span class="mh">0x14eb8</span>       <span class="n">ldrb</span>       <span class="n">w9</span><span class="p">,</span> <span class="n">[x8</span><span class="p">,</span> <span class="n">x9]</span>

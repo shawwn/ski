@@ -784,7 +784,7 @@ R = S + D &times; (1 &minus; S<sub>A</sub>)
 As <a href="index.html#alpha_text_bit_depth">we&rsquo;ve seen</a>, reducing bit-depth for coverage can still produce satisfying results so in practice smaller scales could be used.</p>
 <p>It&rsquo;s worth noting that those issues can often be avoided relatively easily even without using any super-sized bitmaps. For example, instead of drawing two overlapping circles one could just draw two squares on top of each other and <em>then</em> mask the result to the shape of the circle.</p>
 <h1 id="linear-values">Linear Values<a href="index.html#linear-values" class="hanchor" ariaLabel="Anchor"><img src="../images/anchor.png" width="16px" height="8px"/></a> </h1>
-<p>If you had a chance to brush up your knowledge of <a href="../color-spaces.html">color spaces</a> you may remember that most of them encode the color values nonlinearly and performing correct mathematical operations requires a prior linearization. When that step is done the result of compositing looks as follows, notice they nicely yellowish tint of the overlapping parts:</p>
+<p>If you had a chance to brush up your knowledge of <a href="../color-spaces/index.html">color spaces</a> you may remember that most of them encode the color values nonlinearly and performing correct mathematical operations requires a prior linearization. When that step is done the result of compositing looks as follows, notice they nicely yellowish tint of the overlapping parts:</p>
 
 
 <div class="img_container">
