@@ -242,7 +242,10 @@ let signal11;
 
                 assets[i] = image;
                 image.onload = asset_loaded;
-                image.src = "/images/gps/" + name + ".jpg";
+
+                site_url(SITE_ROOT => {
+                    image.src = SITE_ROOT + "/images/gps/" + name + ".jpg"
+                });
             });
         }
 

@@ -45,7 +45,9 @@ function GlassesDrawer(container, mode)
     }
 
     var image = new Image();
-    image.src = "/images/alpha_landscape.jpg";
+    site_url(SITE_ROOT => {
+        image.src = SITE_ROOT + "/images/alpha_landscape.jpg"
+    });
     image.onload = function(){
       draw();
     }
@@ -206,7 +208,9 @@ function AlphaMul(container, mode)
     }
 
     var image = new Image();
-    image.src = "/images/alpha_landscape.jpg";
+    site_url(SITE_ROOT => {
+        image.src = SITE_ROOT + "/images/alpha_landscape.jpg"
+    });
     image.onload = function(){
       draw();
     }

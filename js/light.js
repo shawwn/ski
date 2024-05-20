@@ -1203,15 +1203,17 @@ let casey_mode;
             }
         }
 
-        for (var j = 0; j < asset_names.length; j++) {
+        site_url(SITE_ROOT => {
+            for (var j = 0; j < asset_names.length; j++) {
 
-            var name = asset_names[j];
+                var name = asset_names[j];
 
-            var image = new Image();
-            assets[j] = image;
-            image.onload = asset_loaded;
-            image.src = "/images/light_shadow/" + name + ".png";
-        }
+                var image = new Image();
+                assets[j] = image;
+                image.onload = asset_loaded;
+                image.src = SITE_ROOT + "/images/light_shadow/" + name + ".png";
+            }
+        });
     }
 
         let vertices = [

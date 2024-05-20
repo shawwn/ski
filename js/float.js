@@ -3,7 +3,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	var img = document.getElementById("float_map");
 	
 	/* Preload BW image. */
-	(new Image()).src = "/images/float_special_values_bw.svg";
+	site_url(SITE_ROOT => {
+		(new Image()).src = SITE_ROOT + "/images/float_special_values_bw.svg"
+	});
 
 	window.addEventListener("resize", on_resize, true);
 	
@@ -21,15 +23,19 @@ document.addEventListener("DOMContentLoaded", function(event) {
   });
 
 function show_bw_map() {
-	document.getElementById("float_map").src = "/images/float_special_values_bw.svg";
-	document.getElementById("float_show_color").classList.remove("hidden");
-	document.getElementById("float_show_bw").classList.add("hidden");
+	site_url(SITE_ROOT => {
+		document.getElementById("float_map").src = SITE_ROOT + "/images/float_special_values_bw.svg";
+		document.getElementById("float_show_color").classList.remove("hidden");
+		document.getElementById("float_show_bw").classList.add("hidden");
+	});
 }
 
 function show_color_map() {
-	document.getElementById("float_map").src = "/images/float_special_values.svg";
-	document.getElementById("float_show_bw").classList.remove("hidden");
-	document.getElementById("float_show_color").classList.add("hidden");
+	site_url(SITE_ROOT => {
+		document.getElementById("float_map").src = SITE_ROOT + "/images/float_special_values.svg";
+		document.getElementById("float_show_bw").classList.remove("hidden");
+		document.getElementById("float_show_color").classList.add("hidden");
+	});
 }
 
 

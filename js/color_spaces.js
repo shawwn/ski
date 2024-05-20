@@ -841,18 +841,20 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     var canvas = document.getElementById("color_gamut_canvas");
     editor = new GLEditor(canvas, vertex_source, fragment_source_color_gamut);
-    var index = 0;
-    canvas.onclick = function (e) {
-        index = (index + 1) % 5;
-        img.src = "/images/color_show_" + index + ".jpg"
-    }
-    var img = new Image();
-    img.addEventListener('load', function () {
-        editor.set_image(img);
-        editor.draw();
-    });
+    site_url(SITE_ROOT => {
+        var index = 0;
+        canvas.onclick = function (e) {
+            index = (index + 1) % 5;
+            img.src = SITE_ROOT + "/images/color_show_" + index + ".jpg"
+        }
+        var img = new Image();
+        img.addEventListener('load', function () {
+            editor.set_image(img);
+            editor.draw();
+        });
 
-    img.src = "/images/color_show_0.jpg";
+        img.src = SITE_ROOT + "/images/color_show_0.jpg";
+    })
 
     var gamut_canvas = document.getElementById("color_gamut_plot_canvas");
 

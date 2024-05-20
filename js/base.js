@@ -13,17 +13,37 @@ function genericTouchHandler(f) {
 }
 
 function download_file(file_path, handler) {
-    let xhr = new XMLHttpRequest();
-    xhr.open("GET", file_path);
-    xhr.responseType = "arraybuffer";
+    site_url(SITE_ROOT => {
+        let xhr = new XMLHttpRequest();
+        xhr.open("GET", SITE_ROOT + file_path);
+        xhr.responseType = "arraybuffer";
 
-    xhr.onload = function(oEvent) {
-        let buffer = xhr.response;
-        if (buffer) {
-            handler(buffer);
-        }
-    };
-    xhr.send();
+        xhr.onload = function(oEvent) {
+            let buffer = xhr.response;
+            if (buffer) {
+                handler(buffer);
+            }
+        };
+        xhr.send();
+    })
+}
+
+function base_url() {
+    let url = new URL(document.head.baseURI);
+    let base = url.pathname.split('/').filter(Boolean)[0];
+    return (base ? `/${base}` : '');
+}
+
+let finding_site_url = (async () => {
+    if ((await fetch("/favicon.ico")).ok)
+        return "";
+    if ((await fetch(base_url() + "/favicon.ico")).ok)
+        return base_url();
+    throw new Error("Can't determine SITE_ROOT");
+})();
+
+function site_url(handler) {
+    finding_site_url.then(handler);
 }
 
 CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {

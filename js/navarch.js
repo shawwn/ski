@@ -80,20 +80,6 @@ let arm_plot;
     let scale = window.devicePixelRatio || 1;
     scale = scale > 1.75 ? 2 : 1;
 
-    function download_file(file_path, handler) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", file_path);
-        xhr.responseType = "arraybuffer";
-
-        xhr.onload = function (oEvent) {
-            var buffer = xhr.response;
-            if (buffer) {
-                handler(buffer);
-            }
-        };
-        xhr.send();
-    }
-
     function GLDrawer(scale, ready_callback) {
 
 

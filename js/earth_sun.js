@@ -10,7 +10,9 @@ var earth_color = "#3A69C4";
 var sun_color = "#FFD535";
 
 var outline_image = new Image();
-outline_image.src = "/images/earth_sun/outline.svg";
+site_url(SITE_ROOT => {
+    outline_image.src = SITE_ROOT + "/images/earth_sun/outline.svg";
+});
 
 
 var analemma_data = [
@@ -183,18 +185,20 @@ function GLDrawer(scale, ready_callback) {
         }
     }
 
-    for (var j = 0; j < asset_names.length; j++) {
-        assets[j] = [];
+    site_url(SITE_ROOT => {
+        for (var j = 0; j < asset_names.length; j++) {
+            assets[j] = [];
 
-        var name = asset_names[j];
+            var name = asset_names[j];
 
-        for (var i = 0; i < mip_levels; i++) {
-            var image = new Image();
-            assets[j].push(image);
-            image.onload = asset_loaded;
-            image.src = "/images/earth_sun/" + name + i + ".jpg";
+            for (var i = 0; i < mip_levels; i++) {
+                var image = new Image();
+                assets[j].push(image);
+                image.onload = asset_loaded;
+                image.src = SITE_ROOT + "/images/earth_sun/" + name + i + ".jpg";
+            }
         }
-    }
+    });
 
     var vertex_buffer = gl.createBuffer();
 
