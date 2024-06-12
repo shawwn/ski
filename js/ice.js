@@ -2236,6 +2236,7 @@ let head_section;
 
                 let w = ctx.measureText(text).width;
                 ctx.fillStyle = "rgba(240,240,240,0.9)";
+                ctx.beginPath();
                 ctx.roundRect(-w / 2 - font_size / 2, -font_size * 1.1, w + font_size, font_size * 1.6, 5);
                 ctx.fill();
 
@@ -2477,7 +2478,7 @@ let head_section;
                         if (i > 0)
                             gl.draw_mesh("cylinder", mat4_mul(view_projection, mat4_mul(mat, mat4_mul(translation_mat4([0, 0, cam_width]), scale))), n_mat, color);
                         else {
-                            gl.draw_mesh("Gear_mount", mat4_mul(view_projection, mat4_mul(mat, mat4_mul(translation_mat4([00, 000, -834]), rot_x_mat4(-Math.PI * 0.5)))), mat3_mul(n_mat, rot_x_mat3(-Math.PI * 0.5)), color);
+                            gl.draw_mesh("Gear_mount", mat4_mul(view_projection, mat4_mul(mat, mat4_mul(translation_mat4([0, 0, -834]), rot_x_mat4(-Math.PI * 0.5)))), mat3_mul(n_mat, rot_x_mat3(-Math.PI * 0.5)), color);
 
                             let scale = scale_mat4([2.0, 2.0, 4]);
 
@@ -3092,7 +3093,7 @@ let head_section;
 
                 let view_projection = ident_mat4;
                 if (mode === "simple_crank_cannon")
-                    view_projection = mat4_mul(translation_mat4([0, 200, 00]), view_projection);
+                    view_projection = mat4_mul(translation_mat4([0, 200, 0]), view_projection);
                 else
                     view_projection = mat4_mul(translation_mat4([0, 100, 0]), view_projection);
 
@@ -3470,7 +3471,7 @@ let head_section;
 
                     let h = (Math.sin(t * 342.875345) * 43758.5453123) % 1;
 
-                    gl.draw_mesh("Spark_spark", mat4_mul(mat4_mul(view_projection, translation_mat4([0, 226, 00])),
+                    gl.draw_mesh("Spark_spark", mat4_mul(mat4_mul(view_projection, translation_mat4([0, 226, 0])),
                             mat4_mul(mat4_mul(rot_y_mat4(h * Math.PI * 2), rot_z_mat4(h * 1.4 * Math.PI * 2)), scale_mat4(2.6 + h * 0.2))),
                         rot, [0.5, 0.5, 1, 0.5], spark_alpha, false, false, undefined, 0, true);
 
@@ -3487,6 +3488,7 @@ let head_section;
 
                 let w = ctx.measureText(text).width;
                 ctx.fillStyle = "rgba(230,230,230,0.9)";
+                ctx.beginPath();
                 ctx.roundRect(-w / 2 - font_size / 2, -font_size * 1.1, w + font_size, font_size * 1.6, 5);
                 ctx.fill();
 
@@ -3503,7 +3505,7 @@ let head_section;
 
                 let model_matrix = rot_y_mat4(crank_angle);
                 let view_projection = ident_mat4;
-                view_projection = mat4_mul(translation_mat4([00, -20, 000]), view_projection);
+                view_projection = mat4_mul(translation_mat4([0, -20, 0]), view_projection);
                 view_projection = mat4_mul(mat3_to_mat4(rot), view_projection);
                 view_projection = mat4_mul(scale_mat4(5.5), view_projection);
                 view_projection = mat4_mul(proj, view_projection);
@@ -5723,6 +5725,7 @@ let head_section;
 
                 let w = ctx.measureText(text).width;
                 ctx.fillStyle = "rgba(255,255,255,0.7)";
+                ctx.beginPath();
                 ctx.roundRect(-w / 2 - font_size * 0.4, -font_size * 0.6, w + font_size * 0.8, font_size * 1.3, 5);
 
                 ctx.fill();

@@ -2873,7 +2873,7 @@ let signal11;
 
                 ctx.restore();
 
-                draw_map_decoration(map_size);
+                // draw_map_decoration(map_size);
             } else if (mode === "string") {
 
                 let start = [0.4, 0.5, 0.0];
@@ -5378,6 +5378,7 @@ let signal11;
                     ctx.fillStyle = styles[i];
                     let x0 = width * ((b[0] - t0) / dt);
                     let x1 = width * ((b[1] - t0) / dt);
+                    ctx.beginPath();
                     ctx.roundRect(x0, bh * 0.2 + bh * i, x1 - x0, bh * 0.8, Math.min((x1 - x0) * 0.5, 2));
                     ctx.fill();
                 });
@@ -5614,10 +5615,12 @@ let signal11;
                     grad.addColorStop(1.0, "#333");
                     ctx.fillStyle = grad;
 
+                    ctx.beginPath();
                     ctx.roundRect(-size * 0.55, -size * 1.22, size * 0.08, size * 0.4, size * 0.01);
                     ctx.fill();
                     ctx.stroke();
 
+                    ctx.beginPath();
                     ctx.roundRect(size * (0.55 - 0.08), -size * 1.22, size * 0.08, size * 0.4, size * 0.01);
                     ctx.fill();
                     ctx.stroke();
@@ -5635,6 +5638,7 @@ let signal11;
                     ctx.strokeStyle = "#382820"
 
 
+                    ctx.beginPath();
                     ctx.roundRect(-size * 0.45, -size * 1.8, size * 0.9, size * 0.78, size * 0.03);
                     ctx.fill();
                     ctx.stroke();
@@ -5662,6 +5666,7 @@ let signal11;
 
                 ctx.fillStyle = grad;
                 ctx.strokeStyle = "#666";
+                ctx.beginPath();
                 ctx.roundRect(size * 1.02, -size * 0.15, size * 0.13, size * 0.3, size * 0.02);
                 ctx.fill();
                 ctx.stroke();

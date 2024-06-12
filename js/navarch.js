@@ -36,7 +36,7 @@ let water_stroke_style = "#6591B1";
 let container_stroke_style = "#9A9EAA";
 let container_inner_stroke_style = "#E2E2E2";
 let container_outer_stroke_style = "#7F7F7F";
-let container_top_stroke_style = "#979797";
+let container_top_stroke_style = "#0025bd";
 let container_fill_style = "rgba(0,0,0,0.028)";
 let table_fill_style = "#C8A070"
 let table_stroke_style = "#7E6546";
@@ -63,6 +63,7 @@ let wind_uri;
 let omegadot_omega_factor = 0.07;
 
 let weight_pressure;
+let dxy;
 let L_demo;
 let hull_ratio;
 let wind_tilt;
@@ -1353,12 +1354,14 @@ let arm_plot;
 
 
         let arg0 = 0, arg1 = 0, arg2 = 0;
+        let argv = new Array(9).fill(0)
 
 
         this.get_arg0 = function () { return arg0; }
         this.set_arg0 = function (x) { arg0 = x; if (simulated) self.set_paused(false); request_repaint(); }
         this.set_arg1 = function (x) { arg1 = x; if (simulated) self.set_paused(false); request_repaint(); }
         this.set_arg2 = function (x) { arg2 = x; if (simulated) self.set_paused(false); request_repaint(); }
+        this.set_arg  = function (i, x) { argv[i] = x; if (simulated) self.set_paused(false); request_repaint(); }
 
         this.set_rot = function (x) {
             rot = x;
@@ -3497,7 +3500,7 @@ let arm_plot;
                 let weight_h = 0.2 * height * arg0;
 
                 let p = lerp(-0.05, 0.9, arg0);
-                let y = -h * 0.5 + (h - wh) + p * wh;;
+                let y = -h * 0.5 + (h - wh) + p * wh;
 
                 bottom_rounded_rect(-w * 0.5, -h * 0.5, w, h, r);
 
@@ -3574,8 +3577,8 @@ let arm_plot;
                     ctx.translate(0, -h * 0.5 + h - wh - weight_h * 0.5);
                     ctx.scale(kk, kk);
 
-                    ctx.fillStyle = "#333";
-                    ctx.fillText("WEIGHT", 0, + w * 0.07)
+                    ctx.fillStyle = "#fff";
+                    ctx.fillText(`WEIGHT ${arg0.toFixed(2)}`, 0, + w * 0.07)
 
                     ctx.restore();
                 }
@@ -3586,6 +3589,133 @@ let arm_plot;
                 ctx.translate(Math.round(width * 0.45), -Math.round(width * 0.15));
 
                 draw_pressure_gauge(width * 0.3, 0.5 + arg0 * 4.0, [-width * 0.325, + width * 0.45]);
+                
+            } else if (mode === "dxy") {
+                ctx.save()
+                ctx.lineWidth = 1.0;
+                ctx.fillStyle = "#000";
+                ctx.beginPath();
+                ctx.lineTo(0, 0);
+                ctx.lineTo(0, height);
+                ctx.lineTo(width, height);
+                ctx.lineTo(width, 0);
+                ctx.lineTo(0, 0);
+                ctx.stroke();
+                ctx.restore()
+
+                ctx.translate(Math.round(width * 0.5), Math.round(height * 0.75));
+                ctx.font = "500 " + 10 + "px IBM Plex Sans";
+
+                let w = Math.round(width * lerp(0.25, 0.75, argv[1]));
+                let h = Math.round(width * 0.75);
+                let r = width * 0.10;
+                let wh = h * 0.6;
+
+                let weight_w = w;
+                let weight_h = 0.2 * height * arg0;
+                let weight_area = weight_w * weight_h;
+
+                let p = lerp(-0.05, 0.9, arg0);
+                let y = -h * 0.5 + (h - wh) + p * wh;
+
+                if (1) {
+                    ctx.lineCap = "butt";
+                    // ctx.lineWidth = 8.0;
+                    // ctx.strokeStyle = container_outer_stroke_style;
+                    // ctx.stroke();
+                    //
+                    // ctx.lineWidth = 2.0;
+                    // ctx.strokeStyle = container_inner_stroke_style;
+                    // ctx.stroke();
+
+                    // ctx.lineWidth = 8.0;
+                    // ctx.strokeStyle = container_top_stroke_style;
+                    // ctx.beginPath();
+                    // ctx.lineTo(-w * 0.5, -h * 0.5);
+                    // ctx.lineTo(w * 0.5, -h * 0.5);
+                    // ctx.stroke();
+                    
+                    function rect(x, y, w, h, color) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = ctx.fillStyle = color;
+                        ctx.rect(x, y-h, w, h);
+                        ctx.fill();
+                        ctx.stroke();
+                    }
+                    
+                    ctx.translate(0, -wh);
+                    ctx.translate(0,  h)
+                    rect(-w * 0.5, -h * 0.5 - weight_h, w, weight_h, "#3dc6c6");
+                    // ctx.beginPath();
+                    // ctx.strokeStyle = ctx.fillStyle = "#3dc6c6";
+                    // ctx.rect(-w * 0.5, -h * 0.5 - wh - weight_h*2, w, weight_h);
+                    // ctx.fill();
+                    // ctx.stroke();
+
+                    ctx.fillStyle = "#dc713f";
+                    
+                    ctx.save();
+                    ctx.translate(0, -h * 0.5 - weight_h*2)
+                    ctx.translate(0, weight_h/2)
+                    ctx.fillText("dh • w", 0, 5)
+                    ctx.restore();
+                }
+
+                ctx.fillStyle = "#666";
+                ctx.strokeStyle = "#444";
+                ctx.lineWidth = 2.0;
+
+                if (weight_h > 4 || 1) {
+                    ctx.beginPath();
+                    ctx.rect(-w * 0.5, -h * 0.5 - weight_h, w, weight_h);
+                    ctx.fill();
+                    ctx.stroke();
+                }
+                // else {
+                //     ctx.beginPath();
+                //     ctx.fillStyle = ctx.strokeStyle;
+                //     ctx.rect(-w * 0.5 + 2, -h * 0.5 - weight_h, w - 4, weight_h);
+                //     ctx.fill();
+                //     // ctx.stroke();
+                // }
+
+                let kk = 1.0;
+
+                if (weight_h < 2)
+                    ctx.lineWidth = weight_h;
+
+                if (weight_h > 0) {
+
+                    ctx.save();
+
+                    ctx.fillStyle = "#333";
+                    // ctx.font = "500 " + w * 0.21 + "px IBM Plex Sans";
+
+                    ctx.translate(0, -h * 0.5 - weight_h * 0.5);
+                    ctx.scale(kk, kk);
+
+                    ctx.fillStyle = "#fff";
+                    ctx.fillText(`w • h = ${weight_area.toFixed(0)}`, 0, 7)
+
+                    ctx.restore();
+
+                    ctx.save();
+                    ctx.fillStyle = "#000";
+                    // ctx.font = "500 " + 20 + "px IBM Plex Sans";
+                    ctx.translate(-w * 0.5 - 10, -h * 0.5 - weight_h * 0.5);
+                    ctx.scale(kk, kk);
+                    ctx.textAlign = "right";
+                    ctx.fillText(`h = ${weight_h.toFixed(1)}`, 0, 7)
+                    ctx.restore();
+
+                    ctx.save();
+                    ctx.fillStyle = "#000";
+                    // ctx.font = "500 " + 20 + "px IBM Plex Sans";
+                    ctx.translate(0, -h * 0.5 + 16);
+                    ctx.scale(kk, kk);
+                    ctx.fillText(`w = ${weight_w.toFixed(1)}`, 0, 0)
+                    ctx.restore();
+                }
 
             } else if (mode === "L") {
 
@@ -4255,6 +4385,7 @@ let arm_plot;
                     ctx.translate(0, cgy * s);
 
                     if (mode === "wood_sub") {
+                        ctx.beginPath();
                         ctx.roundRect(-w * s / 2, -h * s, w * s, h * s, 6);
                         ctx.fill();
                     }
@@ -4376,6 +4507,7 @@ let arm_plot;
 
                     ctx.translate(0, cgy * s);
 
+                    ctx.beginPath();
                     ctx.roundRect(-w * s / 2, -h * s, w * s, h * s, 6);
                     ctx.fill();
 
@@ -6108,6 +6240,7 @@ let arm_plot;
 
             for (let i = 0; i < slider_count; i++) {
                 let slider = new Slider(document.getElementById("na_" + name + "_sl" + i), function (x) {
+                    drawer.set_arg(i, x);
                     if (i == 0)
                         drawer.set_arg0(x);
                     else if (i == 1)
@@ -6122,7 +6255,8 @@ let arm_plot;
         }
 
         make_drawer("brick_container", 1, [0]);
-        weight_pressure = make_drawer("weight_pressure", 1);
+        weight_pressure = make_drawer("weight_pressure", 4);
+        dxy = make_drawer("dxy", 4, [0.50, 0.25, 0.75, 0.50]);
         make_drawer("syringe", 1, [0.0]);
         make_drawer("syringe_pressure", 2);
         make_drawer("shapes", 1);

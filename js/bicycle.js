@@ -1,3 +1,5 @@
+// noinspection EqualityComparisonWithCoercionJS,PointlessArithmeticExpressionJS
+
 "use strict";
 
 let metric = true;
@@ -477,10 +479,15 @@ let models_ready = false;
     const canvas = document.createElement("canvas");
     this.canvas = canvas;
 
-    const gl = canvas.getContext('experimental-webgl', { antialias: true });
+    const gl = canvas.getContext('webgl2', { antialias: true });
+    Gr.gl = gl;
+    
     gl.getExtension('OES_element_index_uint');
 
-    let ext = gl.getExtension('ANGLE_instanced_arrays');
+    let ext = gl.getExtension('ANGLE_instanced_arrays') || {
+      vertexAttribDivisorANGLE: gl.vertexAttribDivisor.bind(gl),
+      drawElementsInstancedANGLE: gl.drawElementsInstanced.bind(gl),
+    }
 
     const float_size = 4;
 
@@ -508,6 +515,12 @@ let models_ready = false;
     let has_vertices = false;
     let has_indicies = false;
     let has_basic = false;
+
+    window.full_screen_vertex_buffer = full_screen_vertex_buffer;
+    window.basic_vertex_buffer = basic_vertex_buffer;
+    window.vertex_buffer = vertex_buffer;
+    window.cs32_buffer = cs32_buffer;
+    window.cs16_buffer = cs16_buffer;
 
 
     function mark_ready() {
@@ -615,13 +628,12 @@ let models_ready = false;
             let ny = y;
             let z = i;
 
-            vertices.push(x * r);
             vertices.push(y * r);
             vertices.push(z);
 
             let v = [nx, ny, 0];
 
-            vertices.push(v[0]);
+            vertices.push(v[0])
             vertices.push(v[1]);
             vertices.push(v[2]);
           }
@@ -3818,13 +3830,12 @@ let models_ready = false;
 
 
       gl.useProgram(shader.shader);
-      
-      
-        if (params.instances)
-        {
-          
-              gl.bindBuffer(gl.ARRAY_BUFFER, params.instances == 32 ? cs32_buffer : cs16_buffer);
-        
+
+
+      if (params.instances)
+      {
+        gl.bindBuffer(gl.ARRAY_BUFFER, params.instances == 32 ? cs32_buffer : cs16_buffer);
+
         gl.enableVertexAttribArray(shader.attributes["v_cs"]);
         gl.vertexAttribPointer(shader.attributes["v_cs"], 2, gl.FLOAT, false, 2 * float_size, 0);
         ext.vertexAttribDivisorANGLE(shader.attributes["v_cs"], 1);
@@ -3853,27 +3864,27 @@ let models_ready = false;
       gl.uniform1f(shader.uniforms["normal_f"], params.normal_f !== undefined ? params.normal_f : 0.5);
 
 
-if (params.instances) {
-       ext.drawElementsInstancedANGLE(gl.TRIANGLES, mesh.index_count, gl.UNSIGNED_INT, mesh.index_offset * 4,
-          params.instances);
-      
-      ext.vertexAttribDivisorANGLE(shader.attributes["v_cs"], 0);
-    gl.disableVertexAttribArray(shader.attributes["v_cs"]);
+      if (params.instances) {
+        ext.drawElementsInstancedANGLE(gl.TRIANGLES, mesh.index_count, gl.UNSIGNED_INT, mesh.index_offset * 4,
+            params.instances);
 
-} else {
-      gl.drawElements(gl.TRIANGLES, mesh.index_count, gl.UNSIGNED_INT, mesh.index_offset * 4);
-    }
+        ext.vertexAttribDivisorANGLE(shader.attributes["v_cs"], 0);
+        gl.disableVertexAttribArray(shader.attributes["v_cs"]);
+
+      } else {
+        gl.drawElements(gl.TRIANGLES, mesh.index_count, gl.UNSIGNED_INT, mesh.index_offset * 4);
+      }
 
 
       if (mesh.line_index_count > 0 && !params.skip_lines) {
 
         gl.useProgram(line_shader.shader);
-        
+
         if (params.instances)
-          {
-            
-                gl.bindBuffer(gl.ARRAY_BUFFER, params.instances == 32 ? cs32_buffer : cs16_buffer);
-          
+        {
+
+          gl.bindBuffer(gl.ARRAY_BUFFER, params.instances == 32 ? cs32_buffer : cs16_buffer);
+
           gl.enableVertexAttribArray(line_shader.attributes["v_cs"]);
           gl.vertexAttribPointer(line_shader.attributes["v_cs"], 2, gl.FLOAT, false, 2 * float_size, 0);
           ext.vertexAttribDivisorANGLE(line_shader.attributes["v_cs"], 1);
@@ -3898,16 +3909,16 @@ if (params.instances) {
         if (params.m_pos)
           gl.uniformMatrix3fv(line_shader.uniforms["m_pos"], false, params.m_pos);
 
-if (params.instances) {
-                 ext.drawElementsInstancedANGLE(gl.TRIANGLES, mesh.line_index_count, gl.UNSIGNED_INT, mesh.line_index_offset * 4,
-                    params.instances);
-                
-                ext.vertexAttribDivisorANGLE(line_shader.attributes["v_cs"], 0);
-              gl.disableVertexAttribArray(line_shader.attributes["v_cs"]);
-          
-          } else {
-    gl.drawElements(gl.TRIANGLES, mesh.line_index_count, gl.UNSIGNED_INT, mesh.line_index_offset * 4);
-              }
+        if (params.instances) {
+          ext.drawElementsInstancedANGLE(gl.TRIANGLES, mesh.line_index_count, gl.UNSIGNED_INT, mesh.line_index_offset * 4,
+              params.instances);
+
+          ext.vertexAttribDivisorANGLE(line_shader.attributes["v_cs"], 0);
+          gl.disableVertexAttribArray(line_shader.attributes["v_cs"]);
+
+        } else {
+          gl.drawElements(gl.TRIANGLES, mesh.line_index_count, gl.UNSIGNED_INT, mesh.line_index_offset * 4);
+        }
 
 
       }
@@ -5156,6 +5167,7 @@ if (params.instances) {
           ctx.fillStyle = "rgba(230, 230, 230, 0.8)";
 
           let s = font_size;
+          ctx.beginPath();
           ctx.roundRect(-w * 0.5 - s * 0.4, -s * 1.1, w + s * 0.8, 1.6 * s, s * 0.3);
           ctx.fill();
 
@@ -8813,12 +8825,14 @@ if (params.instances) {
 
           ctx.fillStyle = "#393A3F";
           ctx.strokeStyle = "#222";
+          ctx.beginPath();
           ctx.roundRect(0, 0, 7 * s, 5 * s, radius);
           ctx.fill();
           ctx.stroke();
 
           let inset = s * 0.45;
           ctx.fillStyle = "#9FB19E";
+          ctx.beginPath();
           ctx.roundRect(inset, inset, 7 * s - 2 * inset, 5 * s - 2 * inset, radius - inset);
           ctx.fill();
           ctx.stroke();

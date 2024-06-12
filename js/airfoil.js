@@ -74,9 +74,14 @@ download_file("/models/airfoil.dat", function (buffer) {
     const positive_color = [0.882, 0.173, 0.067, 1.0];
 
     const surface_max = 0.1;
+    const pressure_iterations = 10;
 
-    const FDM_width = 384;
-    const FDM_height = 127;
+    // const FDM_width = 384;
+    // const FDM_height = 127;
+    const FDM_scale = 4; // 1 is default
+    // const FDM_scale = 1;
+    const FDM_width = 384*FDM_scale;
+    const FDM_height = 126*FDM_scale+1;
     const FDM_dx = 0.02;
     const FDM_dy = 0.02;
 
@@ -4734,7 +4739,7 @@ download_file("/models/airfoil.dat", function (buffer) {
 
     /* grid and neighbor indexing
 
-              
+
                      N2
                      ^
                G2--------G3
@@ -8846,6 +8851,7 @@ download_file("/models/airfoil.dat", function (buffer) {
                     let dash = 0.0142 * len;
                     ctx.setLineDash([dash, dash * 1.5]);
                     ctx.lineDashOffset = 0.02 * len;
+                    // ctx.lineDashOffset = dash / 2;
                     ctx.beginPath();
                     ctx.lineTo(points[pair[0]][0], points[pair[0]][1]);
                     ctx.lineTo(points[pair[1]][0], points[pair[1]][1]);
@@ -9457,6 +9463,7 @@ download_file("/models/airfoil.dat", function (buffer) {
                     ctx.lineWidth = 1.5;
                     ctx.strokeStyle = "#555";
                     ctx.globalCompositeOperation = "source-over";
+                    ctx.beginPath();
                     ctx.roundRect(-width * 0.25, 0, width * 0.5, height * 0.05 - 2, height * 0.015);
                     ctx.fill();
                     ctx.stroke();
@@ -10772,6 +10779,7 @@ download_file("/models/airfoil.dat", function (buffer) {
 
                     ctx.fillStyle = "rgba(238, 229, 197, 0.8)";
 
+                    ctx.beginPath();
                     ctx.roundRect(-w / 2, -font_size * 1.25, w, font_size * 1.8, font_size * 0.4);
                     ctx.fill();
 
@@ -11032,7 +11040,7 @@ download_file("/models/airfoil.dat", function (buffer) {
 
                 for (let i = 0; i < iters; i++) {
                     state.t += sim_dt;
-                    gl.update_FDM_state(state.gl_state, sim_dt, state.t, mu, 10, obstacle_size);
+                    gl.update_FDM_state(state.gl_state, sim_dt, state.t, mu, pressure_iterations, obstacle_size);
                 }
 
                 let fdm_aspect = FDM_width / FDM_height;
@@ -11208,8 +11216,8 @@ download_file("/models/airfoil.dat", function (buffer) {
 
 
                 /* grid and neighbor indexing
-            
-                          
+
+
                                  N2
                                  ^
                            G2--------G3
@@ -11219,7 +11227,7 @@ download_file("/models/airfoil.dat", function (buffer) {
                            G0--------G1
                                  v
                                  N0
-            
+
                     */
 
                 let u = state.u;
@@ -11806,6 +11814,7 @@ download_file("/models/airfoil.dat", function (buffer) {
                 ctx.lineWidth = 1.5;
                 ctx.strokeStyle = "#777";
                 ctx.globalCompositeOperation = "source-over";
+                ctx.beginPath();
                 ctx.roundRect(-w * 0.5, 0, w, h, h * 0.25);
                 ctx.fill();
                 ctx.stroke();

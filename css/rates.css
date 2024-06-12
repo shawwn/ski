@@ -1,0 +1,367 @@
+canvas {
+/* border: 1px solid red; */
+}
+
+
+.na_water_bg, .na_water_bg_70 {
+background: linear-gradient(180deg, #6AC0F3 0%, #B6DDF4 50%, #2D8BBC 50%,  #2D8BBC 55%, #1D5B7B 100%);
+
+
+
+position: relative;
+margin-top: 2em;
+margin-bottom: 3em;
+
+
+width: 100%;
+max-width: 100%;
+padding: 0;
+/* padding: 0 100%; */
+
+/* display: inline-block; */
+
+border-top: 2px solid #3E7EA4;
+border-bottom: 2px solid #174964;
+overflow: hidden;
+}
+
+.na_water_bg_70 {
+background: linear-gradient(180deg, #6AC0F3 0%, #B6DDF4 70%, #2D8BBC 70%, #2D8BBC 75%, #1D5B7B 100%);
+}
+
+
+
+.na_water_glow {
+width: 100%;
+height: 130%;
+max-width: 700px;
+background-image: radial-gradient(farthest-side,
+rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.00) 100%);
+margin: 0 auto;
+/* background: red; */
+position: absolute;
+margin-left: auto;
+margin-right: auto;
+left: 0;
+right: 0;
+text-align: center;
+/* mix-blend-mode: overlay; */
+/* content: 'sdf'; */
+}
+
+.na_water_wave {
+position: absolute;
+margin: auto 0;
+left: 0;
+right: 0;
+top: 50%;
+transform: translateY(-50%);
+width:100%;
+}
+
+
+.na_water_wind {
+
+width: 100%;
+height: 11%;
+position: absolute;
+margin: auto 0;
+left: 0;
+right: 0;
+top: 0;
+background-repeat: repeat-x;
+}
+
+.na_water_wind_off0 {
+top: 3%;
+}
+.na_water_wind_off1 {
+top: 14%;
+}
+.na_water_wind_off2 {
+top: 25%;
+}
+.na_water_wind_off3 {
+top: 36%;
+}
+
+.na_buoyancy {
+color:#739FB8;
+}
+
+.na_gravity {
+color:#C2A869
+}
+
+.na_wind {
+    color: #78ADCC;
+}
+
+.na_yellow {
+color: rgb(214, 178, 57);
+}
+
+.na_red {
+color: rgb(247, 65, 57);
+}
+
+.na_blue {
+color: rgb(91, 173, 220);
+}
+
+.na_highlight, .na_highlight_dark {
+position: relative;
+margin: 0 0.1em;
+padding: 0.0em 0.3em;
+border-radius: 0.2em;
+background-color:#ddd;
+}
+
+.na_highlight_dark {
+    background-color:#222;
+}
+
+.na_white {
+    position: relative;
+    margin: 0 0.1em;
+    padding: 0em 0.2em;
+    border-radius: 0.2em;
+    background-color:#444;
+    color:#fff;
+    }
+    
+
+.na_water_bg .drawer_container {
+margin: 0 auto;
+}
+
+.na_water_bg_70 .drawer_container {
+margin: 0 auto;
+}
+
+
+.drawer_container {
+max-width: 400px;
+}
+
+
+
+.drawer_container:after {
+padding-top: 100%;
+}
+
+#na_height:after {
+padding-top: 60%;
+}
+
+
+.na_plot {
+max-width: 650px;
+}
+
+.na_plot:after {
+padding-top: 50%;
+
+}
+
+.na_propeller_plot {
+max-width: 400px;
+}
+
+.na_propeller_plot:after, #na_propeller_aoa:after {
+padding-top: 50%;
+}
+
+
+
+
+#na_L  {
+max-width: 500px;
+}
+
+#na_L:after {
+padding-top: 55%;
+}
+
+#na_3d_forces:after {
+padding-top: 80%;
+}
+
+#na_propeller_forward:after {
+padding-top: 55%;
+}
+
+#na_propeller_n_seg0 {
+max-width: 400px;
+margin: 0 auto;
+}
+
+
+#na_water_cylinder {
+max-width: 300px;
+}
+
+#na_hull, #na_hull_ratio  {
+max-width: 600px;
+}
+
+#na_hull:after, #na_hull_ratio:after {
+padding-top: 55%;
+}
+
+
+#na_barrel {
+max-width: 500px;
+}
+
+#na_syringe_pressure {
+max-width: 500px;
+}
+
+#na_syringe_pressure:after {
+padding-top: 80%;
+}
+
+#na_brick_container:after {
+padding-top: 75%;
+}
+
+
+
+
+#na_barrel:after {
+padding-top: 70%;
+}
+
+#na_water_level:after {
+padding-top: 70%;
+}
+
+.na_black .slider_left_gutter,
+.na_black .slider_right_gutter,
+.na_black .slider_knob {
+background:#333;
+}
+
+.na_red .slider_left_gutter,
+.na_red .slider_right_gutter,
+.na_red .slider_knob {
+background:#DE3F3F;
+}
+
+
+
+.na_pitch .slider_left_gutter,
+.na_pitch .slider_right_gutter,
+.na_pitch .slider_knob {
+    background:#218FCC;
+}
+
+.na_radius .slider_left_gutter,
+.na_radius .slider_right_gutter,
+.na_radius .slider_knob {
+    background:#DB8906;
+}
+
+.na_black .slider_left_gutter,
+.na_black .slider_right_gutter,
+.na_black .slider_knob {
+    background:#333;
+}
+
+.na_weight_slider .slider_left_gutter,
+.na_weight_slider .slider_right_gutter,
+.na_weight_slider .slider_knob {
+    background:#37844F;
+}
+
+.na_water_slider .slider_left_gutter,
+.na_water_slider .slider_right_gutter,
+.na_water_slider .slider_knob {
+    background:#76A9CE;
+}
+
+.na_wood_slider .slider_left_gutter,
+.na_wood_slider .slider_right_gutter,
+.na_wood_slider .slider_knob {
+    background:#C3935E;
+}
+
+.na_wind_slider .slider_left_gutter,
+.na_wind_slider .slider_right_gutter,
+.na_wind_slider .slider_knob {
+    background:#78ADCC;
+}
+
+.na_plot_angle_slider .slider_left_gutter,
+.na_plot_angle_slider .slider_right_gutter,
+.na_plot_angle_slider .slider_knob {
+    background:#333;
+}
+
+.na_oil_slider .slider_left_gutter,
+.na_oil_slider .slider_right_gutter,
+.na_oil_slider .slider_knob {
+    background:#341500;
+}
+
+.na_cargo_slider .slider_left_gutter,
+.na_cargo_slider .slider_right_gutter {
+    background: #aaa;
+}
+.na_cargo_slider .slider_knob {
+    border: 2px solid #555;
+    background: linear-gradient(90deg,
+     #dad160  0%,
+     #dad160 18%,
+     #49addb 18%,
+     #49addb 39%,
+     #26a731 39%,
+     #26a731 61%,
+     #c76294 61%,
+     #c76294 82%,
+     #f05050 82%,
+     #f05050 100%);
+     width: 36px;
+     height: 36px;
+}
+
+
+
+@media only screen and (max-width: 580px) {
+
+    
+    .segmented_control_on, .segmented_control_off {
+        
+        font-size: 18px;
+    }
+}
+
+@media only screen and (max-width: 550px) {
+
+    
+    .segmented_control_on, .segmented_control_off {
+        
+        font-size: 16px;
+    }
+}
+
+
+@media only screen and (max-width: 500px) {
+
+    
+    .segmented_control_on, .segmented_control_off {
+        
+        font-size: 15px;
+        letter-spacing: -1px;
+    }
+}
+
+@media only screen and (max-width: 350px) {
+
+    
+    .segmented_control_on, .segmented_control_off {
+        
+        font-size: 13px;
+    }
+}

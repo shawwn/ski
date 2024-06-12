@@ -1,0 +1,13 @@
+{
+  "name": "ski",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/shawwn/ski",
+  "author": "Shawn Presser <shawnpresser@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "source-map-loader": "^5.0.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.4.5"
+  }
+}

@@ -637,8 +637,8 @@ let gear_train5_explainers;
     }
 
 
-    const mainspring_n = 2048;
-    const mainspring_end_n = 135;
+    const mainspring_n = 2048/1;
+    const mainspring_end_n = Math.floor(135/1);
 
     function tooth_points(r, n, epi_r, hypo_r, nn = 5, crown, win) {
 
@@ -4048,6 +4048,7 @@ let gear_train5_explainers;
 
                 let t = sim[0] / 0.9;
                 let tt = (1 - t) * t + t * (3 * (1 - t) * (1 - t) * t + 3 * (1 - t) * t * t + t * t * t);
+                // console.log(tt);
 
                 let vals = mainspring_values_s(tt);
 

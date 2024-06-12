@@ -3149,6 +3149,7 @@ let firefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
                 let ww = (Math.log10(freq + 1) * 1 + 4) * width * 0.08;
                 let hh = width * 0.2;
                 ctx.fillStyle = f_style;
+                ctx.beginPath();
                 ctx.roundRect(-ww / 2, -hh / 2 - font_size * 0.4, ww, hh, hh * 0.2);
                 ctx.fill();
 

@@ -429,10 +429,10 @@ function SpaceDrawer(gl, scale, container, mode) {
     var canvas;
 
     var year = 2019,
-        month = 01,
-        day = 01,
+        month = 1,
+        day = 1,
         hour = 12,
-        minute = 00;
+        minute = 0;
     var L_p, R_p, fake_L_p, fake_R_p;
     var e = 0.0167086;
     var fake_e = 0.4;
@@ -1063,11 +1063,11 @@ function SpaceDrawer(gl, scale, container, mode) {
 
             var solar_a = Math.max(0, (progress - 0.98) / 0.02);
             ctx.fillStyle = "rgba(255, 255, 255, " + solar_a + ")";
-            ctx.fillText("solar day", 00, size / 3);
+            ctx.fillText("solar day", 0, size / 3);
 
             solar_a = Math.max(0, (sidereal_progress < 1.0 ? (sidereal_progress - 0.97) / 0.03 : (1.03 - sidereal_progress) / 0.03));
             ctx.fillStyle = "rgba(255, 255, 255, " + solar_a + ")";
-            ctx.fillText("sidereal day", 00, size / 3);
+            ctx.fillText("sidereal day", 0, size / 3);
 
         };
 
@@ -2215,21 +2215,25 @@ function SpaceDrawer(gl, scale, container, mode) {
 
             ctx.fillStyle = c1;
 
+            ctx.beginPath();
             ctx.roundRect(major * s / 2 - 11, 20, 22, 30, 5);
             ctx.fill();
 
 
             var dx = -ctx.measureText(str).width * 0.5 + ctx.measureText("e =  c  /  ").width + ctx.measureText("a").width * 0.5;;
+            ctx.beginPath();
             ctx.roundRect(dx - 11, height / 2 - 16, 22, 30, 5);
             ctx.fill();
 
             ctx.fillStyle = c0;
 
+            ctx.beginPath();
             ctx.roundRect(offset * s / 2 - 11, -50, 22, 30, 5);
             ctx.fill();
 
 
             var dx = -ctx.measureText(str).width * 0.5 + ctx.measureText("e =  ").width + ctx.measureText("c").width * 0.5;
+            ctx.beginPath();
             ctx.roundRect(dx - 11, height / 2 - 16, 22, 30, 5);
             ctx.fill();
 
@@ -3447,12 +3451,12 @@ function switch_units() {
 
 function earth_rot_begin() {
     earth_rot_slider.set_value(0.0);
-    earth_rot_drawer.set_time(00, 00);
+    earth_rot_drawer.set_time(0, 0);
 }
 
 function earth_rot_end() {
     earth_rot_slider.set_value(1.0);
-    earth_rot_drawer.set_time(24, 00);
+    earth_rot_drawer.set_time(24, 0);
 }
 
 

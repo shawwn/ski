@@ -1092,6 +1092,7 @@ let casey_mode;
         ctx.scale(0.25641025641025644, 0.25641025641025644);
 
         ctx.fillStyle = "#222";
+        ctx.beginPath();
         ctx.roundRect(-25, -25, 50, 50, 11);
         ctx.fill();
         ctx.fillStyle = "#DA5D00";
@@ -1112,6 +1113,7 @@ let casey_mode;
         ctx.translate(0, -101);
 
         ctx.fillStyle = "#222";
+        ctx.beginPath();
         ctx.roundRect(-25, -2, 50, 8, 2);
         ctx.fill();
 
@@ -3576,8 +3578,8 @@ let casey_mode;
                     ctx.lineTo(p[0], p[1]);
 
                     ctx.lineCap = "butt";
-                    ctx.strokeStyle = "#333";
-                    ctx.fillStyle = "#000";
+                    ctx.strokeStyle = "#953333";
+                    ctx.fillStyle = "#322626";
                     ctx.fill();
                     ctx.stroke();
 
@@ -3622,7 +3624,7 @@ let casey_mode;
 
                     ctx.closePath();
 
-                    ctx.fillStyle = (sum < 0.0) ? "#fff" : "#000";
+                    ctx.fillStyle = (sum < 0.0) ? "#bfb691" : "#000";
                     ctx.strokeStyle = "#333";
                     ctx.fill();
                     ctx.stroke();
@@ -4907,6 +4909,7 @@ let casey_mode;
 
                 ctx.translate(0, width * 0.05 * (-0.5 + Math.abs(arg0 - 0.5)));
                 ctx.fillStyle = "rgba(0,0,0,0.4)";
+                ctx.beginPath();
                 ctx.roundRect(-26, -20, 52, 26, 4);
                 ctx.fill();
 

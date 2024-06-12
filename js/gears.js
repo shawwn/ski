@@ -1380,6 +1380,7 @@ var drawers;
                 ctx.fill();
                 ctx.stroke();
 
+                ctx.beginPath();
                 ctx.roundRect(100,29.5,260,18,9);
                 ctx.stroke();
                 ctx.restore();
@@ -1599,6 +1600,7 @@ var drawers;
                 ctx.translate(-17,-lt/2 + 6);
                 ctx.fillStyle = "rgba(248,248,248,0.9)";
 
+                ctx.beginPath();
                 ctx.roundRect(-9,-17,21,26,5);
                 ctx.fill();
 
@@ -1708,6 +1710,7 @@ var drawers;
                 var fs = (al > 0.2 ? 1.0 : al/0.2);
                 ctx.fillStyle = "rgba(248,248,248,0.9)";
                 // ctx.fillStyle = "red"
+                ctx.beginPath();
                 ctx.roundRect(-9*fs,-17*fs,21*fs,26*fs,5*fs);
                 ctx.fill();
 
@@ -1751,6 +1754,7 @@ var drawers;
                 ctx.rotate(-a);
 
                 ctx.fillStyle = "rgba(248,248,248,0.9)";
+                ctx.beginPath();
                 ctx.roundRect(-10,-14,20,25,5);
                 ctx.fill();
 

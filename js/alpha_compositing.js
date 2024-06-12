@@ -281,6 +281,7 @@ ctx.strokeRect(0, -25, 15, 50);
     ctx.save()
     ctx.fillStyle = "#333";
     ctx.translate(width/6, -height/4-20);
+    ctx.beginPath();
     ctx.roundRect(-box_w/2, -box_h/2, box_w, box_h, r);
     ctx.fill();
 
@@ -289,6 +290,7 @@ ctx.strokeRect(0, -25, 15, 50);
 
     ctx.fillStyle = "#333";
     ctx.translate(width/3, 0);
+    ctx.beginPath();
     ctx.roundRect(-box_w/2, -box_h/2, box_w, box_h, r);
     ctx.fill();
 
@@ -297,6 +299,7 @@ ctx.strokeRect(0, -25, 15, 50);
 
     ctx.fillStyle = "#333";
     ctx.translate(width/3, 0);
+    ctx.beginPath();
     ctx.roundRect(-box_w/2, -box_h/2, box_w, box_h, r);
     ctx.fill();
 
@@ -309,10 +312,12 @@ ctx.save();
 
 ctx.strokeStyle = "rgba(120,120,120,0.4)";
 ctx.translate(width/3, 0);
+ctx.beginPath();
 ctx.roundRect(-1,-50,3,100,1);
 ctx.stroke();
 
 ctx.translate(width/3, 0);
+ctx.beginPath();
 ctx.roundRect(-1,-50,3,100,1);
 ctx.stroke();
 
@@ -320,6 +325,7 @@ ctx.stroke();
 ctx.restore();
     ctx.fillStyle = "#FF4343";
     ctx.translate(width/3, +height/4+20);
+    ctx.beginPath();
     ctx.roundRect(-box_w/2, -box_h/2, box_w, box_h, r);
     ctx.fill();
 
@@ -330,6 +336,7 @@ ctx.restore();
    
     ctx.fillStyle = "#2968FF";
     ctx.translate(width/3,0);
+    ctx.beginPath();
     ctx.roundRect(-box_w/2, -box_h/2, box_w, box_h, r);
     ctx.fill();
 

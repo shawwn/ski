@@ -9,6 +9,16 @@ var ts_2d_cube_proj_seg;
 var ts_2D_cube_proj_drawer2;
 var ts_2D_cube_proj_slider2;
 
+let all_drawers = [];
+
+document.addEventListener("visibilitychange", function() {
+    if (!document.hidden) {
+        for (let drawer of all_drawers) {
+            drawer.repaint();
+        }
+    }
+});
+
 (function () {
 
     var corner_color = "rgba(231, 76, 60,1.0)";
@@ -29,35 +39,60 @@ var ts_2D_cube_proj_slider2;
         return res;
     }
 
+    function rot_matrix4d(i, j, a) {
+        var c = Math.cos(a);
+        var s = Math.sin(a);
+
+        let M = MMat.ident(4)
+        M.set([i,i], c); M.set([i,j],-s)
+        M.set([j,i], s); M.set([j,j], c)
+        return M;
+    }
+    window.rot_matrix4d = rot_matrix4d;
+
+    let Dim = { X: 0, Y: 1, Z: 2, W: 3 };
+    window.Dim = Dim;
+
+    function rot4d([a0, a1, a2, a3, a4, a5]) {
+        return rot_matrix4d(Dim.Y, Dim.Z, a0);
+    }
+    window.rot4d = rot4d;
+
     function rot_xw_matrix4d(a) {
         var c = Math.cos(a);
         var s = Math.sin(a);
 
-        return [c, 0, 0, -s,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            s, 0, 0, c];
+        return [
+            c,  0,  0, -s,
+            0,  1,  0,  0,
+            0,  0,  1,  0,
+            s,  0,  0,  c];
     }
+    window.rot_xw_matrix4d = rot_xw_matrix4d;
 
     function rot_yw_matrix4d(a) {
         var c = Math.cos(a);
         var s = Math.sin(a);
 
-        return [1, 0, 0, 0,
-            0, c, 0, s,
-            0, 0, 1, 0,
-            0, -s, 0, c];
+        return [
+            1,  0,  0,  0,
+            0,  c,  0,  s,
+            0,  0,  1,  0,
+            0, -s,  0,  c];
     }
+    window.rot_yw_matrix4d = rot_yw_matrix4d;
 
     function rot_zw_matrix4d(a) {
         var c = Math.cos(a);
         var s = Math.sin(a);
 
-        return [1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, c, -s,
-            0, 0, s, c];
+        return [
+            1,  0,  0,  0,
+            0,  1,  0,  0,
+            0,  0,  c, -s,
+            0,  0,  s,  c];
     }
+    window.rot_zw_matrix4d = rot_zw_matrix4d;
 
 
     function mat3_mul4d(a, b) {
@@ -82,15 +117,20 @@ var ts_2D_cube_proj_slider2;
     var ident_matrix4d = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 
     var scale = Math.min(2, window.devicePixelRatio || 1);
+    
+    new GrSubsys( 800, 800, scale );
 
 
     function Drawer(scale, container, mode) {
+        let self = this;
+
+        all_drawers.push(this);
 
         var wrapper = document.createElement("div");
         wrapper.classList.add("canvas_container");
         wrapper.classList.add("non_selectable");        
 
-        var canvas = document.createElement("canvas");
+        var canvas = self.canvas = document.createElement("canvas");
         canvas.classList.add("non_selectable");        
         canvas.style.position = "absolute";
         canvas.style.top = "0";
@@ -893,6 +933,7 @@ var ts_2D_cube_proj_slider2;
         
             var w = Math.ceil((ctx.measureText(str).width + 6)/2)*2;
             var h = 24;
+            ctx.beginPath();
             ctx.roundRect(Math.ceil(p[0]*scale)/scale - w/2, Math.ceil(p[1]*scale)/scale - h/2, w, h, 5);
             ctx.fill();
 
@@ -948,10 +989,23 @@ var ts_2D_cube_proj_slider2;
         this.repaint = function () {
 
 
-            var ctx = canvas.getContext("2d");
+            var ctx = self.ctx = canvas.getContext("2d", { desynchronized: true, willReadFrequently: true });
 
             ctx.resetTransform();
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // if (frame % 30 === 0) {
+            //     ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // }
+            {
+                ctx.save();
+                // ctx.fillStyle = `rgba(255, 255, 255, ${window.fillA ?? 0.05})`
+                ctx.globalCompositeOperation = "lighter";
+                // let c = Math.floor(lerp(0, 255, window.fillC ?? 0.01))
+                let c = window.fillC ?? Math.floor(lerp(0, 255, 0.01))
+                let a = window.fillA ?? 0.05
+                ctx.fillStyle = `rgb(${c}, ${c}, ${c}, ${a})`
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.restore();
+            }
             ctx.scale(scale, scale);
 
             if (mode === "2D_slice")
@@ -1137,7 +1191,27 @@ var ts_2D_cube_proj_slider2;
             }
 
             function d3d_slice() {
+                gGrSubsys.begin( width, height );
+                Gr.clear( rand(), rand(), rand(), 100/255 )
+
                 var size = width * 0.44;
+
+                let F = window.F = (c = 255, w = 0/*80*/, N=5) => {
+                    // let v = randint(0, c, N);
+                    return c + (2*rand(N)-1) * w
+                }
+                let A = (...args) => {
+                    return clamp(F(...args), 0, 1)
+                }
+                let C = (...args) => {
+                    return Math.floor(clamp(F(...args), 0, 255));
+                }
+                let randColor = (a=0.5, aw=0.5) => `rgba(${C(140)}, ${C(224)}, ${C(123)}, ${A(a, aw)})`
+
+                ctx.save();
+                ctx.fillStyle = `rgba(0, 0, 0, 1.0)`
+                // ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+                ctx.restore()
 
                 ctx.save();
                 ctx.translate(width * 0.5, height * 0.5);
@@ -1159,12 +1233,14 @@ var ts_2D_cube_proj_slider2;
                 var w = progress * 2 - 1;
                 var center = [0, 0, 0, w];
 
-                cube_m = rot_xw_matrix4d((x - 0.5)*Math.PI);
+                cube_m = ident_matrix4d
+                cube_m = mat3_mul4d(cube_m, rot_xw_matrix4d((x - 0.5)*Math.PI));
                 cube_m = mat3_mul4d(cube_m, rot_yw_matrix4d((y - 0.5)*Math.PI));
                 cube_m = mat3_mul4d(cube_m, rot_zw_matrix4d((z - 0.5)*Math.PI));
 
                 var tpoints = tess_points(cube_m, center);
 
+                let cube_color = (window.color0 ?? Color.Magenta).lerp(window.color1 ?? Color.Black, bounce(2*progress))
 
                 var polys = [];
                 for (var i = 0; i < 8; i++) {
@@ -1215,14 +1291,25 @@ var ts_2D_cube_proj_slider2;
                         points[j] = project(mat3_mul_vec(proj, points[j]));
                     }
 
-                    polys.push (new Poly(points));
+                    polys.push (new Poly(points, /*randColor()*/ cube_color.withOpacity(cube_color.a * (window.A ?? 1.0)).toHtml()));
                 }
 
-                draw_polys2(ctx,polys,cube_side_color,0,"rgba(0,0,0,0)");
+                // var cube_side_color = "rgba(140, 224, 123,0.9)";
+                let color = randColor()
+                // color = cube_side_color;
+                let edge_color = `rgba(0,0,0,${window.edgeA ?? 0.3})`;
+                // edge_color = randColor(0.9, 0.1)
 
-      
+                edge_color = cube_color.withOpacity(progress * (window.edgeA ?? 0.3)).toString()
+
+                draw_polys2(ctx,polys,color,edge_color,"rgba(0,0,0,0)", null, null, null, window.lineWidth);
+                
                 ctx.restore();
 
+                ctx.save();
+                ctx.globalCompositeOperation = "source-over";
+                ctx.drawImage( gGrSubsys.finish(), 0, 0, canvas.width, canvas.height );
+                ctx.restore();
             }
 
             function d2d_proj() {
@@ -3043,10 +3130,8 @@ var ts_2D_cube_proj_slider2;
 
                 ctx.restore();
             }
-
         }
 
-        var self = this;
         this.on_resize = function () {
             width = wrapper.clientWidth;
             height = wrapper.clientHeight;
@@ -3057,7 +3142,7 @@ var ts_2D_cube_proj_slider2;
             canvas.height = height * scale;
 
             if (arcball)
-            arcball.set_viewport(0, 0, width, height);
+                arcball.set_viewport(0, 0, width, height);
 
             self.repaint();
         }
@@ -3335,3 +3420,143 @@ function ts_straight_4D_cube_slice() {
     ts_3D_cube_slice_sliders[2].set_value(0.5);
     ts_3D_cube_slice_sliders[3].set_value(0.5);
 }
+
+
+set_slider = (i, x, sliders = ts_3D_cube_slice_sliders) => {
+    sliders[i].set(x);
+}
+
+set_w = (w) => {
+    // ts_3D_cube_slice_sliders[0].set_value(w);
+    // ts_3D_cube_slice_drawer.set_progress(w);
+    set_slider(0, w);
+}
+
+let D = () => ts_3D_cube_slice_drawer;
+
+getFrame = (ctx = canvasRenderingContext2D ?? ts_3D_cube_slice_drawer.ctx) => {
+    return ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+}
+
+
+let t = 0;
+let prev_timestamp = null;
+let paused = false;
+let cb = null;
+
+
+
+function tick(timestamp) {
+
+
+    // let rect = canvas.getBoundingClientRect();
+
+    // let wh = window.innerHeight || document.documentElement.clientHeight;
+    // let ww = window.innerWidth || document.documentElement.clientWidth;
+    // if (!(rect.top > wh || rect.bottom < 0 || rect.left > ww || rect.right < 0))
+    {
+
+        let dt = 0;
+        if (prev_timestamp)
+            dt = (timestamp - prev_timestamp) / 1000;
+
+        // dt = Math.min(dt, 1.0 / 30.0);
+
+        t += dt;
+
+        if (cb) {
+            cb(t, dt);
+        }
+
+
+        // self.repaint(dt);
+    }
+    prev_timestamp = timestamp;
+
+    if (paused)
+        prev_timestamp = undefined;
+    else
+        window.requestAnimationFrame(tick);
+}
+window.requestAnimationFrame(tick);
+
+let cb2;
+
+// let speed = 0.25;
+// let speed = 30.14;
+let speed = 120.007;
+let width = 0.5;
+let offset = 0.5;
+let clock = 0;
+
+window.fillA = 10/255;
+window.A = 10/255;
+window.edgeA = 10/255;
+
+let bounce = (t) => {
+    let v = t % 1
+    if (Math.floor(t) % 2 === 0) {
+        return v;
+    } else {
+        return 1 - v;
+    }
+}
+
+let frame = 0;
+let w = 0;
+jitter = 0;
+fps = 120;
+cb = (t, dt) => {
+    frame += 1
+    // if (frame % 8 === 0) {
+    //     // set_w(rand(10))
+    // }
+    clock = Math.sin(speed*t)
+    w += dt*speed;
+    // set_w(clock*width+offset)
+    // set_w(((t*speed) % 1)*(width*2-1) + offset)
+    set_w(lerp(offset-width, offset+width, bounce(w + jitter*rand() /*t*speed*/)))
+    if (cb2) {
+        cb2(t, dt);
+    }
+}
+
+
+let width_size = 0.0625;
+let width_offset = 0.3;
+let width_speed = 2;
+let widthTick = (t, dt) => {
+    width = Math.sin(width_speed*t)*width_size+width_offset
+}
+// cb2 = widthTick;
+
+
+
+function randint(lo, hi_inclusive, N = 1) {
+    let hi = hi_inclusive + 1
+    return Math.floor(rand(N) * (hi - lo) + lo);
+}
+
+
+speed_speed = 60;
+speed_offset = 0;
+fps_speed = 1
+cb2 = (t, dt) => { speed = fps_speed*fps + bounce(t)*speed_speed + speed_offset; }
+fillC = 10
+fillA = 1
+A = 10/255
+edgeA = 0.2
+lineWidth = 1
+jitter = 1
+width = 0.5
+
+
+speed_speed = 1;
+fps_speed = 1
+jitter = 0.0
+width = 0.2
+speed_offset = 1
+//
+//
+// lineWidth = 0.5
+// edgeA = 0.2
