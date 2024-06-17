@@ -134,11 +134,15 @@ function implementsInterfaces(derivedClass, ...interfaces) {
     exports.number = number;
     exports.object = object;
     exports.hasLength = hasLength;
-
+    
     class Util {
+        static verify(value, name = "value", message = "is null or false") {
+            Util.assert(value, `${name} ${message}`);
+            return value;
+        }
         static assert(cond, message = "Assertion failed") {
             if (!FunctionType.is(cond)) {
-                return assert(() => cond, message);
+                return Util.assert(() => cond, message);
             } else {
                 let result = cond()
                 if (result === false || result instanceof Nil) {
@@ -146,6 +150,40 @@ function implementsInterfaces(derivedClass, ...interfaces) {
                 }
                 return result
             }
+        }
+        
+        static objectType( valueType ) {
+            if ( false )
+                return Object.fromEntries([["name", valueType]]);
+            return {};
+        }
+
+        static arrayType( valueType ) {
+            if ( false )
+                return Array.from([ valueType ]);
+            return nil;
+        }
+        
+        static argumentArray( args ) {
+            if ( args.length === 1 && args[0] instanceof ArrayType ) {
+                return args[0];
+            }
+            return args;
+        }
+
+        static multiple( x, of ) {
+            return x % of === 0;
+        }
+        
+        static sum( values ) {
+            let r = 0;
+            if ( values.length > 0 ) {
+                let add = values[0].add ? (x, y) => x.add(y) : (x, y) => x + y;
+                for ( let x of values ) {
+                    r = add(x, r);
+                }
+            }
+            return r;
         }
 
         static between(a, b, f) {
@@ -219,7 +257,8 @@ function implementsInterfaces(derivedClass, ...interfaces) {
 
     exports.Util = Util;
 
-    exports.assert = Util.assert
+    exports.assert = Util.assert;
+    exports.verify = Util.verify;
 
     let System = {};
     exports.System = System;
@@ -2997,7 +3036,7 @@ function implementsInterfaces(derivedClass, ...interfaces) {
             bglUseProgram( 0 );
             */
             gl.enable( gl.DEPTH_TEST );
-            gl.enable( gl.CULL_FACE );
+            gl.disable( gl.CULL_FACE );
             gl.disable( gl.BLEND );
             // gl.disable( gl.ALPHA_TEST );
             gl.disable( gl.SCISSOR_TEST );
@@ -3236,6 +3275,31 @@ function implementsInterfaces(derivedClass, ...interfaces) {
             }
             return `Unknown GL constant ${value}`
         }
+        
+        static glAttribCount( type = number ) {
+            let gl = Util.verify( this.gl );
+            if ( type === gl.FLOAT_VEC2 )
+                return 2;
+            else if ( type === gl.FLOAT_VEC3 )
+                return 3;
+            else if ( type === gl.FLOAT_VEC4 )
+                return 4;
+            assert( false, `glAttribCount: unsupported value ${this.glName(type)}`)
+        }
+
+        static glAttribByteSize( type = number ) {
+            let gl = Util.verify( this.gl );
+            if ( type === gl.FLOAT_VEC2 || type === gl.FLOAT_VEC3 || type === gl.FLOAT_VEC4 )
+                return 4 * this.glAttribCount( type );
+            assert( false, `glAttribByteSize: unsupported value ${this.glName(type)}`)
+        }
+
+        static glAttribType( type = number ) {
+            let gl = Util.verify( this.gl );
+            if ( type === gl.FLOAT_VEC2 || type === gl.FLOAT_VEC3 || type === gl.FLOAT_VEC4 )
+                return gl.FLOAT;
+            assert( false, `glAttribType: unsupported value ${this.glName(type)}`)
+        }
     }
     exports.Gr = Gr;
 
@@ -3257,6 +3321,7 @@ function implementsInterfaces(derivedClass, ...interfaces) {
             Gr.stateStart( scale * screenWidth, scale * screenHeight );
             
             new GrShaderMgr();
+            new GrRenderUtil();
         }
 
         get Screen() {
@@ -3334,6 +3399,7 @@ function implementsInterfaces(derivedClass, ...interfaces) {
         finish()
         {
             Gr.gl.flush();
+            CHECK_GL();
             return Gr.gl.canvas;
         }
 
@@ -3390,9 +3456,88 @@ function implementsInterfaces(derivedClass, ...interfaces) {
             `;
 
             this.flat_shader = new GrShader( this.base_vert_src, this.color_frag_src );
+
+            this.plain_vert_src = `
+                attribute vec3 v_position;
+                uniform mat4 m_mvp;
+                void main() {
+                     gl_Position = m_mvp * vec4( v_position.xyz, 1.0 );
+                }
+            `;
+
+            this.plain_frag_src = `
+                precision mediump float;
+                uniform vec4 u_color;
+                void main() {
+                  gl_FragColor = u_color;
+                }
+            `;
+            
+            this.plain_shader = new GrShader( this.plain_vert_src, this.plain_frag_src );
+
+            this.error_vert_src = `
+                attribute vec3 v_position;
+                attribute vec2 v_uv;
+                varying vec3 v_color;
+                uniform mat4 m_mvp;
+                void main() {
+                     gl_Position = m_mvp * vec4( v_position.xyz, 1.0 );
+                     v_color.rgb = vec3( v_uv, 0.0 );
+                     // v_color.rgb = vec3( 1.0, 0.0, 1.0 );
+                }
+            `;
+
+            this.error_frag_src = `
+                precision mediump float;
+                varying vec3 v_color;
+                void main() {
+                  gl_FragColor = vec4( v_color, 1.0 );
+                }
+            `;
+
+            this.error_shader = new GrShader( this.error_vert_src, this.error_frag_src );
+
         }
         
     } exports.GrShaderMgr = GrShaderMgr;
+    
+    let attribType = 0 ? Gr.gl.getActiveAttrib( null, 0 ) : 0 ? {
+        index: 0,
+        kind: "FLOAT_VEC3",
+        location: 0,
+    } : nil;
+    exports.attribType = attribType;
+
+    class GrShaderAttribInfo {
+        attrib = attribType;
+        _offset = 0;
+
+        constructor( attrib = attribType, offset = number ) {
+            this.attrib = attrib;
+            this._offset = offset;
+        }
+        
+        offset() {
+            verify(this._offset);
+            return this._offset;
+        }
+        
+        index() {
+            return this.attrib.index;
+        }
+
+        count() {
+            return Gr.glAttribCount( this.attrib.type );
+        }
+
+        size() {
+            return Gr.glAttribByteSize( this.attrib.type );
+        }
+        
+        type() {
+            return Gr.glAttribType( this.attrib.type );
+        }
+    } exports.GrShaderAttribInfo = GrShaderAttribInfo;
     
     class GrShader
     {
@@ -3442,7 +3587,7 @@ function implementsInterfaces(derivedClass, ...interfaces) {
         static getProgramAttributes(program = webglProgramType) {
             let gl = Gr.gl;
             let count = gl.getProgramParameter( program, gl.ACTIVE_ATTRIBUTES )
-            let attribs = {}
+            let attribs = Object.fromEntries([["v_position", attribType]])
             for ( let i = 0; i < count; i++ ) {
                 let attrib = gl.getActiveAttrib( program, i )
                 attrib.index = i;
@@ -3467,9 +3612,13 @@ function implementsInterfaces(derivedClass, ...interfaces) {
             return uniforms;
         }
         
+        static currentProgram = 0 ? new this() : nil;
+        
         bind() {
             let gl = Gr.gl;
             gl.useProgram( this.shader )
+            GrShader.currentProgram = this;
+            CHECK_GL();
         }
         
         setParam( name, data ) {
@@ -3511,13 +3660,179 @@ function implementsInterfaces(derivedClass, ...interfaces) {
         
     } exports.GrShader = GrShader;
 
-    class GrMeshVB {
-        static kDynamic = 0x1
+    let shaderType = 0 ? new GrShader() : nil;
+    exports.shaderType = shaderType;
+    
+    class GrVertexComponent {
+        constructor( name = string, type = Gr.gl.FLOAT_VEC3 ) {
+            this.name = name;
+            this.type = type;
+            this.data = [];
+        }
+        
+        numPerVertex() {
+            return Gr.glAttribCount( this.type )
+        }
 
-        constructor( flags = 0 ) {
+        bytesPerVertex() {
+            return Gr.glAttribByteSize( this.type )
+        }
+
+        count() {
+            assert( () => Util.multiple( this.data.length, this.numPerVertex() ));
+            return this.data.length / this.numPerVertex()
+        }
+        
+        add( ...values ) {
+            let vertex = Util.argumentArray( values );
+            assert( () => vertex.length === this.numPerVertex(), "Too many or not enough values" )
+            this.data.push(...vertex);
+        }
+        
+        set( index = number, ...values )  {
+            assert( () => index >= 0 && index < this.count() );
+            let vertex = Util.argumentArray( values );
+            assert( () => vertex.length === this.numPerVertex(), "Too many or not enough values" )
+            let numel = this.numPerVertex();
+            for ( let i = 0; i < numel; i++ ) {
+                this.data[ index * numel + i ] = vertex[ i ];
+            }
+        }
+        
+        reserve( count = number ) {
+            if ( count >  this.count() ) {
+                let zeros = new Array(this.numPerVertex()).fill(0);
+                for ( let i = this.count(); i < count; i++ ) {
+                    this.data.push( ...zeros );
+                }
+            }
+            return this;
+        }
+        
+        *read(index = 0, count = this.count()) {
+            let numVertices = this.count();
+            let numel = this.numPerVertex();
+            while ( index >= 0 && index < numVertices && count > 0 ) {
+                for ( let i = 0; i < numel; i++ ) {
+                    yield this.data[ index * numel + i ]
+                }
+                index += 1;
+                count -= 1;
+            }
+        }
+
+        get(index = number, count = 1) {
+            return [...this.read(index, count)];
+        }
+    } exports.GrVertexComponent = GrVertexComponent;
+    
+    let vertexComponentType = 0 ? new GrVertexComponent() : nil;
+    let vertexComponentArrayType = 0 ? [new GrVertexComponent()] : nil;
+    
+    class GrVertexComponents {
+        components = vertexComponentArrayType;
+        
+        constructor(components = vertexComponentArrayType) {
+            this.components = components ?? []
+        }
+        
+        static from(x) {
+            if (x instanceof ArrayType) {
+                x[0] && assert(() => x[0] instanceof GrVertexComponent);
+                return new GrVertexComponents(x);
+            }
+            let y = vertexComponentsType ?? x;
+            assert(() => y instanceof GrVertexComponents);
+            return y;
+        }
+        
+        getOrCreate(name = string, type = Gr.gl.FLOAT_VEC3) {
+            let comp = this.find(name);
+            if ( comp ) {
+                assert( () => comp.type === type,
+                    `Vertex components ${name} already exists, but its type ${Gr.glName(comp.type)} is different from the specified type ${Gr.glName(type)}`)
+                return comp;
+            }
+            comp = new GrVertexComponent( name, type );
+            this.components.push(comp);
+            return comp;
+        }
+
+        find(name = string) {
+            for (let component of this.components) {
+                if (component.name === name)
+                    return component;
+            }
+            return vertexComponentType;
+        }
+        
+        get(name = string) {
+            let component = assert( () => this.find(name), `Vertex component ${name} doesn't exist`)
+            return 0 ? vertexComponentType : component;
+        }
+        
+        vertexCount() {
+            for (let component of this.components)
+                return component.count();
+            return 0;
+        }
+        
+        offset(name = string) {
+            let offset = 0;
+            for (let component of this.components) {
+                if (component.name === name)
+                    return offset;
+                offset += component.bytesPerVertex()
+            }
+            assert(false, `Can't find offset for ${name}`)
+        }
+        
+        stride() {
+            return 0 ? number : Util.sum(this.components.map(component => component.bytesPerVertex()));
+        }
+        
+        byteSize() {
+            return this.vertexCount() * this.stride();
+        }
+        
+        static *readInterleaved(components = vertexComponentArrayType, index = 0, count = Number.MAX_SAFE_INTEGER) {
+            let numVertices = 0;
+            for (let component of components) {
+                numVertices = component.count()
+                break;
+            }
+            while (index < numVertices && count > 0) {
+                for (let component of components) {
+                    yield* component.read(index, 1);
+                }
+                index += 1;
+                count -= 1;
+            }
+        }
+
+        *readInterleaved(index = 0, count = Number.MAX_SAFE_INTEGER) {
+            yield* GrVertexComponents.readInterleaved(this.components, index, count)
+        }
+        
+        v_position(name = "v_position") { return this.getOrCreate(name, Gr.gl.FLOAT_VEC3) }
+        v_normal(name = "v_normal") { return this.getOrCreate(name, Gr.gl.FLOAT_VEC3) }
+        v_texcoord(name = "v_uv") { return this.getOrCreate(name, Gr.gl.FLOAT_VEC2) }
+    } exports.GrVertexComponents = GrVertexComponents;
+    
+    let vertexComponentsType = 0 ? new GrVertexComponents() : nil;
+
+    class GrMeshVB {
+        static kStatic = 0x0
+        static kDynamic = 0x1
+        
+        _components = vertexComponentsType;
+
+        constructor( flags = GrMeshVB.kStatic, components = new GrVertexComponents() ) {
             this._vertexBuffer = null;
             this._flags = flags;
-            this._size = 0;
+            this._components = components;
+            this._size = -1;
+            this._dirty = true;
         }
         
         static fromGL( handle = webglBufferType ) {
@@ -3541,17 +3856,25 @@ function implementsInterfaces(derivedClass, ...interfaces) {
             return self;
         }
         
+        getComponents() {
+            return this._components;
+        }
+        
         isDynamic() {
             return ( this._flags & GrMeshVB.kDynamic ) !== 0;
+        }
+        
+        markAsDirty() {
+            this._dirty = true;
         }
 
         cache() {
             let gl = Gr.gl;
-            if ( this._vertexBuffer == null ) {
-
+            if ( this._vertexBuffer == null || this._size !== this.getComponents().byteSize() ) {
                 // build the vertex buffer.
                 this._vertexBuffer = Gr.genVB()
                 Gr.bindVB( this._vertexBuffer )
+                this._size = this.getComponents().byteSize();
                 gl.bufferData( gl.ARRAY_BUFFER, this._size, this.isDynamic() ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW )
                 CHECK_GL();
             }
@@ -3562,10 +3885,154 @@ function implementsInterfaces(derivedClass, ...interfaces) {
                 Gr.deleteVB( this._vertexBuffer )
                 this._vertexBuffer = null;
             }
+        }
 
+        bind( program = GrShader.currentProgram ) {
+            let gl = Gr.gl;
+
+            /*
+            // if this hits, then the vertex buffer does not contain one or more
+            // of the required components!
+            B_ASSERT( ( components & _components ) == components );
+            */
+
+            /*
+            // cache the vertex buffer if necessary.
+            if ( !_vertexBuffer )
+                Cache();
+            */
+            if ( this._vertexBuffer == null )
+                this.cache();
+
+            /*
+            // bind our vertex buffer.
+            GrBindVB( _vertexBuffer );
+            */
+            Gr.bindVB( this._vertexBuffer );
+
+            /*
+            // if we need to be updated, then do so now.
+            if ( _dirty != 0 )
+            {
+                PackData();
+                _dirty = 0;
+            }
+            */
+            if ( this._dirty )
+            {
+                this.packData()
+                this._dirty = false;
+            }
+            
+            // calculate stride and offsets.
+            let stride = 0;
+            let attribInfo = Util.objectType( new GrShaderAttribInfo() );
+            for ( let attrib of Object.values( program.attributes ))
+            {
+                let offset = stride;
+                let info = new GrShaderAttribInfo( attrib, offset );
+                attribInfo[ verify( info.attrib.name ) ] = info;
+                stride += verify( info.size() );
+            }
+
+            /*
+            // bind components.
+            if ( components & GR_ATTRIB_POSITION_MASK )
+                GrStreamArrayPointer( GR_ATTRIB_POSITION_INDEX, 3, ET_FLOAT, false, _stride, 0 );
+            */
+
+            /*
+            if ( components & GR_ATTRIB_TANGENT_MASK )
+                GrStreamArrayPointer( GR_ATTRIB_TANGENT_INDEX, 3, ET_FLOAT, false, _stride, _tangentStart );
+            */
+
+            /*
+            if ( components & GR_ATTRIB_BINORMAL_MASK )
+                GrStreamArrayPointer( GR_ATTRIB_BINORMAL_INDEX, 3, ET_FLOAT, false, _stride, _biNormalStart );
+            */
+
+            /*
+            if ( components & GR_ATTRIB_NORMAL_MASK )
+                GrStreamArrayPointer( GR_ATTRIB_NORMAL_INDEX, 3, ET_FLOAT, false, _stride, _normalStart );
+            */
+
+            /*
+            if ( components & GR_ATTRIB_TEXCOORD_MASK )
+                GrStreamArrayPointer( GR_ATTRIB_TEXCOORD_INDEX, 2, ET_FLOAT, false, _stride, _texCoordStart );
+            */
+
+            /*
+            if ( components & GR_ATTRIB_COLOR_MASK )
+                GrStreamArrayPointer( GR_ATTRIB_COLOR_INDEX, 4, ET_UNSIGNED_BYTE, true, _stride, _colorStart );
+            */
+
+            /*
+            // enable arrays.
+            GrStreamSetArrayState( components );
+            */
+            // TODO: disable arrays
+            let components = this.getComponents();
+            for ( let attrib of Object.values( program.attributes ))
+            {
+                gl.vertexAttribPointer( attrib.index,
+                    Gr.glAttribCount( attrib.type ),
+                    Gr.glAttribType( attrib.type ), 
+                    false,
+                    components.stride(),
+                    components.offset( attrib.name ) )
+                gl.enableVertexAttribArray( attrib.index )
+            }
+            CHECK_GL();
+        }
+        
+        packData() {
+            let gl = Gr.gl;
+            let components = this.getComponents();
+            assert(() => components.byteSize() === this._size )
+            let vertices = new Float32Array(components.readInterleaved());
+            assert( vertices.byteLength === components.byteSize() );
+            gl.bufferSubData( gl.ARRAY_BUFFER, 0, vertices );
+            CHECK_GL();
         }
 
     } exports.GrMeshVB = GrMeshVB;
+    
+    class GrRenderUtil {
+        constructor() {
+            exports.gGrRenderUtil = this;
+            this._quadVB = new GrMeshVB( GrMeshVB.kDynamic )
+        }
+        
+        setupColoredRender( mvp = MMat.ident(4), shader = gGrShaderMgr.error_shader ) {
+            mvp = MMat.from( mvp )
+            assert(() => mvp.dimensions() === 4);
+            shader.bind();
+            shader.setParam( "m_mvp", mvp )
+        }
+        
+        drawQuad( x = 0, y = 0, w = 1, h = 1, minS = 0.0, minT = 0.0, maxS = 1.0, maxT = 1.0 ) {
+            // setup the vertex data.
+            let quad = this._quadVB.getComponents();
+            let pos = 0 ? vertexComponentType : quad.v_position().reserve(4);
+            let tex = 0 ? vertexComponentType : quad.v_texcoord().reserve(4);
+            let nrm = 0 ? vertexComponentType : quad.v_normal().reserve(4);
+            let i = -1;
+            pos.set( ++i, [ x - w, y - h, 0.0 ] ); tex.set( i, [ minS, minT ] ); nrm.set( i, [ 0, 0, 1 ] );
+            pos.set( ++i, [ x + w, y - h, 0.0 ] ); tex.set( i, [ maxS, minT ] ); nrm.set( i, [ 0, 0, 1 ] );
+            pos.set( ++i, [ x + w, y + h, 0.0 ] ); tex.set( i, [ maxS, maxT ] ); nrm.set( i, [ 0, 0, 1 ] );
+            pos.set( ++i, [ x - w, y + h, 0.0 ] ); tex.set( i, [ minS, maxT ] ); nrm.set( i, [ 0, 0, 1 ] );
+            this._quadVB.markAsDirty()
+
+            // bind the screen-quad vertex buffer for rendering and upload the vertex data.
+            this._quadVB.bind()
+            
+            // issue the draw call.
+            let gl = Gr.gl;
+            gl.drawArrays( gl.TRIANGLE_FAN, 0, 4 );
+            CHECK_GL();
+        }
+        
+    } exports.GrRenderUtil = GrRenderUtil;
     
 })(window);
 

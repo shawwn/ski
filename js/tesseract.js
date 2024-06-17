@@ -1192,7 +1192,8 @@ document.addEventListener("visibilitychange", function() {
 
             function d3d_slice() {
                 gGrSubsys.begin( width, height );
-                Gr.clear( rand(), rand(), rand(), 100/255 )
+                // Gr.clear( rand(), rand(), rand(), 100/255 )
+                Gr.clear( rand(), rand(), rand(), 255/255 )
 
                 var size = width * 0.44;
 
@@ -1306,9 +1307,20 @@ document.addEventListener("visibilitychange", function() {
                 
                 ctx.restore();
 
+
+                {
+                    let matrix = MMat.ident( 4 );
+                    // matrix.add_( MMat.from(proj) )
+                    gGrRenderUtil.setupColoredRender( matrix )
+                    gGrRenderUtil.drawQuad();
+                }
+                
+
+                let img = gGrSubsys.finish();
                 ctx.save();
                 ctx.globalCompositeOperation = "source-over";
-                ctx.drawImage( gGrSubsys.finish(), 0, 0, canvas.width, canvas.height );
+                ctx.resetTransform()
+                ctx.drawImage( img, 10, 10, canvas.width - 20, canvas.height - 20 );
                 ctx.restore();
             }
 
@@ -3553,10 +3565,15 @@ width = 0.5
 
 speed_speed = 1;
 fps_speed = 1
-jitter = 0.0
+jitter = 1.0
 width = 0.2
 speed_offset = 1
-//
-//
-// lineWidth = 0.5
-// edgeA = 0.2
+
+
+lineWidth = 0.5
+edgeA = 0.2
+// fillA = 0.5
+// A = 20/255
+// A = 40/255
+width = 0.5
+
